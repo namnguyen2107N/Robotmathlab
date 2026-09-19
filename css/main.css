@@ -1,0 +1,376 @@
+/* ==========================================================================
+   ROBOT MATH LAB - MAIN DESIGN SYSTEM & STYLES
+   Designed for Elementary School Students (Grades 4-5) & Pedagogical Research
+   ========================================================================== */
+
+:root {
+  /* Color Palette - Cheerful, Accessible & High Contrast */
+  --primary: #4F46E5;         /* Indigo */
+  --primary-hover: #4338CA;
+  --primary-light: #EEF2FF;
+  --secondary: #06B6D4;       /* Cyan */
+  --secondary-light: #ECFEFF;
+  
+  /* Polya 4-Step Colors */
+  --polya-step1: #3B82F6;     /* Blue - Understand (Hiểu) */
+  --polya-step1-bg: #EFF6FF;
+  --polya-step2: #F59E0B;     /* Amber - Plan (Lập kế hoạch) */
+  --polya-step2-bg: #FFFBEB;
+  --polya-step3: #10B981;     /* Emerald - Execute (Thực hiện) */
+  --polya-step3-bg: #ECFDF5;
+  --polya-step4: #8B5CF6;     /* Purple - Review/Reflect (Kiểm tra) */
+  --polya-step4-bg: #F5F3FF;
+
+  /* State Colors */
+  --success: #10B981;
+  --success-bg: #D1FAE5;
+  --warning: #F59E0B;
+  --warning-bg: #FEF3C7;
+  --danger: #EF4444;
+  --danger-bg: #FEE2E2;
+  --info: #0284C7;
+  --info-bg: #E0F2FE;
+
+  /* Neutrals */
+  --bg-main: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-surface: #F1F5F9;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
+  --border-color: #E2E8F0;
+  --border-focus: #818CF8;
+
+  /* Typography */
+  --font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Nunito', sans-serif;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.25);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Mode support */
+body.dark-theme {
+  --bg-main: #0F172A;
+  --bg-card: #1E293B;
+  --bg-surface: #334155;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-light: #64748B;
+  --border-color: #334155;
+  --polya-step1-bg: rgba(59, 130, 246, 0.15);
+  --polya-step2-bg: rgba(245, 158, 11, 0.15);
+  --polya-step3-bg: rgba(16, 185, 129, 0.15);
+  --polya-step4-bg: rgba(139, 92, 246, 0.15);
+}
+
+/* Reset & Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 18px;
+  scroll-behavior: smooth;
+}
+
+@media (min-width: 1440px) {
+  html {
+    font-size: 20px; /* Enhanced for TV screens and classroom smartboards */
+  }
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography Defaults - Significantly Enlarged */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--text-main);
+}
+
+h1 { font-size: 2.6rem; }
+h2 { font-size: 2.1rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.3rem; }
+
+p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+/* Layout Containers - Fluid & Edge-to-Edge */
+.container {
+  width: 100%;
+  max-width: 1650px;
+  margin: 0 auto;
+  padding: 0 clamp(1.2rem, 3vw, 3rem);
+}
+
+/* App Header - Enlarged */
+.app-header {
+  background: var(--bg-card);
+  border-bottom: 3px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 84px;
+  gap: 1.25rem;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: var(--primary);
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.brand-logo .logo-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.85rem;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+  animation: pulseGlow 3s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4); transform: scale(1); }
+  100% { box-shadow: 0 8px 24px rgba(6, 182, 212, 0.55); transform: scale(1.04); }
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.3rem;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1.12rem;
+}
+
+.nav-link:hover {
+  background: var(--bg-surface);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+/* Control Icon Buttons (Sound, Fullscreen) */
+.btn-control-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-main);
+  user-select: none;
+}
+
+.btn-control-icon:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+/* Language Toggle Switch */
+.lang-toggle {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  cursor: pointer;
+}
+
+.lang-btn {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 800;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.lang-btn.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Student Profile Badge in Header */
+.student-header-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.85rem 0.35rem 0.45rem;
+  background: linear-gradient(135deg, #EEF2FF, #F0FDF4);
+  border: 2px solid #C7D2FE;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+}
+
+.student-header-badge:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  transform: translateY(-1px);
+}
+
+.student-avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.student-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.student-name-text {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.student-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #D97706;
+}
+
+/* Main View Container */
+#main-view {
+  flex: 1;
+  padding: 2rem 0 3rem 0;
+}
+
+/* Footer */
+.app-footer {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  padding: 1.5rem 0;
+  margin-top: auto;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header-content {
+    height: auto;
+    padding: 0.75rem 0;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .main-nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    overflow-x: auto;
+  }
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.4rem; }
+}

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robot Math Lab - Mô Phỏng Toán Học & Robotics Tiểu Học</title>
+  <meta name="description" content="Nền tảng mô phỏng Robotics ảo tích hợp quy trình 4 bước Pólya giúp học sinh tiểu học rèn luyện tư duy giải quyết vấn đề trong môn Toán." />
+
+  <!-- Google Fonts: Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/simulation.css" />
+</head>
+<body>
+
+  <!-- Application Header -->
+  <header class="app-header">
+    <div class="container header-content">
+      <!-- Logo -->
+      <a href="#home" class="brand-logo" id="brand-logo">
+        <div class="logo-icon">🤖</div>
+        <div>
+          <div style="line-height: 1.1;">Robot Math Lab</div>
+          <small style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px;">
+            STEM & POLYA LEARNING
+          </small>
+        </div>
+      </a>
+
+      <!-- Main Navigation -->
+      <nav class="main-nav" id="main-nav">
+        <a href="#home" class="nav-link active" data-i18n="navHome">Trang chủ</a>
+        <a href="#lessons" class="nav-link" data-i18n="navLessons">Danh mục Bài học</a>
+        <a href="#progress" class="nav-link" data-i18n="navProgress">Nhật ký & Tiến trình</a>
+        <a href="#research" class="nav-link" id="nav-research-link" data-i18n="navResearch" style="display: none;">🔬 Dữ liệu Nghiên cứu</a>
+      </nav>
+
+      <!-- Header Actions: Sound, Fullscreen, Lang Toggle, Student Profile -->
+      <div class="header-actions">
+        <!-- Sound FX Toggle -->
+        <button class="btn-control-icon" id="btn-toggle-sound" title="Bật/Tắt âm thanh (Sound FX)">
+          🔊
+        </button>
+
+        <!-- Fullscreen Toggle Button -->
+        <button class="btn-control-icon" id="btn-toggle-fullscreen" title="Toàn màn hình / Fullscreen (TV, Bảng tương tác)">
+          ⛶
+        </button>
+
+        <!-- Language Toggle Switch -->
+        <div class="lang-toggle" title="Chuyển đổi ngôn ngữ / Switch Language">
+          <button class="lang-btn active" data-lang="vi">VI</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+
+        <!-- Student Profile Badge -->
+        <div class="student-header-badge" id="btn-open-user-modal" title="Hồ sơ học sinh / Đổi tài khoản">
+          <div class="student-avatar-circle" id="header-avatar-preview">🤖</div>
+          <div class="student-meta">
+            <span class="student-name-text" id="header-user-name">Bảo Nam</span>
+            <div class="student-stats-row">
+              <span id="header-user-stars">⭐ 120</span>
+              <span>&bull;</span>
+              <span id="header-user-class" style="color: var(--primary);">Lớp 5A</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dynamic View Container -->
+  <main id="main-view">
+    <!-- Rendered dynamically by js/app.js -->
+  </main>
+
+  <!-- Chatbot Widget - Sparky Bot -->
+  <button class="chatbot-toggle-btn" id="chatbot-toggle-btn" title="Hỏi Sparky Bot">
+    💬
+    <div class="chatbot-badge" id="chatbot-badge">!</div>
+  </button>
+
+  <div class="chatbot-widget" id="chatbot-widget">
+    <!-- Chat Header -->
+    <div class="chatbot-header">
+      <div class="chatbot-header-info">
+        <div class="chatbot-header-avatar">🤖</div>
+        <div class="chatbot-header-text">
+          <h4>Sparky Bot</h4>
+          <span><span class="chatbot-status-dot"></span> Trợ lý thông minh</span>
+        </div>
+      </div>
+      <button class="chatbot-close-btn" id="chatbot-close-btn" title="Đóng">&times;</button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="chatbot-messages" id="chatbot-messages">
+      <!-- Messages injected dynamically -->
+    </div>
+
+    <!-- Quick Suggestion Buttons -->
+    <div class="chatbot-quick-btns" id="chatbot-quick-btns">
+      <button class="chatbot-quick-btn" data-query="Quy trình Pólya là gì?">🧠 Pólya 4 bước</button>
+      <button class="chatbot-quick-btn" data-query="Công thức vận tốc">🏎️ Vận tốc</button>
+      <button class="chatbot-quick-btn" data-query="Tam giác công thức">📐 Tam giác s,v,t</button>
+      <button class="chatbot-quick-btn" data-query="Bài 1 học gì?">📚 Bài học 1</button>
+      <button class="chatbot-quick-btn" data-query="Sao thưởng">⭐ Sao thưởng</button>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="chatbot-input-bar">
+      <input type="text" id="chatbot-input" placeholder="Hỏi Sparky bất cứ điều gì..." autocomplete="off" />
+      <button class="chatbot-send-btn" id="chatbot-send-btn" title="Gửi">➤</button>
+    </div>
+  </div>
+
+  <!-- Floating Robot Mascot & Speech Bubble -->
+  <div class="mascot-container" id="mascot-container">
+    <div class="mascot-bubble" id="mascot-speech-bubble">
+      Xin chào bạn! Mình là Sparky. Hãy chọn một bài học để chúng ta cùng giải toán nào! 🚀
+    </div>
+    <div class="mascot-bot" id="mascot-bot-avatar" title="Bấm vào mình để nghe lời khuyên nhé!">
+      🤖
+    </div>
+  </div>
+
+  <!-- Student Login & Registration Modal -->
+  <div class="modal-backdrop" id="user-modal">
+    <div class="modal-container">
+      <button class="modal-close-btn" id="btn-close-user-modal">&times;</button>
+      
+      <!-- Modal Tabs -->
+      <div class="tab-group">
+        <button class="tab-btn active" id="tab-btn-login">Đăng Nhập Học Sinh</button>
+        <button class="tab-btn" id="tab-btn-register">Tạo Tài Khoản Mới</button>
+      </div>
+
+      <!-- Tab Content: Quick Login -->
+      <div id="tab-content-login">
+        <h3 style="margin-bottom: 0.5rem;">👋 Chọn tài khoản của bạn</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 1.25rem;">Bấm nhanh vào tên học sinh bên dưới để tiếp tục học tập:</p>
+        
+        <div id="user-quick-list" style="display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem;">
+          <!-- Injected dynamically -->
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+          <label class="input-label">Hoặc đăng nhập bằng Tên / Mã Học sinh:</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" class="math-input" id="login-input-name" placeholder="Ví dụ: Bảo Nam hoặc stu_001" style="max-width: 100%; text-align: left; font-size: 1rem;" />
+            <button class="btn btn-primary" id="btn-submit-custom-login">Vào học</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Register New Student -->
+      <div id="tab-content-register" style="display: none;">
+        <h3 style="margin-bottom: 0.5rem;">✨ Tạo Hồ Sơ Học Sinh Mới</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem;">Chọn Avatar Robot yêu thích và điền tên của bạn:</p>
+
+        <!-- Avatar Grid Selector -->
+        <label class="input-label">1. Chọn bạn Robot đồng hành:</label>
+        <div class="avatar-grid" id="avatar-selector-grid">
+          <!-- Injected dynamically -->
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">2. Họ và tên học sinh:</label>
+          <input type="text" class="math-input" id="reg-input-name" placeholder="Ví dụ: Nguyễn Văn An" style="max-width: 100%; text-align: left; font-size: 1rem;" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+          <div>
+            <label class="input-label">3. Khối lớp:</label>
+            <select class="math-input" id="reg-select-grade" style="max-width: 100%; font-size: 1rem;">
+              <option value="5">Lớp 5</option>
+              <option value="4">Lớp 4</option>
+            </select>
+          </div>
+          <div>
+            <label class="input-label">4. Tên lớp:</label>
+            <input type="text" class="math-input" id="reg-input-class" placeholder="5A, 5B, 4A..." style="max-width: 100%; text-align: left; font-size: 1rem;" />
+          </div>
+        </div>
+
+        <button class="btn btn-success btn-lg" id="btn-submit-register" style="width: 100%;">
+          🎉 Tạo Tài Khoản & Vào Học Ngay
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Footer -->
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <div>
+        <strong>Robot Math Lab</strong> &copy; 2026 &bull; Đề tài Nghiên Cứu Khoa Học Sư Phạm
+      </div>
+      <div>
+        Tích hợp mô hình <strong>Pólya 4 bước</strong> &bull; Zero-install HTML5 Canvas
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts in dependency order -->
+  <script src="js/i18n.js"></script>
+  <script src="js/database.js"></script>
+  <script src="js/sound-fx.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/telemetry.js"></script>
+  <script src="js/polya-engine.js"></script>
+  <script src="js/simulation-engine.js"></script>
+  <script src="js/lessons/lesson-base.js"></script>
+  <script src="js/lessons/motion/lesson1.js"></script>
+  <script src="js/lessons/motion/lesson2.js"></script>
+  <script src="js/lessons/motion/lesson3.js"></script>
+  <script src="js/lessons/motion/lesson4.js"></script>
+  <script src="js/lessons/motion/lesson5.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

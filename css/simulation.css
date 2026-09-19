@@ -1,0 +1,315 @@
+/* ==========================================================================
+   ROBOT MATH LAB - SIMULATION WORKSPACE & CANVAS STYLES
+   ========================================================================== */
+
+.simulation-layout {
+  display: grid;
+  grid-template-columns: 1fr 450px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1120px) {
+  .simulation-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Simulation Viewport Card */
+.sim-viewport-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-header {
+  padding: 1.2rem 1.75rem;
+  background: var(--bg-surface);
+  border-bottom: 3px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sim-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-main);
+}
+
+.sim-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 900;
+  font-size: 1.15rem;
+  background: var(--bg-card);
+  padding: 0.45rem 1.15rem;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--border-color);
+}
+
+.stat-item.timer {
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Canvas Area - Fluid & Significantly Enlarged */
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: clamp(420px, 52vh, 620px);
+  background: linear-gradient(to bottom, #F1F5F9 0%, #E2E8F0 70%, #CBD5E1 100%);
+  overflow: hidden;
+  border-bottom: 3px solid var(--border-color);
+}
+
+#simulation-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Track Overlay Elements */
+.track-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Simulation Controls Bar - Enlarged */
+.sim-controls-bar {
+  padding: 1.2rem 1.5rem;
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.playback-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.playback-buttons .btn {
+  font-size: 1.05rem;
+  padding: 0.65rem 1.25rem;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.speed-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 130px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border-color);
+  outline: none;
+}
+
+.speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Chart Drawer / Toggle */
+.sim-chart-card {
+  margin-top: 1.5rem;
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 220px;
+}
+
+/* Polya Step Interactive Panel */
+.polya-panel {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 90px;
+}
+
+.polya-panel-header {
+  padding: 1.25rem;
+  border-bottom: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.polya-panel-step-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: white;
+  flex-shrink: 0;
+}
+
+.polya-panel-step-badge.step-1 { background: var(--polya-step1); }
+.polya-panel-step-badge.step-2 { background: var(--polya-step2); }
+.polya-panel-step-badge.step-3 { background: var(--polya-step3); }
+.polya-panel-step-badge.step-4 { background: var(--polya-step4); }
+
+.polya-panel-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.polya-panel-content {
+  padding: 1.25rem;
+  flex: 1;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+}
+
+.polya-panel-footer {
+  padding: 1rem 1.25rem;
+  background: var(--bg-surface);
+  border-top: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Problem description box */
+.problem-box {
+  background: var(--primary-light);
+  border: 2px solid #C7D2FE;
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.problem-box p {
+  color: #1E1B4B;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+/* Drag-drop or categorization zone */
+.drop-zone-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.drop-box {
+  background: var(--bg-surface);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.drop-box.highlight {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.drop-box-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Strategy choice cards */
+.strategy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.strategy-item {
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.strategy-item:hover {
+  border-color: var(--polya-step2);
+  background: var(--polya-step2-bg);
+}
+
+.strategy-item.selected {
+  border-color: var(--polya-step2);
+  background: var(--polya-step2-bg);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+/* Reflection / Review questions */
+.reflection-item {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.reflection-question {
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
