@@ -67,6 +67,37 @@ const I18n = {
       reviewQuestion2: 'Nếu vận tốc của Robot tăng gấp đôi, thời gian đi sẽ thay đổi thế nào?',
       congratsTitle: 'Chúc mừng bạn đã hoàn thành bài học!',
       
+      // === NEW: Prediction-Observe-Compare Cycle (NCKH) ===
+      phasePredictionTitle: 'Pha 1: Dự đoán & Ước lượng ban đầu',
+      phasePredictionDesc: 'Trước khi tính toán, hãy quan sát và đưa ra ước lượng ban đầu của bạn:',
+      phaseCalculationTitle: 'Pha 2: Tính toán chính xác & Lập trình Robot',
+      phaseComparisonTitle: 'Pha 3: Đối chiếu Dự đoán vs Kết quả thực tế',
+      btnSavePrediction: 'Lưu dự đoán & Bắt đầu tính toán',
+      predictionSavedNotice: '✓ Đã ghi nhận dự đoán! Giờ hãy áp dụng công thức để tính giá trị chính xác.',
+      predictionLabel: 'Dự đoán ban đầu:',
+      calculatedLabel: 'Tính toán chính xác:',
+      actualSimLabel: 'Mô phỏng thực tế:',
+      deviationLabel: 'Độ chênh lệch ước lượng:',
+      observeSimulationPrompt: 'Quan sát robot chạy trên đường đua ảo để kiểm chứng tính toán!',
+
+      // === NEW: Step 4 Interactive Review & What-if ===
+      step4InteractiveDesc: 'Thực hiện 3 thử thách kiểm tra & nhìn lại để nhận 30 sao thưởng:',
+      unitCheckTitle: 'Thử thách 1: Kiểm tra đơn vị đo lường',
+      whatIfTitle: 'Thử thách 2: Kịch bản "Nếu... thì sao?" (What-If)',
+      whatIfDesc: 'Thay đổi thông số và dự đoán kết quả mới để rèn luyện tư duy ngoại suy:',
+      btnTestWhatIf: 'Chạy thử nghiệm What-If',
+      selfAssessmentTitle: 'Thử thách 3: Tự đánh giá mức độ tự tin',
+      selfConfidencePrompt: 'Bạn tự tin bao nhiêu phần trăm khi gặp lại bài toán dạng này?',
+
+      // === NEW: Bilingual Math Vocabulary ===
+      mathVocabTitle: 'Từ điển Thuật ngữ Toán - Anh',
+      vocabDistance: 'Quãng đường (Distance - s)',
+      vocabVelocity: 'Vận tốc (Velocity / Speed - v)',
+      vocabTime: 'Thời gian (Time - t)',
+      vocabFormula: 'Công thức (Formula)',
+      vocabOpposite: 'Ngược chiều (Opposite direction)',
+      vocabSameDir: 'Cùng chiều (Same direction)',
+
       // Units
       unitMeters: 'm',
       unitKilometers: 'km',
@@ -148,6 +179,37 @@ const I18n = {
       reviewQuestion2: 'If the Robot velocity is doubled, how would the travel time change?',
       congratsTitle: 'Congratulations! You completed the lesson!',
       
+      // === NEW: Prediction-Observe-Compare Cycle (NCKH) ===
+      phasePredictionTitle: 'Phase 1: Initial Estimation & Prediction',
+      phasePredictionDesc: 'Before calculating, observe the scenario and make your initial estimate:',
+      phaseCalculationTitle: 'Phase 2: Mathematical Calculation & Robot Setup',
+      phaseComparisonTitle: 'Phase 3: Compare Prediction vs Actual Result',
+      btnSavePrediction: 'Save Prediction & Start Calculation',
+      predictionSavedNotice: '✓ Prediction logged! Now apply the mathematical formula to find the exact value.',
+      predictionLabel: 'Your Prediction:',
+      calculatedLabel: 'Calculated Value:',
+      actualSimLabel: 'Actual Simulation:',
+      deviationLabel: 'Estimation Error:',
+      observeSimulationPrompt: 'Observe the virtual robot run to verify your mathematical calculation!',
+
+      // === NEW: Step 4 Interactive Review & What-if ===
+      step4InteractiveDesc: 'Complete 3 interactive review challenges to earn 30 bonus stars:',
+      unitCheckTitle: 'Challenge 1: Measurement Unit Verification',
+      whatIfTitle: 'Challenge 2: "What-If" Scenario Exploration',
+      whatIfDesc: 'Modify parameters and predict the new outcome to build extrapolation thinking:',
+      btnTestWhatIf: 'Run What-If Simulation',
+      selfAssessmentTitle: 'Challenge 3: Metacognitive Self-Assessment',
+      selfConfidencePrompt: 'How confident are you if you encounter this type of problem again?',
+
+      // === NEW: Bilingual Math Vocabulary ===
+      mathVocabTitle: 'Math-English Vocabulary Glossary',
+      vocabDistance: 'Distance (Quãng đường - s)',
+      vocabVelocity: 'Velocity / Speed (Vận tốc - v)',
+      vocabTime: 'Time (Thời gian - t)',
+      vocabFormula: 'Formula (Công thức)',
+      vocabOpposite: 'Opposite direction (Ngược chiều)',
+      vocabSameDir: 'Same direction (Cùng chiều)',
+
       // Units
       unitMeters: 'm',
       unitKilometers: 'km',

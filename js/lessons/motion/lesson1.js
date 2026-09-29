@@ -41,6 +41,40 @@ class Lesson1 extends LessonBase {
       expectedAnswers: {
         v1: 10, // 100 / 10 = 10 m/s
         v2: 5   // 100 / 20 = 5 m/s
+      },
+
+      predictionConfig: {
+        promptVi: 'Trước khi tính: Robot Alpha (10s) và Robot Beta (20s) cùng chạy 100m. Hãy ước lượng vận tốc của Robot Alpha khoảng bao nhiêu m/s?',
+        promptEn: 'Before calculating: Alpha (10s) and Beta (20s) race 100m. Estimate Robot Alpha\'s velocity in m/s?',
+        defaultGuess: 8,
+        unit: 'm/s'
+      },
+
+      unitCheckConfig: {
+        questionVi: 'Khi quãng đường s đo bằng mét (m) và thời gian t đo bằng giây (s), đơn vị của vận tốc v là:',
+        questionEn: 'When distance s is in meters (m) and time t is in seconds (s), the unit of velocity v is:',
+        options: [
+          { id: 'opt1', text: 'm/s', isCorrect: true },
+          { id: 'opt2', text: 'km/h', isCorrect: false },
+          { id: 'opt3', text: 'm × s', isCorrect: false },
+          { id: 'opt4', text: 's/m', isCorrect: false }
+        ],
+        explanationVi: 'Vì v = s ÷ t nên đơn vị là mét trên giây (m/s).',
+        explanationEn: 'Because v = s ÷ t, the unit is meters per second (m/s).'
+      },
+
+      whatIfConfig: {
+        scenarioVi: 'Thử nghiệm: Nếu Robot Alpha được nâng cấp động cơ chạy gấp đôi vận tốc (20 m/s), thì Alpha sẽ về đích 100m trong bao nhiêu giây?',
+        scenarioEn: 'What-If: If Robot Alpha doubles its speed to 20 m/s, how many seconds will it take to finish 100m?',
+        expected: 5,
+        unit: 'giây / s',
+        runSim: (sim) => {
+          sim.robots[0].velocity = 20;
+          sim.reset();
+          sim.start();
+        },
+        explanationVi: 't = 100 ÷ 20 = 5 giây! Khi vận tốc tăng gấp đôi thì thời gian chạy giảm một nửa.',
+        explanationEn: 't = 100 ÷ 20 = 5 seconds! When velocity doubles, travel time is halved.'
       }
     });
   }
@@ -58,11 +92,13 @@ class Lesson1 extends LessonBase {
   renderExecute(container, polyaEngine, simEngine) {
     const lang = I18n.currentLang;
     container.innerHTML = `
-      <div class="problem-box" style="margin-bottom: 1rem;">
+      <div id="step3-pred-slot"></div>
+
+      <div class="problem-box" style="margin-bottom: 1rem; margin-top: 0.75rem;">
         <p style="font-size: 0.95rem;">
           ${lang === 'vi' 
-            ? '💡 Áp dụng công thức <strong>v = s ÷ t</strong> để tính vận tốc từng Robot rồi nhập kết quả:' 
-            : '💡 Apply formula <strong>v = s ÷ t</strong> to calculate velocities and enter results:'}
+            ? '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>Áp dụng công thức <strong>v = s ÷ t</strong> để tính vận tốc từng Robot rồi nhập kết quả:' 
+            : '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>Apply formula <strong>v = s ÷ t</strong> to calculate velocities and enter results:'}
         </p>
       </div>
 
@@ -92,6 +128,10 @@ class Lesson1 extends LessonBase {
 
       <div id="step3-feedback"></div>
     `;
+
+    // Render Phase 1: Prediction prompt
+    const predSlot = container.querySelector('#step3-pred-slot');
+    this.renderPredictionPrompt(predSlot);
 
     const btnCheck = container.querySelector('#btn-check-execute');
     btnCheck.addEventListener('click', () => {
@@ -131,13 +171,16 @@ class Lesson1 extends LessonBase {
             <div>
               <strong>${I18n.t('correctMessage')} (+20 ⭐)</strong><br/>
               <small>
-                v₁ = 100 ÷ 10 = 10 m/s<br/>
-                v₂ = 100 ÷ 20 = 5 m/s<br/>
-                ${lang === 'vi' ? 'Robot Alpha nhanh hơn Robot Beta!' : 'Robot Alpha is faster than Robot Beta!'}
+                v₁ = 100 ÷ 10 = 10 m/s &bull; v₂ = 100 ÷ 20 = 5 m/s<br/>
+                ${lang === 'vi' ? 'Robot Alpha chạy nhanh gấp đôi Robot Beta!' : 'Robot Alpha is twice as fast as Robot Beta!'}
               </small>
             </div>
           </div>
+          <div id="step3-comparison-slot"></div>
         `;
+
+        // Render Phase 3: Prediction vs Actual Comparison
+        this.renderComparisonTable(fb, 10, 10, 'm/s', lang === 'vi' ? 'Quan sát robot Alpha (10 m/s) về đích trong 10 giây và Beta (5 m/s) về đích trong 20 giây!' : 'Observe Alpha (10 m/s) finishing in 10s and Beta (5 m/s) in 20s!');
       } else {
         SoundFX.playOops();
         Telemetry.logEvent(3, 'ERROR_RECORDED', {

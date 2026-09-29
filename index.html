@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Robot Math Lab - Mô Phỏng Toán Học & Robotics Tiểu Học</title>
-  <meta name="description" content="Nền tảng mô phỏng Robotics ảo tích hợp quy trình 4 bước Pólya giúp học sinh tiểu học rèn luyện tư duy giải quyết vấn đề trong môn Toán." />
+  <meta name="description"
+    content="Nền tảng mô phỏng Robotics ảo tích hợp quy trình 4 bước Pólya giúp học sinh tiểu học rèn luyện tư duy giải quyết vấn đề trong môn Toán." />
 
   <!-- Google Fonts: Nunito -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +18,7 @@
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/simulation.css" />
 </head>
+
 <body>
 
   <!-- Application Header -->
@@ -37,7 +40,8 @@
         <a href="#home" class="nav-link active" data-i18n="navHome">Trang chủ</a>
         <a href="#lessons" class="nav-link" data-i18n="navLessons">Danh mục Bài học</a>
         <a href="#progress" class="nav-link" data-i18n="navProgress">Nhật ký & Tiến trình</a>
-        <a href="#research" class="nav-link" id="nav-research-link" data-i18n="navResearch" style="display: none;">🔬 Dữ liệu Nghiên cứu</a>
+        <a href="#research" class="nav-link" id="nav-research-link" data-i18n="navResearch" style="display: none;">🔬 Dữ
+          liệu Nghiên cứu</a>
       </nav>
 
       <!-- Header Actions: Sound, Fullscreen, Lang Toggle, Student Profile -->
@@ -48,7 +52,8 @@
         </button>
 
         <!-- Fullscreen Toggle Button -->
-        <button class="btn-control-icon" id="btn-toggle-fullscreen" title="Toàn màn hình / Fullscreen (TV, Bảng tương tác)">
+        <button class="btn-control-icon" id="btn-toggle-fullscreen"
+          title="Toàn màn hình / Fullscreen (TV, Bảng tương tác)">
           ⛶
         </button>
 
@@ -62,7 +67,7 @@
         <div class="student-header-badge" id="btn-open-user-modal" title="Hồ sơ học sinh / Đổi tài khoản">
           <div class="student-avatar-circle" id="header-avatar-preview">🤖</div>
           <div class="student-meta">
-            <span class="student-name-text" id="header-user-name">Bảo Nam</span>
+            <span class="student-name-text" id="header-user-name">Chicken</span>
             <div class="student-stats-row">
               <span id="header-user-stars">⭐ 120</span>
               <span>&bull;</span>
@@ -133,7 +138,7 @@
   <div class="modal-backdrop" id="user-modal">
     <div class="modal-container">
       <button class="modal-close-btn" id="btn-close-user-modal">&times;</button>
-      
+
       <!-- Modal Tabs -->
       <div class="tab-group">
         <button class="tab-btn active" id="tab-btn-login">Đăng Nhập Học Sinh</button>
@@ -143,8 +148,9 @@
       <!-- Tab Content: Quick Login -->
       <div id="tab-content-login">
         <h3 style="margin-bottom: 0.5rem;">👋 Chọn tài khoản của bạn</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 1.25rem;">Bấm nhanh vào tên học sinh bên dưới để tiếp tục học tập:</p>
-        
+        <p style="font-size: 0.9rem; margin-bottom: 1.25rem;">Bấm nhanh vào tên học sinh bên dưới để tiếp tục học tập:
+        </p>
+
         <div id="user-quick-list" style="display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem;">
           <!-- Injected dynamically -->
         </div>
@@ -152,7 +158,8 @@
         <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
           <label class="input-label">Hoặc đăng nhập bằng Tên / Mã Học sinh:</label>
           <div style="display: flex; gap: 0.5rem;">
-            <input type="text" class="math-input" id="login-input-name" placeholder="Ví dụ: Bảo Nam hoặc stu_001" style="max-width: 100%; text-align: left; font-size: 1rem;" />
+            <input type="text" class="math-input" id="login-input-name" placeholder="Ví dụ: Bảo Nam hoặc stu_001"
+              style="max-width: 100%; text-align: left; font-size: 1rem;" />
             <button class="btn btn-primary" id="btn-submit-custom-login">Vào học</button>
           </div>
         </div>
@@ -171,7 +178,8 @@
 
         <div class="input-group">
           <label class="input-label">2. Họ và tên học sinh:</label>
-          <input type="text" class="math-input" id="reg-input-name" placeholder="Ví dụ: Nguyễn Văn An" style="max-width: 100%; text-align: left; font-size: 1rem;" />
+          <input type="text" class="math-input" id="reg-input-name" placeholder="Ví dụ: Nguyễn Văn An"
+            style="max-width: 100%; text-align: left; font-size: 1rem;" />
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
@@ -184,7 +192,8 @@
           </div>
           <div>
             <label class="input-label">4. Tên lớp:</label>
-            <input type="text" class="math-input" id="reg-input-class" placeholder="5A, 5B, 4A..." style="max-width: 100%; text-align: left; font-size: 1rem;" />
+            <input type="text" class="math-input" id="reg-input-class" placeholder="5A, 5B, 4A..."
+              style="max-width: 100%; text-align: left; font-size: 1rem;" />
           </div>
         </div>
 
@@ -226,4 +235,5 @@
   <script src="js/app.js"></script>
 
 </body>
+
 </html>

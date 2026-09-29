@@ -38,6 +38,40 @@ class Lesson2 extends LessonBase {
 
       expectedAnswers: {
         s: 45 // 15 * 3 = 45 km
+      },
+
+      predictionConfig: {
+        promptVi: 'Trước khi tính: Robot Eco chạy đều 15 km/h trong 3 giờ. Hãy ước lượng quãng đường robot đi được khoảng bao nhiêu km?',
+        promptEn: 'Before calculating: Robot Eco travels at 15 km/h for 3 hours. Estimate roughly how many km it travels?',
+        defaultGuess: 40,
+        unit: 'km'
+      },
+
+      unitCheckConfig: {
+        questionVi: 'Vận tốc đo bằng km/h và thời gian đo bằng giờ (h). Đơn vị đúng của quãng đường s là:',
+        questionEn: 'Velocity is in km/h and time in hours (h). The correct unit for distance s is:',
+        options: [
+          { id: 'opt1', text: 'km', isCorrect: true },
+          { id: 'opt2', text: 'm', isCorrect: false },
+          { id: 'opt3', text: 'km/h', isCorrect: false },
+          { id: 'opt4', text: 'giờ', isCorrect: false }
+        ],
+        explanationVi: 's = v × t: (km/h) × h = km.',
+        explanationEn: 's = v × t: (km/h) × h = km.'
+      },
+
+      whatIfConfig: {
+        scenarioVi: 'Thử nghiệm: Nếu Robot Eco chạy liên tục trong 4 giờ với vận tốc 15 km/h, quãng đường đi được sẽ là bao nhiêu km?',
+        scenarioEn: 'What-If: If Robot Eco travels for 4 hours at 15 km/h, how far will it travel in km?',
+        expected: 60,
+        unit: 'km',
+        runSim: (sim) => {
+          sim.robots[0].target = 60;
+          sim.reset();
+          sim.start();
+        },
+        explanationVi: 's = 15 × 4 = 60 km! Thời gian tăng lên thì quãng đường đi được tăng tỉ lệ thuận.',
+        explanationEn: 's = 15 × 4 = 60 km! Distance increases in direct proportion to time.'
       }
     });
   }
@@ -54,11 +88,13 @@ class Lesson2 extends LessonBase {
   renderExecute(container, polyaEngine, simEngine) {
     const lang = I18n.currentLang;
     container.innerHTML = `
-      <div class="problem-box" style="margin-bottom: 1rem;">
+      <div id="step3-pred-slot"></div>
+
+      <div class="problem-box" style="margin-bottom: 1rem; margin-top: 0.75rem;">
         <p style="font-size: 0.95rem;">
           ${lang === 'vi' 
-            ? '💡 Áp dụng công thức <strong>s = v × t</strong> để tính quãng đường rồi nhập kết quả:' 
-            : '💡 Apply formula <strong>s = v × t</strong> to calculate distance and enter result:'}
+            ? '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>Áp dụng công thức <strong>s = v × t</strong> để tính quãng đường rồi nhập kết quả:' 
+            : '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>Apply formula <strong>s = v × t</strong> to calculate distance and enter result:'}
         </p>
       </div>
 
@@ -78,6 +114,10 @@ class Lesson2 extends LessonBase {
 
       <div id="step3-feedback"></div>
     `;
+
+    // Render Phase 1: Prediction prompt
+    const predSlot = container.querySelector('#step3-pred-slot');
+    this.renderPredictionPrompt(predSlot);
 
     const btnCheck = container.querySelector('#btn-check-execute');
     btnCheck.addEventListener('click', () => {
@@ -115,7 +155,11 @@ class Lesson2 extends LessonBase {
               </small>
             </div>
           </div>
+          <div id="step3-comparison-slot"></div>
         `;
+
+        // Render Phase 3: Prediction vs Actual Comparison
+        this.renderComparisonTable(fb, 45, 45, 'km', lang === 'vi' ? 'Robot Eco hoàn thành quãng đường 45km sau đúng 3 giờ hành trình!' : 'Robot Eco reached the 45km destination in exactly 3 hours!');
       } else {
         SoundFX.playOops();
         Telemetry.logEvent(3, 'ERROR_RECORDED', {

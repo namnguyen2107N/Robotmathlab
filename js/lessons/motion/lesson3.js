@@ -38,6 +38,40 @@ class Lesson3 extends LessonBase {
 
       expectedAnswers: {
         t: 3 // 120 / 40 = 3 hours
+      },
+
+      predictionConfig: {
+        promptVi: 'Trước khi tính: Quãng đường 120 km, Robot cứu hộ chạy 40 km/h. Hãy ước lượng robot mất khoảng mấy giờ?',
+        promptEn: 'Before calculating: 120 km distance, rescue robot runs 40 km/h. Estimate how many hours it takes?',
+        defaultGuess: 2.5,
+        unit: 'giờ / hours'
+      },
+
+      unitCheckConfig: {
+        questionVi: 'Quãng đường là 120 km, vận tốc là 40 km/h. Đơn vị của kết quả thời gian t là:',
+        questionEn: 'Distance is 120 km, velocity is 40 km/h. The unit of time t is:',
+        options: [
+          { id: 'opt1', text: 'giờ (h)', isCorrect: true },
+          { id: 'opt2', text: 'giây (s)', isCorrect: false },
+          { id: 'opt3', text: 'km', isCorrect: false },
+          { id: 'opt4', text: 'km/h', isCorrect: false }
+        ],
+        explanationVi: 't = s ÷ v: km ÷ (km/h) = giờ (h).',
+        explanationEn: 't = s ÷ v: km ÷ (km/h) = hours (h).'
+      },
+
+      whatIfConfig: {
+        scenarioVi: 'Thử nghiệm: Nếu điều động Robot cứu hộ chạy nhanh hơn với vận tốc 60 km/h, thì thời gian đến hiện trường (120 km) là mấy giờ?',
+        scenarioEn: 'What-If: If a faster robot runs at 60 km/h, how many hours to reach the 120 km site?',
+        expected: 2,
+        unit: 'giờ / hours',
+        runSim: (sim) => {
+          sim.robots[0].velocity = 60;
+          sim.reset();
+          sim.start();
+        },
+        explanationVi: 't = 120 ÷ 60 = 2 giờ! Vận tốc càng nhanh thì thời gian cứu hộ càng ngắn lại.',
+        explanationEn: 't = 120 ÷ 60 = 2 hours! Faster speed reduces travel time.'
       }
     });
   }
@@ -54,11 +88,13 @@ class Lesson3 extends LessonBase {
   renderExecute(container, polyaEngine, simEngine) {
     const lang = I18n.currentLang;
     container.innerHTML = `
-      <div class="problem-box" style="margin-bottom: 1rem;">
+      <div id="step3-pred-slot"></div>
+
+      <div class="problem-box" style="margin-bottom: 1rem; margin-top: 0.75rem;">
         <p style="font-size: 0.95rem;">
           ${lang === 'vi' 
-            ? '💡 Áp dụng công thức <strong>t = s ÷ v</strong> để tính thời gian cần thiết rồi nhập kết quả:' 
-            : '💡 Apply formula <strong>t = s ÷ v</strong> to calculate required time and enter result:'}
+            ? '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>Áp dụng công thức <strong>t = s ÷ v</strong> để tính thời gian cần thiết rồi nhập kết quả:' 
+            : '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>Apply formula <strong>t = s ÷ v</strong> to calculate required time and enter result:'}
         </p>
       </div>
 
@@ -78,6 +114,10 @@ class Lesson3 extends LessonBase {
 
       <div id="step3-feedback"></div>
     `;
+
+    // Render Phase 1: Prediction prompt
+    const predSlot = container.querySelector('#step3-pred-slot');
+    this.renderPredictionPrompt(predSlot);
 
     const btnCheck = container.querySelector('#btn-check-execute');
     btnCheck.addEventListener('click', () => {
@@ -114,7 +154,11 @@ class Lesson3 extends LessonBase {
               </small>
             </div>
           </div>
+          <div id="step3-comparison-slot"></div>
         `;
+
+        // Render Phase 3: Prediction vs Actual Comparison
+        this.renderComparisonTable(fb, 3, 3, lang === 'vi' ? 'giờ' : 'hours', lang === 'vi' ? 'Robot cứu hộ di chuyển 120 km với tốc độ 40 km/h mất đúng 3 giờ!' : 'Rescue robot traveled 120 km at 40 km/h in exactly 3 hours!');
       } else {
         SoundFX.playOops();
         Telemetry.logEvent(3, 'ERROR_RECORDED', {

@@ -542,7 +542,7 @@ const App = {
         <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; font-size: 2rem;">
           🧠 ${lang === 'vi' ? 'Quy Trình 4 Bước Giải Quyết Vấn Đề Pólya' : 'Polya 4-Step Problem-Solving Framework'}
         </h2>
-        <div class="polya-stepper" style="margin-bottom: 3.5rem;">
+        <div class="polya-stepper" style="margin-bottom: 2.5rem;">
           <div class="step-card active" data-step="1">
             <div class="step-number" style="background: var(--polya-step1); color: white;">1</div>
             <div class="step-info">
@@ -570,6 +570,44 @@ const App = {
               <span class="step-title-vi">${I18n.t('step4Title')}</span>
               <span class="step-title-en">${I18n.t('step4Subtitle')}</span>
             </div>
+          </div>
+        </div>
+
+        <!-- NEW: Pedagogical Cycle & Research Rationale -->
+        <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.6rem; font-size: 1.85rem; color: #1E40AF;">
+          🔄 ${lang === 'vi' ? 'Chu Trình Sư Phạm: Dự Đoán → Mô Phỏng → Đối Chiếu' : 'Pedagogical Cycle: Predict → Simulate → Compare'}
+        </h2>
+        <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          ${lang === 'vi' 
+            ? 'Khác với cách giải toán giấy bút truyền thống, Robot Math Lab xây dựng chu trình tương tác thực nghiệm giúp học sinh tự phát hiện sai lệch và điều chỉnh chiến lược giải quyết vấn đề:'
+            : 'Unlike traditional paper-and-pencil math, Robot Math Lab creates an experimental feedback loop allowing students to detect discrepancies and self-regulate problem-solving strategies:'}
+        </p>
+
+        <div class="pedagogical-cycle">
+          <div class="cycle-step-card">
+            <span class="cycle-icon">🏁</span>
+            <h4>${lang === 'vi' ? '1. Tình Huống Thực Tế' : '1. Real Context'}</h4>
+            <p>${lang === 'vi' ? 'Nhiệm vụ chuyển động của Robot (đua xe, cứu hộ, giao hàng)' : 'Robotics mission context (racing, rescue, delivery)'}</p>
+          </div>
+          <div class="cycle-step-card">
+            <span class="cycle-icon">🔮</span>
+            <h4>${lang === 'vi' ? '2. Dự Đoán & Ước Lượng' : '2. Estimate & Predict'}</h4>
+            <p>${lang === 'vi' ? 'Kích hoạt trực giác toán học trước khi tính toán số liệu cụ thể' : 'Activate mathematical intuition before precise calculation'}</p>
+          </div>
+          <div class="cycle-step-card">
+            <span class="cycle-icon">📐</span>
+            <h4>${lang === 'vi' ? '3. Lập Mô Hình & Tính' : '3. Model & Calculate'}</h4>
+            <p>${lang === 'vi' ? 'Vận dụng tam giác công thức s, v, t để tính giá trị chính xác' : 'Apply formula triangle s, v, t to calculate exact values'}</p>
+          </div>
+          <div class="cycle-step-card">
+            <span class="cycle-icon">🤖</span>
+            <h4>${lang === 'vi' ? '4. Mô Phỏng Robot' : '4. Virtual Simulation'}</h4>
+            <p>${lang === 'vi' ? 'Quan sát robot di chuyển trên đường đua ảo theo thông số vừa tính' : 'Watch robots traverse the track based on calculated parameters'}</p>
+          </div>
+          <div class="cycle-step-card">
+            <span class="cycle-icon">⚖️</span>
+            <h4>${lang === 'vi' ? '5. Đối Chiếu & Nhìn Lại' : '5. Compare & Reflect'}</h4>
+            <p>${lang === 'vi' ? 'So sánh dự đoán vs thực tế, thử nghiệm kịch bản What-If' : 'Compare estimate vs reality, explore What-If scenarios'}</p>
           </div>
         </div>
 
@@ -604,19 +642,19 @@ const App = {
           ${Object.values(this.lessons).map(lesson => this.renderLessonCard(lesson)).join('')}
         </div>
 
-        <!-- Grade 4 Geometry Module Preview -->
-        <h2 style="margin: 3.5rem 0 1.25rem 0; color: var(--secondary); font-size: 2.2rem;">
-          📐 ${I18n.t('grade4Geometry')}
-        </h2>
-        <div style="background: var(--bg-card); border: 3px dashed var(--secondary); border-radius: var(--radius-lg); padding: 3rem 2rem; text-align: center;">
-          <h3 style="color: var(--secondary); margin-bottom: 0.75rem; font-size: 1.75rem;">
-            🧩 ${lang === 'vi' ? 'Mô-đun Đang Mở Rộng: Hình Học & Đo Lường Lớp 4' : 'Expanding Module: Grade 4 Geometry & Measurement'}
-          </h3>
-          <p style="max-width: 750px; margin: 0 auto 1.75rem auto; font-size: 1.2rem;">
-            ${lang === 'vi' 
-              ? 'Kiến trúc mô-đun hóa sẵn sàng tích hợp 5 bài học về Chu vi, Diện tích hình chữ nhật, hình vuông, và góc với Robot vẽ hình (Turtle Graphics).' 
-              : 'Modular architecture ready for 5 upcoming lessons on Perimeter, Area of rectangles/squares, and angles with Turtle Graphics.'}
-          </p>
+        <!-- Compact Architecture Roadmap Note (Reduced Scope) -->
+        <div style="background: var(--bg-surface); border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 1.5rem 1.75rem; margin-top: 3.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h4 style="margin: 0 0 0.35rem 0; color: var(--text-main); font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+              🧩 ${lang === 'vi' ? 'Định hướng phát triển kiến trúc hệ thống' : 'System Architecture Scalability Roadmap'}
+            </h4>
+            <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted); max-width: 780px;">
+              ${lang === 'vi' 
+                ? 'Nền tảng tập trung nghiên cứu chuyên sâu về <strong>Toán Chuyển Động Đều Lớp 5</strong>. Kiến trúc mô-đun hóa sẵn sàng mở rộng sang chủ đề Hình Học (Robot rùa vẽ hình Turtle Graphics) trong các giai đoạn phát triển tiếp theo.' 
+                : 'The research focuses deeply on <strong>Grade 5 Uniform Motion</strong>. The modular architecture is designed to scale to Geometry (Turtle Graphics) in future research phases.'}
+            </p>
+          </div>
+          <span class="badge badge-gray" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">${lang === 'vi' ? 'Giai đoạn tương lai' : 'Future Phase'}</span>
         </div>
       </div>
     `;
@@ -708,6 +746,22 @@ const App = {
               <span class="step-title-vi">${I18n.t('step4Title')}</span>
               <span class="step-title-en">${I18n.t('step4Subtitle')}</span>
             </div>
+          </div>
+        </div>
+
+        <!-- Bilingual Math-English Vocabulary Bar -->
+        <div class="vocab-bar" id="lesson-vocab-bar">
+          <div class="vocab-bar-title">
+            <span>📖</span>
+            <span>${I18n.t('mathVocabTitle')}:</span>
+          </div>
+          <div class="vocab-chips">
+            <span class="vocab-chip" data-term="s" title="${lang === 'vi' ? 'Quãng đường: s = v × t (m, km)' : 'Distance: s = v × t (m, km)'}">s: Quãng đường / Distance</span>
+            <span class="vocab-chip" data-term="v" title="${lang === 'vi' ? 'Vận tốc: v = s ÷ t (m/s, km/h)' : 'Velocity: v = s ÷ t (m/s, km/h)'}">v: Vận tốc / Velocity</span>
+            <span class="vocab-chip" data-term="t" title="${lang === 'vi' ? 'Thời gian: t = s ÷ v (giây, giờ)' : 'Time: t = s ÷ v (seconds, hours)'}">t: Thời gian / Time</span>
+            <span class="vocab-chip" data-term="formula" title="${lang === 'vi' ? 'Tam giác công thức liên hệ s, v, t' : 'Formula relationship triangle'}">📐 s = v × t</span>
+            <span class="vocab-chip" data-term="opposite" title="${lang === 'vi' ? 'Ngược chiều: Tổng vận tốc = v₁ + v₂' : 'Opposite motion: Combined speed = v₁ + v₂'}">⇄ Ngược chiều / Opposite</span>
+            <span class="vocab-chip" data-term="avg" title="${lang === 'vi' ? 'Vận tốc trung bình = Tổng quãng đường ÷ Tổng thời gian' : 'Average speed = Total distance ÷ Total time'}">📊 v_tb / Average</span>
           </div>
         </div>
 
@@ -823,6 +877,35 @@ const App = {
       speedVal.textContent = `${val}x`;
     });
 
+    // Bind Vocabulary Chip clicks for interactive explanation
+    container.querySelectorAll('.vocab-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        SoundFX.playPop();
+        const term = chip.dataset.term;
+        const explanations = {
+          s: lang === 'vi' 
+            ? '📏 Quãng đường (Distance - s): Độ dài đường đi của Robot. Đơn vị thông dụng: mét (m) hoặc ki-lô-mét (km). Công thức: s = v × t'
+            : '📏 Distance (s): The total path traversed by the robot. Common units: meters (m) or kilometers (km). Formula: s = v × t',
+          v: lang === 'vi'
+            ? '🏎️ Vận tốc (Velocity / Speed - v): Quãng đường Robot đi được trong một đơn vị thời gian (1 giây hoặc 1 giờ). Đơn vị: m/s hoặc km/h. Công thức: v = s ÷ t'
+            : '🏎️ Velocity / Speed (v): Distance traveled per unit time (per second or hour). Units: m/s or km/h. Formula: v = s ÷ t',
+          t: lang === 'vi'
+            ? '⏱️ Thời gian (Time - t): Khoảng thời gian Robot di chuyển từ xuất phát đến đích. Đơn vị: giây (s) hoặc giờ (h). Công thức: t = s ÷ v'
+            : '⏱️ Time (t): Duration of the robot travel from start to target. Units: seconds (s) or hours (h). Formula: t = s ÷ v',
+          formula: lang === 'vi'
+            ? '📐 Tam giác công thức (s, v, t): Để tìm s: lấy v × t. Để tìm v: lấy s ÷ t. Để tìm t: lấy s ÷ v!'
+            : '📐 Formula Triangle (s, v, t): Find s = v × t; Find v = s ÷ t; Find t = s ÷ v!',
+          opposite: lang === 'vi'
+            ? '⇄ Chuyển động ngược chiều: Hai Robot đi về phía nhau, sau mỗi giờ khoảng cách thu hẹp bằng tổng hai vận tốc (v₁ + v₂). Thời gian gặp nhau: t = s ÷ (v₁ + v₂)'
+            : '⇄ Opposite Direction: Two robots move towards each other; relative speed is (v₁ + v₂). Meeting time: t = s ÷ (v₁ + v₂)',
+          avg: lang === 'vi'
+            ? '📊 Vận tốc trung bình (Average Speed - v_tb): Bằng TỔNG quãng đường chia cho TỔNG thời gian (v_tb = s_tổng ÷ t_tổng). Tuyệt đối không lấy trung bình cộng các vận tốc!'
+            : '📊 Average Speed (v_avg): Total distance divided by total time (v_avg = total_s ÷ total_t). Never take arithmetic mean of speeds!'
+        };
+        alert(explanations[term] || chip.title);
+      });
+    });
+
     // Bind Hint button
     document.getElementById('btn-request-hint').addEventListener('click', () => {
       SoundFX.playPop();
@@ -917,7 +1000,7 @@ const App = {
     } else if (step === 3) {
       lesson.renderExecute(content, engine, this.activeSimEngine);
     } else if (step === 4) {
-      lesson.renderReview(content, engine);
+      lesson.renderReview(content, engine, this.activeSimEngine);
     }
   },
 
@@ -1095,11 +1178,59 @@ const App = {
               <strong>Pha 2 (Kế hoạch):</strong> Lựa chọn công thức ($s, v, t$); nhận diện dạng bài đơn lẻ hay chuyển động ngược chiều.
             </div>
             <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); font-size: 1.05rem;">
-              <strong>Pha 3 (Thực hiện):</strong> Số lần thử lại (Trials), phân loại lỗi (Khái niệm, Tính toán, Nhập số).
+              <strong>Pha 3 (Thực hiện):</strong> Dự đoán ban đầu, số lần thử lại (Trials), phân loại lỗi (Khái niệm, Tính toán, Nhập số).
             </div>
             <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); font-size: 1.05rem;">
-              <strong>Pha 4 (Nhìn lại):</strong> Hành vi quay lui (Backtracking), kiểm tra đơn vị đo và tính hợp lý của kết quả.
+              <strong>Pha 4 (Nhìn lại):</strong> Thử thách What-If, kiểm tra đơn vị đo, tự đánh giá mức độ tự tin (Metacognition).
             </div>
+          </div>
+        </div>
+
+        <!-- NEW: Research Questions Matrix Card -->
+        <div class="card" style="margin-bottom: 2rem;">
+          <h3 style="margin-bottom: 0.85rem; font-size: 1.5rem; color: #4F46E5;">
+            🔬 ${lang === 'vi' ? 'Ma Trận Câu Hỏi Nghiên Cứu & Dữ Liệu Quá Trình (Research Matrix)' : 'Research Questions & Process Data Matrix'}
+          </h3>
+          <p style="font-size: 1.05rem; margin-bottom: 1.25rem; color: var(--text-muted);">
+            ${lang === 'vi' 
+              ? 'Ánh xạ phương pháp luận trực tiếp giữa Câu hỏi Nghiên cứu (CHNC) với dữ liệu Telemetry phục vụ phân tích định lượng & định tính:' 
+              : 'Direct methodological mapping between Research Questions (RQ) and collected Telemetry Data for quantitative & qualitative analysis:'}
+          </p>
+          <div style="overflow-x: auto;">
+            <table class="research-matrix-table">
+              <thead>
+                <tr>
+                  <th style="min-width: 140px;">${lang === 'vi' ? 'Câu hỏi Nghiên cứu (CHNC)' : 'Research Question (RQ)'}</th>
+                  <th style="min-width: 130px;">${lang === 'vi' ? 'Khung Pólya' : 'Polya Phase'}</th>
+                  <th style="min-width: 190px;">${lang === 'vi' ? 'Chỉ báo Telemetry (xAPI)' : 'Telemetry Indicators'}</th>
+                  <th style="min-width: 160px;">${lang === 'vi' ? 'Phương pháp phân tích' : 'Analysis Method'}</th>
+                  <th style="min-width: 190px;">${lang === 'vi' ? 'Ý nghĩa sư phạm' : 'Pedagogical Implication'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>CHNC 1:</strong> Khả năng đọc hiểu & mô hình hóa bài toán chuyển động?</td>
+                  <td><span class="badge badge-blue">Pha 1 & 2</span><br/><small>Hiểu & Kế hoạch</small></td>
+                  <td><code>DATA_CLASSIFICATION</code><br/><code>FORMULA_SELECTED</code><br/><code>STEP_TIME_RECORD</code></td>
+                  <td>Tần suất phân loại đúng/sai; Thời gian dừng đọc đề; Phân tích lựa chọn công thức.</td>
+                  <td>Đánh giá khả năng chuyển đổi ngôn ngữ đề bài thành mô hình toán học (s, v, t).</td>
+                </tr>
+                <tr>
+                  <td><strong>CHNC 2:</strong> Năng lực ước lượng & phản hồi với mô phỏng trực quan?</td>
+                  <td><span class="badge badge-amber">Pha 3</span><br/><small>Thực hiện giải</small></td>
+                  <td><code>PREDICTION_SUBMITTED</code><br/><code>PREDICTION_COMPARED</code><br/><code>TRIAL_ATTEMPT</code><br/><code>ERROR_RECORDED</code></td>
+                  <td>Độ lệch dự đoán (Delta); Số lần thử lại (Trials); Phân bố loại lỗi (Khái niệm/Tính toán).</td>
+                  <td>Chứng minh mô phỏng giúp học sinh thu hẹp sai lệch và tự điều chỉnh chiến lược tính toán.</td>
+                </tr>
+                <tr>
+                  <td><strong>CHNC 3:</strong> Hành vi tự kiểm tra & năng lực tư duy ngoại suy (What-If)?</td>
+                  <td><span class="badge badge-purple">Pha 4</span><br/><small>Nhìn lại & Mở rộng</small></td>
+                  <td><code>UNIT_CHECK_ANSWER</code><br/><code>WHAT_IF_TESTED</code><br/><code>SELF_ASSESSMENT</code><br/><code>BACKWARD_STEP</code></td>
+                  <td>Tỉ lệ vượt qua thử thách What-If; Thang đo tự tin 5 mức; Hành vi quay lui sửa lỗi.</td>
+                  <td>Chứng minh sự phát triển năng lực siêu nhận thức (Metacognition) và hiểu bản chất quan hệ tỉ lệ.</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 

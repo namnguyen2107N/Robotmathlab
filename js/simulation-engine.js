@@ -33,17 +33,25 @@ class SimulationEngine {
     // History for graphs
     this.history = []; // [{t, d1, v1, d2, v2}]
 
+    // Cache DPR for performance
+    this._dpr = window.devicePixelRatio || 1;
+    this._resizeTimeout = null;
+
     this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
+    window.addEventListener('resize', () => {
+      // Debounce resize events for performance
+      if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
+      this._resizeTimeout = setTimeout(() => this.resizeCanvas(), 150);
+    });
   }
 
   resizeCanvas() {
     if (!this.canvas) return;
     const rect = this.canvas.parentElement.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = this._dpr;
     this.canvas.width = rect.width * dpr;
     this.canvas.height = rect.height * dpr;
-    this.ctx.scale(dpr, dpr);
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // Reset and apply scale cleanly
     this.width = rect.width;
     this.height = rect.height;
     this.render();

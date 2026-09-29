@@ -41,6 +41,44 @@ class Lesson5 extends LessonBase {
       expectedAnswers: {
         totalTime: 20,  // t1 = 30/5 = 6s; t2 = 40/10 = 4s; t3 = 50/5 = 10s -> sum = 20s
         avgSpeed: 6     // 120 / 20 = 6 m/s
+      },
+
+      predictionConfig: {
+        promptVi: 'Trước khi tính: Chặng 1 và 3 chạy 5 m/s, chặng 2 chạy 10 m/s. Dự đoán vận tốc trung bình toàn chặng khoảng bao nhiêu m/s?',
+        promptEn: 'Before calculating: Stages 1 & 3 at 5 m/s, Stage 2 at 10 m/s. Estimate roughly what the average speed is (m/s)?',
+        defaultGuess: 7,
+        unit: 'm/s'
+      },
+
+      unitCheckConfig: {
+        questionVi: 'Vận tốc trung bình v_tb = s_tổng ÷ t_tổng với s (m) và t (giây) có đơn vị là:',
+        questionEn: 'Average speed v_avg = total_s ÷ total_t with s in meters and t in seconds has unit:',
+        options: [
+          { id: 'opt1', text: 'm/s', isCorrect: true },
+          { id: 'opt2', text: 'km/h', isCorrect: false },
+          { id: 'opt3', text: 'giây/m', isCorrect: false },
+          { id: 'opt4', text: 'm', isCorrect: false }
+        ],
+        explanationVi: 'Tổng quãng đường (m) chia cho tổng thời gian (s) cho đơn vị m/s.',
+        explanationEn: 'Total distance (m) divided by total time (s) gives m/s.'
+      },
+
+      whatIfConfig: {
+        scenarioVi: 'Thử nghiệm: Nếu cả 3 chặng đều chạy với vận tốc bằng nhau là 5 m/s, thì vận tốc trung bình của toàn chặng sẽ là bao nhiêu m/s?',
+        scenarioEn: 'What-If: If all 3 stages run at the same speed of 5 m/s, what will be the average speed in m/s?',
+        expected: 5,
+        unit: 'm/s',
+        runSim: (sim) => {
+          sim.robots[0].stages = [
+            { s: 30, v: 5 },
+            { s: 40, v: 5 },
+            { s: 50, v: 5 }
+          ];
+          sim.reset();
+          sim.start();
+        },
+        explanationVi: 'Khi chuyển động với cùng một vận tốc trên tất cả các chặng thì vận tốc trung bình bằng đúng vận tốc đó (5 m/s)!',
+        explanationEn: 'When velocity is constant across all stages, average speed is exactly that velocity (5 m/s)!'
       }
     });
   }
@@ -69,14 +107,16 @@ class Lesson5 extends LessonBase {
   renderExecute(container, polyaEngine, simEngine) {
     const lang = I18n.currentLang;
     container.innerHTML = `
-      <div class="problem-box" style="margin-bottom: 1rem;">
+      <div id="step3-pred-slot"></div>
+
+      <div class="problem-box" style="margin-bottom: 1rem; margin-top: 0.75rem;">
         <p style="font-size: 0.95rem;">
           ${lang === 'vi' 
-            ? '💡 <strong>Bước giải chi tiết:</strong><br/>' +
+            ? '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>' +
               '• Thời gian chặng 1: t₁ = 30 ÷ 5 = 6 giây<br/>' +
               '• Thời gian chặng 2: t₂ = 40 ÷ 10 = 4 giây<br/>' +
               '• Thời gian chặng 3: t₃ = 50 ÷ 5 = 10 giây' 
-            : '💡 <strong>Step-by-step guidance:</strong><br/>' +
+            : '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>' +
               '• Stage 1 time: t₁ = 30 ÷ 5 = 6 s<br/>' +
               '• Stage 2 time: t₂ = 40 ÷ 10 = 4 s<br/>' +
               '• Stage 3 time: t₃ = 50 ÷ 5 = 10 s'}
@@ -109,6 +149,10 @@ class Lesson5 extends LessonBase {
 
       <div id="step3-feedback"></div>
     `;
+
+    // Render Phase 1: Prediction prompt
+    const predSlot = container.querySelector('#step3-pred-slot');
+    this.renderPredictionPrompt(predSlot);
 
     const btnCheck = container.querySelector('#btn-check-execute');
     btnCheck.addEventListener('click', () => {
@@ -152,7 +196,11 @@ class Lesson5 extends LessonBase {
               </small>
             </div>
           </div>
+          <div id="step3-comparison-slot"></div>
         `;
+
+        // Render Phase 3: Prediction vs Actual Comparison
+        this.renderComparisonTable(fb, 6, 6, 'm/s', lang === 'vi' ? 'Robot thám hiểm Mặt Trăng hoàn thành 120m trong đúng 20 giây, vận tốc trung bình 6 m/s!' : 'Lunar rover finished 120m in 20s, average speed 6 m/s!');
       } else {
         SoundFX.playOops();
         Telemetry.logEvent(3, 'ERROR_RECORDED', {

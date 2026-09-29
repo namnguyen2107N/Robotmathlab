@@ -116,7 +116,7 @@ const Analytics = {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = rect.width * dpr;
     canvas.height = 200 * dpr;
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // Use setTransform to avoid cumulative scaling
     const w = rect.width;
     const h = 200;
 

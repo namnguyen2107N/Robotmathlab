@@ -39,6 +39,41 @@ class Lesson4 extends LessonBase {
 
       expectedAnswers: {
         t: 2.5 // 200 / (30 + 50) = 2.5 hours
+      },
+
+      predictionConfig: {
+        promptVi: 'Trước khi tính: Khoảng cách 200 km, Robot A chạy 30 km/h, Robot B chạy 50 km/h. Dự đoán hai robot gặp nhau sau khoảng mấy giờ?',
+        promptEn: 'Before calculating: 200 km apart, Robot A at 30 km/h, Robot B at 50 km/h. Estimate meeting time in hours?',
+        defaultGuess: 2,
+        unit: 'giờ / hours'
+      },
+
+      unitCheckConfig: {
+        questionVi: 'Trong bài toán hai vật chuyển động ngược chiều, tổng vận tốc (v₁ + v₂) có đơn vị là:',
+        questionEn: 'In opposite motion problems, the sum of speeds (v₁ + v₂) has the unit of:',
+        options: [
+          { id: 'opt1', text: 'km/h', isCorrect: true },
+          { id: 'opt2', text: 'km', isCorrect: false },
+          { id: 'opt3', text: 'giờ', isCorrect: false },
+          { id: 'opt4', text: 'km/h²', isCorrect: false }
+        ],
+        explanationVi: 'Tổng của hai vận tốc vẫn là một vận tốc nên đơn vị là km/h.',
+        explanationEn: 'The sum of velocities is still velocity, unit is km/h.'
+      },
+
+      whatIfConfig: {
+        scenarioVi: 'Thử nghiệm: Nếu Robot A tăng tốc độ lên 50 km/h (bằng Robot B 50 km/h, tổng vận tốc = 100 km/h), thì hai robot gặp nhau sau bao lâu?',
+        scenarioEn: 'What-If: If Robot A speeds up to 50 km/h (matching Robot B at 50 km/h, total speed = 100 km/h), when do they meet?',
+        expected: 2,
+        unit: 'giờ / hours',
+        runSim: (sim) => {
+          sim.robots[0].velocity = 50;
+          sim.robots[1].velocity = 50;
+          sim.reset();
+          sim.start();
+        },
+        explanationVi: 't = 200 ÷ (50 + 50) = 2.0 giờ! Hai robot gặp nhau chính xác tại điểm giữa 100 km.',
+        explanationEn: 't = 200 ÷ (50 + 50) = 2.0 hours! They meet exactly at the middle 100 km mark.'
       }
     });
   }
@@ -56,11 +91,13 @@ class Lesson4 extends LessonBase {
   renderExecute(container, polyaEngine, simEngine) {
     const lang = I18n.currentLang;
     container.innerHTML = `
-      <div class="problem-box" style="margin-bottom: 1rem;">
+      <div id="step3-pred-slot"></div>
+
+      <div class="problem-box" style="margin-bottom: 1rem; margin-top: 0.75rem;">
         <p style="font-size: 0.95rem;">
           ${lang === 'vi' 
-            ? '💡 Trong 1 giờ, cả hai Robot đi được: <strong>30 + 50 = 80 km</strong> (Tổng vận tốc). Áp dụng <strong>t = s ÷ (v₁ + v₂)</strong> để tìm thời gian gặp nhau:' 
-            : '💡 In 1 hour, both robots cover: <strong>30 + 50 = 80 km</strong> (Combined speed). Apply <strong>t = s ÷ (v₁ + v₂)</strong> to find meeting time:'}
+            ? '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>Trong 1 giờ, cả hai Robot đi được: <strong>30 + 50 = 80 km</strong>. Áp dụng <strong>t = s ÷ (v₁ + v₂)</strong> để tìm thời gian gặp nhau:' 
+            : '💡 <strong>' + I18n.t('phaseCalculationTitle') + '</strong>:<br/>In 1 hour, both robots cover: <strong>30 + 50 = 80 km</strong>. Apply <strong>t = s ÷ (v₁ + v₂)</strong> to find meeting time:'}
         </p>
       </div>
 
@@ -80,6 +117,10 @@ class Lesson4 extends LessonBase {
 
       <div id="step3-feedback"></div>
     `;
+
+    // Render Phase 1: Prediction prompt
+    const predSlot = container.querySelector('#step3-pred-slot');
+    this.renderPredictionPrompt(predSlot);
 
     const btnCheck = container.querySelector('#btn-check-execute');
     btnCheck.addEventListener('click', () => {
@@ -116,7 +157,11 @@ class Lesson4 extends LessonBase {
               </small>
             </div>
           </div>
+          <div id="step3-comparison-slot"></div>
         `;
+
+        // Render Phase 3: Prediction vs Actual Comparison
+        this.renderComparisonTable(fb, 2.5, 2.5, lang === 'vi' ? 'giờ' : 'hours', lang === 'vi' ? 'Hai robot xuất phát cùng lúc từ 2 đầu và gặp nhau chính xác sau 2.5 giờ!' : 'Both robots met after exactly 2.5 hours!');
       } else {
         SoundFX.playOops();
         Telemetry.logEvent(3, 'ERROR_RECORDED', {

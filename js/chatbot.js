@@ -453,10 +453,15 @@ const Chatbot = {
     if (indicator) indicator.remove();
   },
 
+  // Cached element for HTML escaping (avoids creating new DOM element per call)
+  _escapeEl: null,
+
   escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    if (!this._escapeEl) {
+      this._escapeEl = document.createElement('div');
+    }
+    this._escapeEl.textContent = text;
+    return this._escapeEl.innerHTML;
   },
 
   /**

@@ -10,12 +10,7 @@ const SoundFX = {
   init() {
     // Lazy initialize AudioContext upon first user interaction to comply with browser autoplay policies
     const unlockAudio = () => {
-      if (!this.ctx) {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtx) {
-          this.ctx = new AudioCtx();
-        }
-      }
+      this.ensureContext();
       document.removeEventListener('click', unlockAudio);
       document.removeEventListener('touchstart', unlockAudio);
     };
@@ -34,10 +29,12 @@ const SoundFX = {
   ensureContext() {
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) this.ctx = new AudioCtx();
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+      }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume().catch(() => {}); // Silently handle resume failures
     }
   },
 

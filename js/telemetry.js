@@ -38,7 +38,14 @@ const Telemetry = {
     TRIAL_ATTEMPT: 'TRIAL_ATTEMPT',         // Lần nộp/kiểm tra đáp án
     HINT_REQUESTED: 'HINT_REQUESTED',       // Xin gợi ý
     REFLECTION_ANSWER: 'REFLECTION_ANSWER', // Bước 4: Trả lời câu hỏi nhìn lại
-    LESSON_COMPLETE: 'LESSON_COMPLETE'
+    LESSON_COMPLETE: 'LESSON_COMPLETE',
+
+    // === NEW: Prediction-Observe-Compare Cycle (Phục vụ NCKH) ===
+    PREDICTION_SUBMITTED: 'PREDICTION_SUBMITTED',   // Dự đoán ban đầu trước mô phỏng
+    PREDICTION_COMPARED: 'PREDICTION_COMPARED',     // So sánh dự đoán vs kết quả thực tế
+    WHAT_IF_TESTED: 'WHAT_IF_TESTED',               // Bước 4: Thử kịch bản what-if
+    SELF_ASSESSMENT: 'SELF_ASSESSMENT',              // Bước 4: Tự đánh giá mức tự tin
+    UNIT_CHECK_ANSWER: 'UNIT_CHECK_ANSWER'           // Bước 4: Kiểm tra đơn vị đo
   },
 
   init() {
@@ -50,6 +57,9 @@ const Telemetry = {
       screenHeight: window.innerHeight,
       language: localStorage.getItem('robot_math_lang') || 'vi'
     });
+
+    // Flush any buffered events before page unload to prevent data loss
+    window.addEventListener('beforeunload', () => this._flushEvents());
   },
 
   getOrCreateAnonymousId() {
@@ -75,8 +85,15 @@ const Telemetry = {
     this.stepStartTime = Date.now();
   },
 
+  // Batch write buffer
+  _eventBuffer: [],
+  _flushTimer: null,
+  _FLUSH_THRESHOLD: 5,
+  _FLUSH_INTERVAL_MS: 3000,
+
   /**
    * Main logging method - formats event into standardized research statement
+   * Uses batched writes to reduce localStorage I/O
    */
   logEvent(polyaStep, eventType, eventData = {}) {
     const timestamp = new Date().toISOString();
@@ -90,21 +107,47 @@ const Telemetry = {
       data: eventData
     };
 
-    // Save to local storage
-    const allEvents = this.getAllEvents();
-    allEvents.push(eventRecord);
-    try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(allEvents));
-    } catch (e) {
-      console.warn('Storage quota exceeded, keeping latest 500 events', e);
-      if (allEvents.length > 500) {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(allEvents.slice(-500)));
-      }
+    // Add to buffer
+    this._eventBuffer.push(eventRecord);
+
+    // Flush if buffer reaches threshold
+    if (this._eventBuffer.length >= this._FLUSH_THRESHOLD) {
+      this._flushEvents();
+    } else if (!this._flushTimer) {
+      // Schedule a flush after interval
+      this._flushTimer = setTimeout(() => this._flushEvents(), this._FLUSH_INTERVAL_MS);
     }
 
     // Dispatch event for any real-time UI dashboards
     window.dispatchEvent(new CustomEvent('telemetryLog', { detail: eventRecord }));
     return eventRecord;
+  },
+
+  /**
+   * Flush buffered events to localStorage
+   */
+  _flushEvents() {
+    if (this._flushTimer) {
+      clearTimeout(this._flushTimer);
+      this._flushTimer = null;
+    }
+    if (this._eventBuffer.length === 0) return;
+
+    const allEvents = this.getAllEvents();
+    allEvents.push(...this._eventBuffer);
+    this._eventBuffer = [];
+
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(allEvents));
+    } catch (e) {
+      console.warn('Storage quota exceeded, keeping latest 500 events', e);
+      const trimmed = allEvents.slice(-500);
+      try {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(trimmed));
+      } catch (e2) {
+        console.error('Cannot write telemetry to localStorage', e2);
+      }
+    }
   },
 
   getAllEvents() {
@@ -120,6 +163,7 @@ const Telemetry = {
    * Export telemetry data as CSV formatted for SPSS/R/Excel analysis
    */
   exportCSV() {
+    this._flushEvents(); // Ensure all buffered events are written
     const events = this.getAllEvents();
     if (!events.length) {
       alert('Chưa có dữ liệu ghi nhận nào / No telemetry data recorded yet.');
@@ -161,6 +205,7 @@ const Telemetry = {
    * Export telemetry data as JSON
    */
   exportJSON() {
+    this._flushEvents(); // Ensure all buffered events are written
     const events = this.getAllEvents();
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(events, null, 2));
     const link = document.createElement('a');
@@ -187,6 +232,10 @@ const Telemetry = {
       totalTrials: events.filter(e => e.eventType === this.EVENT_TYPES.TRIAL_ATTEMPT).length,
       backwardStepsCount: events.filter(e => e.eventType === this.EVENT_TYPES.BACKWARD_STEP).length,
       correctTrials: events.filter(e => e.eventType === this.EVENT_TYPES.TRIAL_ATTEMPT && e.data && e.data.isCorrect).length,
+      totalPredictions: events.filter(e => e.eventType === this.EVENT_TYPES.PREDICTION_SUBMITTED).length,
+      totalWhatIfTested: events.filter(e => e.eventType === this.EVENT_TYPES.WHAT_IF_TESTED).length,
+      totalSelfAssessments: events.filter(e => e.eventType === this.EVENT_TYPES.SELF_ASSESSMENT).length,
+      totalUnitChecks: events.filter(e => e.eventType === this.EVENT_TYPES.UNIT_CHECK_ANSWER).length,
       errorsByType: {}
     };
 

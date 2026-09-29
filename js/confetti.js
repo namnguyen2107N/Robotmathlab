@@ -63,8 +63,8 @@ const Confetti = {
     if (!this.ctx) return;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const p = this.particles[i];
+    // Update and draw all particles, then filter out dead ones
+    this.particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
       p.vy += p.gravity;
@@ -72,8 +72,8 @@ const Confetti = {
       p.opacity -= 0.012;
 
       if (p.opacity <= 0 || p.y > this.canvas.height) {
-        this.particles.splice(i, 1);
-        continue;
+        p._dead = true;
+        return;
       }
 
       this.ctx.save();
@@ -83,7 +83,10 @@ const Confetti = {
       this.ctx.fillStyle = p.color;
       this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
       this.ctx.restore();
-    }
+    });
+
+    // Remove dead particles in one pass (more efficient than splice in loop)
+    this.particles = this.particles.filter(p => !p._dead);
 
     if (this.particles.length > 0) {
       this.animationId = requestAnimationFrame(() => this.loop());
