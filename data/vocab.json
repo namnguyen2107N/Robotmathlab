@@ -1,0 +1,122 @@
+{
+  "speed": {
+    "vi": "vận tốc",
+    "explain": "Quãng đường đi được trong một đơn vị thời gian",
+    "phonetic": "/spiːd/"
+  },
+  "distance": {
+    "vi": "quãng đường",
+    "explain": "Độ dài đoạn đường từ điểm này đến điểm kia",
+    "phonetic": "/ˈdɪstəns/"
+  },
+  "time": {
+    "vi": "thời gian",
+    "explain": "Khoảng thời gian để hoàn thành một hành động",
+    "phonetic": "/taɪm/"
+  },
+  "destination": {
+    "vi": "đích đến",
+    "explain": "Nơi mà robot cần đến",
+    "phonetic": "/ˌdestɪˈneɪʃn/"
+  },
+  "robot": {
+    "vi": "rô-bốt",
+    "explain": "Máy móc có thể thực hiện lệnh tự động",
+    "phonetic": "/ˈroʊbɑːt/"
+  },
+  "move": {
+    "vi": "di chuyển",
+    "explain": "Thay đổi vị trí từ chỗ này sang chỗ khác",
+    "phonetic": "/muːv/"
+  },
+  "travel": {
+    "vi": "đi / di chuyển",
+    "explain": "Di chuyển từ nơi này đến nơi khác",
+    "phonetic": "/ˈtrævl/"
+  },
+  "reach": {
+    "vi": "đến / tới",
+    "explain": "Đi đến được một vị trí nào đó",
+    "phonetic": "/riːtʃ/"
+  },
+  "second": {
+    "vi": "giây",
+    "explain": "Đơn vị đo thời gian (1 phút = 60 giây)",
+    "phonetic": "/ˈsekənd/"
+  },
+  "meter": {
+    "vi": "mét",
+    "explain": "Đơn vị đo chiều dài",
+    "phonetic": "/ˈmiːtər/"
+  },
+  "formula": {
+    "vi": "công thức",
+    "explain": "Quy tắc tính toán bằng ký hiệu toán học",
+    "phonetic": "/ˈfɔːrmjələ/"
+  },
+  "calculate": {
+    "vi": "tính toán",
+    "explain": "Dùng phép tính để tìm ra kết quả",
+    "phonetic": "/ˈkælkjuleɪt/"
+  },
+  "result": {
+    "vi": "kết quả",
+    "explain": "Đáp án / số liệu thu được sau khi tính",
+    "phonetic": "/rɪˈzʌlt/"
+  },
+  "check": {
+    "vi": "kiểm tra",
+    "explain": "Xem xét lại xem đúng hay sai",
+    "phonetic": "/tʃek/"
+  },
+  "change": {
+    "vi": "thay đổi",
+    "explain": "Làm cho khác đi so với ban đầu",
+    "phonetic": "/tʃeɪndʒ/"
+  },
+  "plan": {
+    "vi": "kế hoạch",
+    "explain": "Dự kiến những bước cần làm trước khi thực hiện",
+    "phonetic": "/plæn/"
+  },
+  "problem": {
+    "vi": "bài toán / vấn đề",
+    "explain": "Câu hỏi cần giải quyết",
+    "phonetic": "/ˈprɑːbləm/"
+  },
+  "solve": {
+    "vi": "giải",
+    "explain": "Tìm ra đáp án cho bài toán",
+    "phonetic": "/sɑːlv/"
+  },
+  "target": {
+    "vi": "mục tiêu",
+    "explain": "Điều cần đạt được",
+    "phonetic": "/ˈtɑːrɡɪt/"
+  },
+  "actual": {
+    "vi": "thực tế",
+    "explain": "Kết quả xảy ra trên thực tế",
+    "phonetic": "/ˈæktʃuəl/"
+  },
+  "required": {
+    "vi": "yêu cầu",
+    "explain": "Điều cần phải đạt được",
+    "phonetic": "/rɪˈkwaɪərd/"
+  },
+  "run": {
+    "vi": "chạy",
+    "explain": "Cho robot bắt đầu di chuyển",
+    "phonetic": "/rʌn/"
+  },
+  "condition": {
+    "vi": "điều kiện",
+    "explain": "Thông tin hoặc yêu cầu đã cho",
+    "phonetic": "/kənˈdɪʃn/"
+  },
+  "different": {
+    "vi": "khác nhau",
+    "explain": "Không giống nhau",
+    "phonetic": "/ˈdɪfrənt/"
+  }
+}

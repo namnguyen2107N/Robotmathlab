@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robot Math Lab - Kids Fun Math & Robotics Simulation</title>
+  <meta name="description"
+    content="Virtual Robotics simulation platform helping elementary students master problem-solving in Math and STEM English." />
+
+  <!-- Google Fonts: Press Start 2P, Baloo 2, Nunito & Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Main Unified Kid-Friendly Fullscreen Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Retro Pixel Art Splash Screen Stylesheet -->
+  <link rel="stylesheet" href="css/splash.css" />
+
+  <!-- Cute Tab Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+</head>
+
+<body class="kid-theme">
+
+  <!-- =========================================================================
+       RETRO PIXEL ART SPLASH SCREEN (8-BIT ARCADE CONSOLE)
+       ========================================================================= -->
+  <div id="splash-screen" class="splash-screen" role="dialog" aria-modal="true" aria-label="Màn hình khởi động Robot Math Lab">
+    <div class="splash-content">
+      
+      <!-- Background Scene Layers: Cheerful Sky, Golden Sun, Clouds, Flying Rocket, Math Bubbles & Floating Symbols -->
+      <div class="splash-sky">
+        <div class="pixel-stars" aria-hidden="true"></div>
+        
+        <!-- Warm Smiling Sun with Gentle Pulsing Rays -->
+        <div class="splash-sun" aria-hidden="true">
+          <div class="sun-core"></div>
+          <div class="sun-rays"></div>
+        </div>
+
+        <!-- Flying Space Rocket Crossing the Sky -->
+        <div class="splash-flying-rocket" aria-hidden="true">
+          <span class="rocket-body">🚀</span>
+          <span class="rocket-trail">💨</span>
+        </div>
+
+        <!-- Floating Math Equation Bubbles (Animated Upward Drift) -->
+        <div class="floating-math-bubble bubble-eq-1" aria-hidden="true">1 + 1 = 2</div>
+        <div class="floating-math-bubble bubble-eq-2" aria-hidden="true">3 × 4 = 12</div>
+        <div class="floating-math-bubble bubble-eq-3" aria-hidden="true">10 ÷ 2 = 5</div>
+        <div class="floating-math-bubble bubble-eq-4" aria-hidden="true">x + 5 = 9</div>
+        <div class="floating-math-bubble bubble-eq-5" aria-hidden="true">√25 = 5</div>
+
+        <!-- Floating Playful Math & Robotics Symbols -->
+        <div class="floating-icon-item icon-plus" aria-hidden="true">➕</div>
+        <div class="floating-icon-item icon-minus" aria-hidden="true">➖</div>
+        <div class="floating-icon-item icon-multiply" aria-hidden="true">✖️</div>
+        <div class="floating-icon-item icon-divide" aria-hidden="true">➗</div>
+        <div class="floating-icon-item icon-abacus" aria-hidden="true">🧮</div>
+        <div class="floating-icon-item icon-ruler" aria-hidden="true">📐</div>
+        <div class="floating-icon-item icon-star-1" aria-hidden="true">⭐</div>
+        <div class="floating-icon-item icon-star-2" aria-hidden="true">✨</div>
+        <div class="floating-icon-item icon-bulb" aria-hidden="true">💡</div>
+        <div class="floating-icon-item icon-infinity" aria-hidden="true">∞</div>
+        <div class="floating-icon-item icon-pi" aria-hidden="true">π</div>
+
+        <!-- Fluffy Drifting Clouds -->
+        <div class="pixel-cloud cloud-1" aria-hidden="true"></div>
+        <div class="pixel-cloud cloud-2" aria-hidden="true"></div>
+        <div class="pixel-cloud cloud-3" aria-hidden="true"></div>
+        <div class="pixel-cloud cloud-4" aria-hidden="true"></div>
+      </div>
+
+      <!-- Rotating Robotics Machine Gears (Left and Right Clusters) -->
+      <div class="splash-gears-cluster cluster-left" aria-hidden="true">
+        <div class="gear-wheel gear-indigo gear-large animate-spin-cw">⚙️</div>
+        <div class="gear-wheel gear-amber gear-medium animate-spin-ccw">⚙️</div>
+      </div>
+
+      <div class="splash-gears-cluster cluster-right" aria-hidden="true">
+        <div class="gear-wheel gear-emerald gear-large animate-spin-ccw">⚙️</div>
+        <div class="gear-wheel gear-cyan gear-small animate-spin-cw">⚙️</div>
+      </div>
+
+      <div class="splash-hills back-hills" aria-hidden="true"></div>
+      <div class="splash-hills mid-hills" aria-hidden="true"></div>
+      <div class="splash-ground" aria-hidden="true">
+        <div class="pixel-grass-edge"></div>
+      </div>
+
+      <!-- Main Arcade Center Stage (Grand 2X Scaled Size) -->
+      <div class="splash-center-stage grand-stage">
+        
+        <!-- Top Status Bar: Free Play message & Sound/Fullscreen Tools -->
+        <div class="splash-top-bar">
+          <div class="arcade-coin-pill" id="splash-coin-pill">
+            <span class="coin-icon">🪙</span> <span id="splash-coin-text">CHẾ ĐỘ TỰ DO: MIỄN PHÍ</span>
+          </div>
+          <div class="splash-top-tools">
+            <button type="button" class="btn-splash-tool" id="btn-splash-sound" title="Âm thanh / Sound">
+              <span id="splash-sound-icon">🔊</span>
+            </button>
+            <button type="button" class="btn-splash-tool" id="btn-splash-fs" title="Toàn màn hình / Fullscreen">
+              <span id="splash-fs-icon">⛶</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Robot Mascot Sparky Peaking Behind the Signboard (Enlarged with Waving Hand & Battery Meter) -->
+        <div class="splash-robot-wrapper">
+          <div class="splash-robot grand-robot" id="splash-robot" title="Robot Sparky! Bấm để xem vũ điệu chiến thắng 🚀">
+            <div class="pixel-robot-antenna">
+              <span class="antenna-bulb animate-pixel-glow">💡</span>
+              <span class="antenna-wave wave-1"></span>
+              <span class="antenna-wave wave-2"></span>
+              <span class="antenna-stick"></span>
+            </div>
+            
+            <div class="pixel-robot-head-wrap">
+              <!-- Waving Left Arm -->
+              <div class="robot-waving-arm arm-left animate-wave-hand" aria-hidden="true">
+                <span class="robot-hand">👋</span>
+              </div>
+
+              <!-- Main Robot Head -->
+              <div class="pixel-robot-head">
+                <div class="pixel-ear ear-l"></div>
+                <div class="pixel-face">
+                  <div class="pixel-eyes">
+                    <span class="pixel-eye eye-l"><span class="pupil"></span></span>
+                    <span class="pixel-eye eye-r"><span class="pupil"></span></span>
+                  </div>
+                  <div class="pixel-mouth">‿</div>
+                  <div class="face-heart-meter">🔋 100%</div>
+                </div>
+                <div class="pixel-ear ear-r"></div>
+              </div>
+
+              <!-- Right Arm -->
+              <div class="robot-waving-arm arm-right" aria-hidden="true">
+                <span class="robot-hand">🦾</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grand Signboard / Console Card (Doubled Size & Prominence) -->
+        <div class="splash-signboard grand-signboard" id="splash-signboard">
+          <!-- 4 Corner Tech Screws / Rivets -->
+          <div class="signboard-rivet rivet-tl" aria-hidden="true"></div>
+          <div class="signboard-rivet rivet-tr" aria-hidden="true"></div>
+          <div class="signboard-rivet rivet-bl" aria-hidden="true"></div>
+          <div class="signboard-rivet rivet-br" aria-hidden="true"></div>
+
+          <div class="signboard-inner grand-inner">
+            
+            <!-- Sparky Clamp Hands gripping the top board edge -->
+            <div class="robot-clamp-hands" aria-hidden="true">
+              <div class="clamp-hand hand-l">🦾</div>
+              <div class="clamp-hand hand-r">🦾</div>
+            </div>
+
+            <!-- Header & App Title -->
+            <div class="signboard-header">
+              <div class="arcade-eyebrow" id="splash-eyebrow">★ NHẬP MÔN TOÁN HỌC & ROBOTICS ★</div>
+              <h1 class="arcade-title grand-title">
+                <span class="title-word-1">ROBOT</span>
+                <span class="title-word-2">MATH</span>
+                <span class="title-word-3">LAB</span>
+              </h1>
+              <div class="arcade-sub grand-sub" id="splash-subtitle">NỀN TẢNG HỌC TOÁN & GIẢI QUYẾT VẤN ĐỀ POLYA</div>
+            </div>
+
+            <!-- Big Tactile 3D START Action Button (Extra Grand Size) -->
+            <div class="signboard-btn-wrap">
+              <button id="btn-splash-start" class="btn-start grand-start-btn animate-arcade-pulse" type="button" aria-label="Bắt đầu học tập">
+                <span class="start-arrow-l">▶</span>
+                <span class="start-btn-text">START</span>
+                <span class="start-arrow-r">◀</span>
+              </button>
+            </div>
+
+            <!-- Language Selection Menu: Clean Vietnamese & English Options (Doubled Touch Target) -->
+            <div class="splash-lang-select grand-lang-select" role="radiogroup" aria-label="Chọn ngôn ngữ giao diện">
+              <div class="lang-option active" data-lang="vi" role="radio" aria-checked="true" tabindex="0">
+                <span class="lang-arrow">▶</span>
+                <span class="lang-flag">🇻🇳</span>
+                <span class="lang-text">TIẾNG VIỆT</span>
+              </div>
+              <div class="lang-option" data-lang="en" role="radio" aria-checked="false" tabindex="0">
+                <span class="lang-arrow">▶</span>
+                <span class="lang-flag">🇬🇧</span>
+                <span class="lang-text">ENGLISH</span>
+              </div>
+            </div>
+
+            <!-- Player / Student Name Input (Grand Size) -->
+            <div class="splash-player-name-wrap grand-name-wrap">
+              <label for="splash-student-name" class="name-label" id="splash-name-label">🧑‍🎓 TÊN BẠN:</label>
+              <input type="text" id="splash-student-name" class="pixel-name-input grand-name-input" maxlength="20" placeholder="Nhập tên của bạn..." value="Bé Yêu Toán" />
+            </div>
+
+            <!-- Arcade Footer Instructions & Credits -->
+            <div class="splash-arcade-footer grand-footer" id="splash-footer-hints">
+              <span class="key-hint">▲/▼ CHỌN</span>
+              <span class="sep">•</span>
+              <span class="key-hint">ENTER: BẮT ĐẦU</span>
+              <span class="sep">•</span>
+              <span class="key-hint">© 2026 TRƯỜNG ĐH SƯ PHẠM HÀ NỘI</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Cute Expansive Header -->
+  <header class="app-header" id="app-header">
+    <div class="header-container">
+      <!-- Brand Logo -->
+      <a href="#hub" class="brand-link" id="brand-home-link" title="Missions Hub / Trang chủ chọn bài">
+        <div class="brand-icon-cute animate-bounce-gentle">🤖</div>
+        <div>
+          <div class="brand-name">Robot Math Lab ✨</div>
+          <div class="brand-sub">KIDS FUN MATH & ROBOTICS LAB</div>
+        </div>
+      </a>
+
+      <!-- Header Tools: Language Switcher, Sound FX, Fullscreen Toggle, Student Tag, Export -->
+      <div class="header-tools">
+        <!-- Language Switcher in Header -->
+        <div class="header-lang-pill" id="header-lang-pill" title="Interface Language / Ngôn ngữ giao diện">
+          <button type="button" class="btn-lang-tab active" id="btn-lang-en" title="English Interface">🇬🇧 EN</button>
+          <button type="button" class="btn-lang-tab" id="btn-lang-vi" title="Giao diện Tiếng Việt">🇻🇳 VI</button>
+        </div>
+
+        <!-- Student Badge -->
+        <div class="header-student-tag" id="header-student-tag" title="Active Student / Học sinh">
+          <span class="student-avatar-icon">🧑‍🎓</span>
+          <span id="header-student-name">Math Explorer</span>
+        </div>
+
+        <!-- Sound Toggle -->
+        <button type="button" class="btn-header-tool" id="btn-toggle-sound" title="Sound / Âm thanh">
+          <span id="sound-icon">🔊</span> <span id="sound-btn-text">Sound</span>
+        </button>
+
+        <!-- Fullscreen Toggle -->
+        <button type="button" class="btn-header-tool btn-tool-fullscreen" id="btn-toggle-fullscreen"
+          title="Fullscreen / Toàn màn hình">
+          <span id="fullscreen-icon">⛶</span> <span id="fullscreen-btn-text">Fullscreen</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dynamic Fullscreen Application Container -->
+  <main id="main-view">
+    <!-- Rendered dynamically by js/app.js (Mission Hub or Task Workspace) -->
+  </main>
+
+  <!-- Cute Floating Mascot Companion: Robot Sparky -->
+  <div class="sparky-mascot-container" id="sparky-container" role="complementary" aria-label="Robot companion Sparky">
+    <div class="sparky-speech-bubble" id="sparky-bubble" title="Drag to move Sparky anywhere! 🤖">
+      Hi! I'm Sparky the Robot 🤖 Choose your language and click Start to explore! ✨
+    </div>
+    <div class="sparky-bot-avatar" id="sparky-avatar" title="Click for cheer or drag to move Sparky! 🤖" tabindex="0">
+      <div class="sparky-antenna">💡</div>
+      <div class="sparky-face">
+        <div class="sparky-eyes">
+          <span class="sparky-eye">👀</span>
+        </div>
+        <div class="sparky-smile">‿</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Footer -->
+  <footer class="app-footer" id="app-footer">
+    <div class="footer-container">
+      <div class="footer-copy">
+        <strong>Robot Math Lab</strong> &copy; 2026 &bull; Hanoi National University of Education - HNUE
+      </div>
+      <div class="footer-tech">
+        <strong>Project</strong> &bull; Trường Đại học Sư phạm Hà Nội
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core Scripts in Clean Dependency Order -->
+  <script src="js/i18n.js"></script>
+  <script src="js/sound-fx.js"></script>
+  <script src="js/polya-engine.js"></script>
+  <script src="js/simulation-engine.js"></script>
+  <script src="js/log-engine.js"></script>
+  <script src="js/vocab-support.js"></script>
+  <script src="js/math-hints.js"></script>
+  <script src="js/tasks/task1-reach.js"></script>
+  <script src="js/tasks/task2-fix.js"></script>
+  <script src="js/tasks/task3-new.js"></script>
+  <script src="js/feedback-engine.js"></script>
+  <script src="js/task-engine.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Fullscreen toggle logic & sync
+    const fsBtn = document.getElementById('btn-toggle-fullscreen');
+    const fsIcon = document.getElementById('fullscreen-icon');
+    const fsText = document.getElementById('fullscreen-btn-text');
+
+    function syncFullscreenUI() {
+      const isFs = !!document.fullscreenElement;
+      if (fsIcon) fsIcon.innerText = isFs ? '⤢' : '⛶';
+      if (fsText) fsText.innerText = isFs
+        ? (window.I18N ? window.I18N.t('fullscreen_exit') : 'Windowed')
+        : (window.I18N ? window.I18N.t('fullscreen_enter') : 'Fullscreen');
+
+      const startFsIcon = document.getElementById('start-fs-icon');
+      const startFsText = document.getElementById('start-fs-text');
+      const isVi = window.I18N ? window.I18N.isVietnamese() : false;
+      if (startFsIcon) startFsIcon.innerText = isFs ? '⤢' : '⛶';
+      if (startFsText) startFsText.innerText = isFs
+        ? (isVi ? 'Thu nhỏ' : 'Windowed')
+        : (isVi ? 'Toàn màn hình' : 'Fullscreen');
+    }
+
+    if (fsBtn) {
+      fsBtn.onclick = function () {
+        if (window.SoundFX) window.SoundFX.playPop();
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => { });
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+        }
+      };
+    }
+    document.addEventListener('fullscreenchange', syncFullscreenUI);
+
+    // Sound toggle logic
+    const soundBtn = document.getElementById('btn-toggle-sound');
+    const soundText = document.getElementById('sound-btn-text');
+
+    function syncSoundUI(isMuted) {
+      if (soundBtn) {
+        const icon = soundBtn.querySelector('#sound-icon');
+        if (icon) icon.innerText = isMuted ? '🔇' : '🔊';
+      }
+      if (soundText) {
+        soundText.innerText = isMuted
+          ? (window.I18N ? window.I18N.t('sound_muted') : 'Muted')
+          : (window.I18N ? window.I18N.t('sound_btn') : 'Sound');
+      }
+    }
+
+    if (soundBtn) {
+      soundBtn.onclick = function () {
+        if (window.SoundFX) {
+          const isMuted = window.SoundFX.toggleMute();
+          syncSoundUI(isMuted);
+        }
+      };
+    }
+    window.addEventListener('soundMuteChanged', (e) => {
+      const isMuted = e.detail?.isMuted ?? (window.SoundFX ? window.SoundFX.isMuted : false);
+      syncSoundUI(isMuted);
+    });
+
+    // Header Language Toggle Buttons
+    const btnLangEn = document.getElementById('btn-lang-en');
+    const btnLangVi = document.getElementById('btn-lang-vi');
+    if (btnLangEn && btnLangVi) {
+      btnLangEn.onclick = () => window.I18N && window.I18N.setLang('en');
+      btnLangVi.onclick = () => window.I18N && window.I18N.setLang('vi');
+    }
+
+    function syncHeaderLanguage() {
+      if (!window.I18N) return;
+      const isVi = window.I18N.isVietnamese();
+      document.documentElement.lang = isVi ? 'vi' : 'en';
+
+      if (btnLangEn) btnLangEn.classList.toggle('active', !isVi);
+      if (btnLangVi) btnLangVi.classList.toggle('active', isVi);
+
+      const brandSub = document.querySelector('.brand-sub');
+      if (brandSub) brandSub.innerText = window.I18N.t('brand_sub');
+
+      const isMuted = window.SoundFX ? window.SoundFX.isMuted : false;
+      syncSoundUI(isMuted);
+      syncFullscreenUI();
+
+      // Update titles
+      if (soundBtn) soundBtn.title = isVi ? 'Bật/Tắt âm thanh' : 'Toggle Sound FX';
+      if (fsBtn) fsBtn.title = isVi ? 'Toàn màn hình' : 'Toggle Fullscreen';
+    }
+
+    window.addEventListener('languageChanged', syncHeaderLanguage);
+    document.addEventListener('DOMContentLoaded', syncHeaderLanguage);
+    syncHeaderLanguage(); // Call immediately in case DOM is already parsed
+
+    // Sparky mascot companion: freely draggable across the page & click-to-cheer
+    const sparkyContainer = document.getElementById('sparky-container');
+    const sparkyAvatar = document.getElementById('sparky-avatar');
+    const sparkyBubble = document.getElementById('sparky-bubble');
+
+    function getSparkyCheerMessages() {
+      if (window.I18N && window.I18N.isVietnamese()) {
+        return [
+          "Bạn học giỏi lắm, cố gắng lên nào! ⭐",
+          "Hãy nhớ đọc kỹ đề bài trước khi tính nhé! 📖",
+          "Toán học thật thú vị đúng không nào? 🚀",
+          "Mình luôn ở đây để đồng hành cùng bạn! 🤖✨",
+          "Nếu gặp khó khăn, hãy bấm nút 'Gợi ý' nhé! 💡",
+          "Mỗi lần thử sai là một lần chúng mình học thêm điều mới! 🌱"
+        ];
+      }
+      return [
+        "You're doing great! Keep it up! ⭐",
+        "Always read the problem carefully before calculating! 📖",
+        "Math and robots are so fun together! 🚀",
+        "I'm always right here with you! 🤖✨",
+        "Need help? Click the 'Hint' button anytime! 💡",
+        "Every mistake is a step toward learning something new! 🌱"
+      ];
+    }
+
+    function triggerSparkyCheer() {
+      if (window.SoundFX) window.SoundFX.playTing();
+      sparkyAvatar.classList.add('sparky-jump');
+      setTimeout(() => sparkyAvatar.classList.remove('sparky-jump'), 600);
+      const msgs = getSparkyCheerMessages();
+      const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+      if (sparkyBubble) sparkyBubble.innerText = randomMsg;
+    }
+
+    let isDragging = false;
+    let hasMoved = false;
+    let startPointerX = 0;
+    let startPointerY = 0;
+    let grabOffsetX = 0;
+    let grabOffsetY = 0;
+    let currentSide = 'bubble-on-left';
+    let activePointerTarget = null;
+    let activePointerId = null;
+
+    // Restore saved position from localStorage if available
+    try {
+      const savedPos = localStorage.getItem('sparky_pos');
+      if (savedPos) {
+        const parsed = JSON.parse(savedPos);
+        if (parsed) {
+          if (parsed.side) {
+            currentSide = parsed.side;
+            sparkyContainer.classList.remove('bubble-on-left', 'bubble-on-right');
+            sparkyContainer.classList.add(currentSide);
+          }
+          if (parsed.right !== undefined) sparkyContainer.style.right = parsed.right;
+          if (parsed.left !== undefined) sparkyContainer.style.left = parsed.left;
+          if (parsed.bottom !== undefined) sparkyContainer.style.bottom = parsed.bottom;
+          if (parsed.top !== undefined) sparkyContainer.style.top = parsed.top;
+        }
+      }
+    } catch (_) { }
+
+    function updateSparkyPosition(clientX, clientY) {
+      const avatarRect = sparkyAvatar.getBoundingClientRect();
+      const winW = window.innerWidth;
+      const winH = window.innerHeight;
+
+      const avatarW = avatarRect.width || 88;
+      const avatarH = avatarRect.height || 88;
+
+      const minAvatarX = 12;
+      const maxAvatarX = Math.max(12, winW - avatarW - 12);
+      const desiredAvatarX = Math.max(minAvatarX, Math.min(clientX - grabOffsetX, maxAvatarX));
+
+      const minAvatarY = 12;
+      const maxAvatarY = Math.max(12, winH - avatarH - 12);
+      const desiredAvatarY = Math.max(minAvatarY, Math.min(clientY - grabOffsetY, maxAvatarY));
+
+      const side = desiredAvatarX < (winW / 2) ? 'bubble-on-right' : 'bubble-on-left';
+      if (side !== currentSide) {
+        currentSide = side;
+        sparkyContainer.classList.remove('bubble-on-left', 'bubble-on-right');
+        sparkyContainer.classList.add(currentSide);
+      }
+
+      let containerX;
+      const gap = 16;
+      const bubbleW = (sparkyBubble && sparkyBubble.offsetWidth) ? sparkyBubble.offsetWidth : 260;
+
+      if (currentSide === 'bubble-on-left') {
+        containerX = desiredAvatarX - bubbleW - gap;
+        if (containerX < 12) containerX = 12;
+      } else {
+        containerX = desiredAvatarX;
+        const totalW = sparkyContainer.offsetWidth;
+        if (containerX + totalW > winW - 12) {
+          containerX = Math.max(12, winW - totalW - 12);
+        }
+      }
+
+      const containerH = sparkyContainer.offsetHeight;
+      let containerY = (desiredAvatarY + avatarH) - containerH;
+      if (containerY < 12) containerY = 12;
+      if (containerY + containerH > winH - 12) {
+        containerY = Math.max(12, winH - containerH - 12);
+      }
+
+      sparkyContainer.style.left = `${Math.round(containerX)}px`;
+      sparkyContainer.style.top = `${Math.round(containerY)}px`;
+      sparkyContainer.style.right = 'auto';
+      sparkyContainer.style.bottom = 'auto';
+    }
+
+    function onPointerStart(e) {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+      isDragging = true;
+      hasMoved = false;
+      startPointerX = e.clientX;
+      startPointerY = e.clientY;
+      activePointerTarget = e.currentTarget;
+      activePointerId = e.pointerId;
+
+      const avatarRect = sparkyAvatar.getBoundingClientRect();
+      grabOffsetX = e.clientX - avatarRect.left;
+      grabOffsetY = e.clientY - avatarRect.top;
+
+      try {
+        activePointerTarget.setPointerCapture(activePointerId);
+      } catch (_) { }
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      const dx = e.clientX - startPointerX;
+      const dy = e.clientY - startPointerY;
+
+      if (!hasMoved && Math.hypot(dx, dy) > 5) {
+        hasMoved = true;
+        sparkyContainer.classList.add('is-dragging');
+        sparkyAvatar.classList.add('is-dragging');
+        if (sparkyBubble) sparkyBubble.classList.add('is-dragging');
+      }
+
+      if (hasMoved) {
+        updateSparkyPosition(e.clientX, e.clientY);
+      }
+    }
+
+    function onPointerEnd(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      sparkyContainer.classList.remove('is-dragging');
+      sparkyAvatar.classList.remove('is-dragging');
+      if (sparkyBubble) sparkyBubble.classList.remove('is-dragging');
+
+      if (activePointerTarget && activePointerId !== null) {
+        try {
+          activePointerTarget.releasePointerCapture(activePointerId);
+        } catch (_) { }
+      }
+      activePointerTarget = null;
+      activePointerId = null;
+
+      if (!hasMoved) {
+        triggerSparkyCheer();
+      } else {
+        const avatarRect = sparkyAvatar.getBoundingClientRect();
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        const avatarW = avatarRect.width || 88;
+        const avatarH = avatarRect.height || 88;
+
+        let rightVal = 'auto';
+        let leftVal = 'auto';
+        let bottomVal = 'auto';
+        let topVal = 'auto';
+
+        if (avatarRect.left >= winW / 2) {
+          const distRight = Math.max(12, winW - (avatarRect.left + avatarW));
+          rightVal = `${Math.round(distRight)}px`;
+        } else {
+          leftVal = `${Math.max(12, Math.round(avatarRect.left))}px`;
+        }
+
+        if (avatarRect.top >= winH / 2) {
+          const distBottom = Math.max(12, winH - (avatarRect.top + avatarH));
+          bottomVal = `${Math.round(distBottom)}px`;
+        } else {
+          const containerRect = sparkyContainer.getBoundingClientRect();
+          topVal = `${Math.max(12, Math.round(containerRect.top))}px`;
+        }
+
+        sparkyContainer.style.right = rightVal;
+        sparkyContainer.style.left = leftVal;
+        sparkyContainer.style.bottom = bottomVal;
+        sparkyContainer.style.top = topVal;
+
+        try {
+          localStorage.setItem('sparky_pos', JSON.stringify({
+            side: currentSide,
+            right: rightVal,
+            left: leftVal,
+            bottom: bottomVal,
+            top: topVal
+          }));
+        } catch (_) { }
+      }
+    }
+
+    if (sparkyAvatar) {
+      sparkyAvatar.addEventListener('pointerdown', onPointerStart);
+      sparkyAvatar.addEventListener('pointermove', onPointerMove);
+      sparkyAvatar.addEventListener('pointerup', onPointerEnd);
+      sparkyAvatar.addEventListener('pointercancel', onPointerEnd);
+
+      sparkyAvatar.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          triggerSparkyCheer();
+        }
+      });
+    }
+
+    if (sparkyBubble) {
+      sparkyBubble.addEventListener('pointerdown', onPointerStart);
+      sparkyBubble.addEventListener('pointermove', onPointerMove);
+      sparkyBubble.addEventListener('pointerup', onPointerEnd);
+      sparkyBubble.addEventListener('pointercancel', onPointerEnd);
+    }
+
+    window.addEventListener('resize', () => {
+      if (!sparkyContainer) return;
+      const containerRect = sparkyContainer.getBoundingClientRect();
+      const maxW = Math.max(12, window.innerWidth - containerRect.width - 12);
+      const maxH = Math.max(12, window.innerHeight - containerRect.height - 12);
+      if (sparkyContainer.style.left && sparkyContainer.style.left !== 'auto') {
+        const currL = parseFloat(sparkyContainer.style.left) || containerRect.left;
+        sparkyContainer.style.left = `${Math.max(12, Math.min(currL, maxW))}px`;
+      }
+      if (sparkyContainer.style.top && sparkyContainer.style.top !== 'auto') {
+        const currT = parseFloat(sparkyContainer.style.top) || containerRect.top;
+        sparkyContainer.style.top = `${Math.max(12, Math.min(currT, maxH))}px`;
+      }
+    });
+  </script>
+</body>
+
+</html>
