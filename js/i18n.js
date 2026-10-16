@@ -1,291 +1,482 @@
 /**
- * ROBOT MATH LAB - BILINGUAL (VIETNAMESE / ENGLISH) SYSTEM
- * Designed to reduce cognitive load for elementary students while preserving math precision.
+ * ROBOT MATH LAB - INTERNATIONALIZATION (I18N) ENGINE
+ * Manages UI language switching (English / Tiếng Việt).
+ * 
+ * Rules:
+ * 1. Default UI language is English ('en') on first launch.
+ * 2. Switching language updates all interface controls, buttons, headers, steppers, and feedback.
+ * 3. The mathematical problem statement itself ALWAYS remains in English (with interactive bilingual vocab popovers).
+ *    A toggle button allows students to view the Vietnamese translation when needed.
  */
 
-const I18n = {
-  currentLang: localStorage.getItem('robot_math_lang') || 'vi',
+(function () {
+  const STORAGE_KEY = 'rml_ui_language';
+  let currentLang = 'en'; // Default to English as requested
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY)) {
+      currentLang = localStorage.getItem(STORAGE_KEY);
+    }
+  } catch (_) { }
 
-  translations: {
-    vi: {
-      // Header & Navigation
-      appTitle: 'Robot Math Lab',
-      appSubtitle: 'Mô phỏng Toán học & Robotics Tiểu học',
-      navHome: 'Trang chủ',
-      navLessons: 'Danh mục Bài học',
-      navProgress: 'Nhật ký & Tiến trình',
-      navResearch: 'Dữ liệu Nghiên cứu',
-      studentProfile: 'Học sinh',
-      grade5Motion: 'Chuyển Động Đều Lớp 5',
-      grade4Geometry: 'Hình Học & Đo Lường Lớp 4 (Mô-đun)',
+  const translations = {
+    en: {
+      // App Header
+      brand_sub: 'KIDS FUN MATH & ROBOTICS LAB',
+      student_tag_title: 'Active Student',
+      student_default_name: 'Math Explorer',
+      sound_btn: 'Sound',
+      sound_muted: 'Muted',
+      fullscreen_enter: 'Fullscreen',
+      fullscreen_exit: 'Windowed',
+      export_data: 'Export Data',
+      lang_switch_title: 'Switch Interface Language',
+      settings_btn_title: 'Settings & Student Profile',
+      settings_modal_title: '⚙️ Settings & Profile',
+      settings_modal_subtitle: 'Customize student info and learning environment',
+      settings_name_label: 'Student Name:',
+      settings_name_hint: 'Displayed across your missions and certificates',
+      settings_name_save: 'Save',
+      settings_lang_label: 'Language:',
+      settings_lang_hint: 'Switch between English and Vietnamese',
+      settings_sound_label: 'Sound Effects:',
+      settings_sound_hint: 'Cheerful feedback audio on actions and success',
+      settings_fs_label: 'Fullscreen Mode:',
+      settings_fs_hint: 'Maximize screen space for calculations',
+      settings_arcade_label: 'Retro Arcade Screen:',
+      settings_arcade_hint: 'Open the full 8-bit mascot console',
+      settings_arcade_btn: 'Launch Arcade ▶',
+      settings_done_btn: 'Done & Resume Learning ✨',
 
-      // Polya 4 Steps
-      step1Title: '1. Hiểu vấn đề',
-      step1Subtitle: 'Đọc kỹ đề bài & Phân loại dữ kiện',
-      step2Title: '2. Lập kế hoạch',
-      step2Subtitle: 'Chọn công thức & Chiến lược giải',
-      step3Title: '3. Thực hiện',
-      step3Subtitle: 'Mô phỏng & Tính toán kết quả',
-      step4Title: '4. Kiểm tra & Nhìn lại',
-      step4Subtitle: 'Đánh giá kết quả & Mở rộng',
+      // Welcome Hero & Robot Signboard
+      hero_eyebrow: 'PROBLEM SOLVING & VIRTUAL ROBOTICS',
+      hero_title: 'Robot Math Lab',
+      hero_subtitle: 'Virtual Robotics Math Learning Environment for Elementary Students.',
+      signboard_badge: 'INTERACTIVE CONTROL BOARD',
+      signboard_title: 'Choose Interface Language',
+      signboard_subtitle: 'Select how you want buttons and tools displayed:',
+      lang_en: '🇬🇧 English',
+      lang_vi: '🇻🇳 Tiếng Việt',
+      btn_start: 'Start 🚀',
+      student_name_label: 'Student Name / ID:',
+      student_name_placeholder: 'Enter your name...',
+      robot_bubble_welcome: "Hi! I'm Sparky the Robot 🤖 Choose your language on my tablet and click Start to explore! ✨",
+      robot_easter_egg: 'Yay! Let\'s learn Math and code robots together! 🚀',
+      scroll_down_hint: 'Click Start to enter missions!',
+      btn_enter_missions: 'Start Exploring Missions ➔',
+      hub_greeting: "Welcome, Explorer! Let's choose your learning mission:",
+      btn_back_to_start: '⚙️ Welcome & Language Screen',
 
-      // Polya UI Elements
-      knownData: 'Dữ kiện ĐÃ BIẾT (Đề cho)',
-      unknownData: 'Dữ kiện CẦN TÌM (Hỏi)',
-      dragHint: 'Kéo thả hoặc bấm để phân loại thông tin bài toán:',
-      selectFormula: 'Chọn công thức thích hợp để giải bài toán:',
-      formulaTriangle: 'Tam giác liên hệ (s, v, t):',
-      formulaSpeed: 'v = s ÷ t  (Vận tốc = Quãng đường ÷ Thời gian)',
-      formulaDistance: 's = v × t  (Quãng đường = Vận tốc × Thời gian)',
-      formulaTime: 't = s ÷ v  (Thời gian = Quãng đường ÷ Vận tốc)',
-      formulaOpposite: 't = s ÷ (v₁ + v₂)  (Hai vật chuyển động ngược chiều)',
-      inputValues: 'Nhập số liệu để cài đặt Robot:',
-      runSimulation: 'Chạy mô phỏng',
-      pauseSimulation: 'Tạm dừng',
-      resetSimulation: 'Đặt lại',
-      stepSimulation: 'Từng bước',
-      speedLabel: 'Tốc độ mô phỏng:',
-      timeElapsed: 'Thời gian:',
-      distanceCovered: 'Quãng đường:',
-      currentVelocity: 'Vận tốc:',
+      // Tasks Hub
+      hub_section_title: 'Choose Your Mission',
+      hub_section_desc: 'Each mission focuses on key problem-solving strategies in uniform motion mathematics.',
 
-      // Action Buttons
-      btnNext: 'Tiếp tục',
-      btnBack: 'Quay lại',
-      btnHint: 'Gợi ý',
-      btnCheck: 'Kiểm tra kết quả',
-      btnTryAgain: 'Thử lại',
-      btnComplete: 'Hoàn thành bài học',
-      btnExportData: 'Xuất dữ liệu nghiên cứu (CSV)',
-      btnClearData: 'Xóa dữ liệu',
+      // Task 1 Card
+      task1_badge: '🎯 Task 1',
+      task1_title: 'Reach the Goal',
+      task1_btn: 'Start Mission 1 ➔',
 
-      // Feedback & Dialogs
-      correctMessage: 'Tuyệt vời! Kết quả hoàn toàn chính xác.',
-      incorrectMessage: 'Chưa chính xác rồi. Hãy thử quan sát lại mô phỏng nhé!',
-      hintUsedText: 'Bạn đã mở một gợi ý:',
-      reviewQuestion1: 'Kết quả tính được có hợp lý với thực tế không?',
-      reviewQuestion2: 'Nếu vận tốc của Robot tăng gấp đôi, thời gian đi sẽ thay đổi thế nào?',
-      congratsTitle: 'Chúc mừng bạn đã hoàn thành bài học!',
-      
-      // === NEW: Prediction-Observe-Compare Cycle (NCKH) ===
-      phasePredictionTitle: 'Pha 1: Dự đoán & Ước lượng ban đầu',
-      phasePredictionDesc: 'Trước khi tính toán, hãy quan sát và đưa ra ước lượng ban đầu của bạn:',
-      phaseCalculationTitle: 'Pha 2: Tính toán chính xác & Lập trình Robot',
-      phaseComparisonTitle: 'Pha 3: Đối chiếu Dự đoán vs Kết quả thực tế',
-      btnSavePrediction: 'Lưu dự đoán & Bắt đầu tính toán',
-      predictionSavedNotice: '✓ Đã ghi nhận dự đoán! Giờ hãy áp dụng công thức để tính giá trị chính xác.',
-      predictionLabel: 'Dự đoán ban đầu:',
-      calculatedLabel: 'Tính toán chính xác:',
-      actualSimLabel: 'Mô phỏng thực tế:',
-      deviationLabel: 'Độ chênh lệch ước lượng:',
-      observeSimulationPrompt: 'Quan sát robot chạy trên đường đua ảo để kiểm chứng tính toán!',
+      // Task 2 Card
+      task2_badge: '🔧 Task 2',
+      task2_title: 'The Unexpected Journey',
+      task2_btn: 'Start Mission 2 ➔',
 
-      // === NEW: Step 4 Interactive Review & What-if ===
-      step4InteractiveDesc: 'Thực hiện 3 thử thách kiểm tra & nhìn lại để nhận 30 sao thưởng:',
-      unitCheckTitle: 'Thử thách 1: Kiểm tra đơn vị đo lường',
-      whatIfTitle: 'Thử thách 2: Kịch bản "Nếu... thì sao?" (What-If)',
-      whatIfDesc: 'Thay đổi thông số và dự đoán kết quả mới để rèn luyện tư duy ngoại suy:',
-      btnTestWhatIf: 'Chạy thử nghiệm What-If',
-      selfAssessmentTitle: 'Thử thách 3: Tự đánh giá mức độ tự tin',
-      selfConfidencePrompt: 'Bạn tự tin bao nhiêu phần trăm khi gặp lại bài toán dạng này?',
+      // Task 3 Card
+      task3_badge: '🆕 Task 3',
+      task3_title: 'The On-Time Challenge',
+      task3_btn: 'Start Mission 3 ➔',
 
-      // === NEW: Bilingual Math Vocabulary ===
-      mathVocabTitle: 'Từ điển Thuật ngữ Toán - Anh',
-      vocabDistance: 'Quãng đường (Distance - s)',
-      vocabVelocity: 'Vận tốc (Velocity / Speed - v)',
-      vocabTime: 'Thời gian (Time - t)',
-      vocabFormula: 'Công thức (Formula)',
-      vocabOpposite: 'Ngược chiều (Opposite direction)',
-      vocabSameDir: 'Cùng chiều (Same direction)',
+      // Workspace Common
+      btn_back_hub: '← Missions Hub',
+      btn_hint: '💡 Hint',
+      btn_dict: '📖 Dictionary',
+      btn_feedback: '📋 Feedback',
+      btn_journal: '📒 Journal',
+      confirm_leave_task: 'Are you sure you want to return to Missions Hub? Your progress has been logged.',
 
-      // Units
-      unitMeters: 'm',
-      unitKilometers: 'km',
-      unitSeconds: 'giây',
-      unitHours: 'giờ',
-      unitMps: 'm/s',
-      unitKmph: 'km/h',
+      // Stepper
+      step_1_name: 'Understand',
+      step_2_name: 'Plan',
+      step_3_name: 'Execute',
+      step_4_name: 'Look Back',
 
-      // 5 Lessons Metadata
-      lesson1Title: 'Bài 1: Cuộc Đua Robot – Khái Niệm Vận Tốc',
-      lesson1Desc: 'Giúp 2 Robot Alpha và Beta chạy đua 100m. Tìm xem Robot nào chạy nhanh hơn và tính vận tốc của từng Robot.',
-      lesson2Title: 'Bài 2: Robot Giao Hàng – Tính Quãng Đường',
-      lesson2Desc: 'Robot Eco giao bưu phẩm với vận tốc cố định 15 km/h trong 3 giờ. Hãy xác định quãng đường Robot đã đi.',
-      lesson3Title: 'Bài 3: Robot Cứu Hộ – Tính Thời Gian',
-      lesson3Desc: 'Trạm cứu hộ cách hiện trường 120 km. Robot cứu hỏa chạy với vận tốc 40 km/h. Cần bao nhiêu giờ để tới nơi?',
-      lesson4Title: 'Bài 4: Hai Robot Chạy Ngược Chiều Gặp Nhau',
-      lesson4Desc: 'Hai Robot xuất phát cùng lúc từ hai trạm cách nhau 200 km và đi ngược chiều. Khi nào và ở đâu chúng sẽ gặp nhau?',
-      lesson5Title: 'Bài 5: Thử Thách Lộ Trình Đa Chặng',
-      lesson5Desc: 'Robot thám hiểm Mặt Trăng vượt qua 3 chặng đường gồ ghề với vận tốc khác nhau. Tính tổng thời gian và vẽ đồ thị chuyển động.'
+      // Problem Statement Card
+      problem_card_title: 'Problem Statement',
+      btn_trans_show: '🌐 Vietnamese Translation',
+      btn_trans_hide: '🌐 Hide Translation',
+      problem_hint_meta: '💡 Tip: Click or tap any underlined word to view pronunciation & Vietnamese translation.',
+
+      // Simulation Card
+      sim_track_title: 'Virtual Robot Track',
+      sim_target_label: 'Target:',
+      sim_speed_label: 'Speed (v)',
+      sim_time_label: 'Time (t)',
+      sim_dist_label: 'Distance (s)',
+      sim_ready: 'Ready. Check your parameters and run the robot!',
+      sim_moving: 'Robot is moving at {speed} m/s for {time} seconds...',
+      sim_stopped: 'Robot stopped after traveling {dist} m.',
+
+      // Dedicated Virtual Robot Track Sub-screen
+      s3_btn_open_track: 'Open Virtual Robot Track ➔',
+      track_view_title: 'Virtual Robot Track',
+      track_btn_back_params: '← Back to Parameters',
+      track_btn_back_step4: '← Back to Step 4',
+      track_btn_run: '🚀 Run Robot',
+      track_btn_running: '⏳ Robot Running...',
+      track_btn_rerun: '🔄 Run Again',
+      track_btn_continue_step4: 'Continue: Check Results (Step 4 →)',
+      track_instruction: 'Observe the robot motion, distance ruler, and destination marker.',
+      track_progress_badge: 'Step 3 of 4: Execution',
+      track_view_track_btn: '🔍 View Robot Track',
+      track_status_ready: 'Ready! Check your robot parameters and click "🚀 Run Robot" to launch!',
+      track_status_running: 'Robot is moving at {speed} {speedUnit} for {time} {timeUnit}...',
+      track_status_finished: 'Simulation finished. Robot traveled {dist} {unit}.',
+      track_result_match: '🎯 Target Reached! Robot traveled exactly {dist} {unit} to the destination!',
+      track_result_mismatch: '⚠️ Target Missed: Robot traveled {dist} {unit} (Target is {target} {unit}).',
+
+      // Step 1: Understand
+      s1_badge: 'Step 1: Understand',
+      s1_title: 'Understand the Problem',
+      s1_given_heading: 'Given Information in Problem:',
+      s1_error_missing: 'Please enter all given quantities and choose the target to find!',
+      s1_btn_next: 'Check Understanding & Next (Step 2 →)',
+
+      // Step 2: Plan
+      s2_badge: 'Step 2: Plan',
+      s2_title: 'Devise a Plan',
+      s2_error_missing: 'Please choose a formula and enter your calculation result!',
+      s2_btn_back: '← Back to Step 1',
+      s2_btn_next: 'Confirm Plan (Step 3 →)',
+
+      // Step 3: Execute
+      s3_badge: 'Step 3: Execute',
+      s3_title: 'Execute the Plan on Robot',
+      s3_speed_label: 'Robot Speed:',
+      s3_speed_locked: '🔒 Fixed by problem',
+      s3_time_label: 'Running Time:',
+      s3_param_placeholder: 'Enter a value',
+      s3_time_flawed_note: 'Proposed plan time for testing',
+      s3_btn_back: '← Back to Step 2',
+      s3_btn_run: '🚀 Run Robot',
+      s3_btn_running: '⏳ Robot Running...',
+      s3_btn_rerun: '🔁 Re-run Robot',
+      s3_btn_next: 'Look Back & Verify (Step 4 →)',
+      s3_obs_title: '📊 Simulation Observation:',
+      s3_obs_traveled: 'The robot traveled <strong>{dist} m</strong> in {time} seconds.',
+      s3_obs_target: 'Target destination: <strong>{target} m</strong>.',
+      s3_val_error: 'Please enter valid parameters for the robot!',
+
+      // Step 4: Look Back
+      s4_badge: 'Step 4: Look Back',
+      s4_title: 'Look Back & Verify',
+      s4_banner_success: '🎉 Robot reached the destination!',
+      s4_banner_retry: '⚠️ Robot did not land exactly on the target!',
+      s4_btn_yes: '✅ Yes, reached {target}m exactly',
+      s4_btn_no: '❌ No, did not reach {target}m',
+      s4_btn_back: '← Back to Step 3',
+      s4_math_proof_title: 'Mathematical Verification:',
+      s4_refl_placeholder: 'Share your thoughts or strategies about this problem...',
+      s4_btn_complete: '🎉 Complete Mission!',
+      s4_btn_retry: '🔁 Test New Plan ➔',
+      s4_testing_new: '⏳ Robot Testing New Plan...',
+      s4_testing_status: 'Verifying with revised parameters: {speed} m/s × {time} s...',
+      s4_success_status: '🎉 Awesome! The robot reached the exact target <strong>{target} m</strong>!',
+      s4_input_error: 'Please enter a valid revised parameter for the robot!',
+      s4_obs_prompt: '👀 Look at where the robot stopped on the track, then select your answer above.',
+      s4_obs_accurate: 'Accurate Observation!',
+      s4_obs_shortfall: 'The robot stopped before reaching the target. Let us observe, analyze, and adjust the plan:',
+      s4_obs_recheck: 'Take another close look at the track ruler! The robot stopped at {actual}m, while the target flag is at {target}m. Did the robot reach the destination marker?',
+
+      // Mascot Sparky Cheer Messages
+      sparky_step_1: "Read the problem carefully! Find what numbers are given! 🧐",
+      sparky_step_2: "Choose the correct formula and calculate! You can do it! 📐",
+      sparky_step_3: "Exciting! Check your parameters and click '🚀 Run Robot' to see it go! 🤖💨",
+      sparky_step_4: "Check if the robot landed exactly on the target line! 🔍",
+      sparky_victory: "Splendid! The robot hit the target! Click 'Step 4' to verify! 🏆✨",
+      sparky_oops: "The robot stopped before the target marker! Click 'Step 4' to observe and analyze! 🔍",
+
+      // Dictionary Modal
+      dict_title: 'Math & Robotics Dictionary',
+      dict_subtitle: 'English - Vietnamese terms with pronunciation audio',
+      dict_eyebrow: 'LEARN THE WORDS',
+      dict_search_placeholder: 'Type word to search (e.g. speed, distance)...',
+      dict_search_label: 'Search the dictionary',
+      dict_filters_label: 'Filter words by topic',
+      dict_count: 'Showing {count} words',
+      dict_listen: 'Listen',
+      dict_meaning_label: 'Vietnamese meaning',
+      dict_category_all: 'All words',
+      dict_category_measurement: 'Math & measurement',
+      dict_category_robotics: 'Robot & movement',
+      dict_category_reasoning: 'Problem-solving',
+      dict_no_results: 'No matching words. Try another search.',
+      dict_loading: 'Loading the word list…',
+      dict_close: 'Close dictionary',
+
+      // Hints Modal
+      hints_title: 'Math Support Hints',
+      hints_subtitle: 'Tiered scaffolding hints for mathematical problem solving',
+      hints_intro: 'Try thinking on your own before unlocking each hint level! Every hint access is saved in the learning log.',
+      hints_unlock_btn: '🔓 Unlock Level {level}',
+      hints_level_prefix: 'Level {level}:'
     },
 
-    en: {
-      // Header & Navigation
-      appTitle: 'Robot Math Lab',
-      appSubtitle: 'Elementary Math & Virtual Robotics Lab',
-      navHome: 'Home',
-      navLessons: 'Lesson Catalog',
-      navProgress: 'Log & Progress',
-      navResearch: 'Research Telemetry',
-      studentProfile: 'Student',
-      grade5Motion: 'Grade 5 Uniform Motion',
-      grade4Geometry: 'Grade 4 Geometry & Measurement (Module)',
+    vi: {
+      // App Header
+      brand_sub: 'BÉ VUI HỌC TOÁN & ROBOTICS',
+      student_tag_title: 'Học sinh đang tham gia',
+      student_default_name: 'Bé Yêu Toán',
+      sound_btn: 'Âm thanh',
+      sound_muted: 'Đã tắt tiếng',
+      fullscreen_enter: 'Toàn màn hình',
+      fullscreen_exit: 'Thu nhỏ',
+      export_data: 'Xuất dữ liệu',
+      lang_switch_title: 'ngôn ngữ ',
+      settings_btn_title: 'Cài đặt',
+      settings_modal_title: '⚙️ Cài đặt',
+      settings_modal_subtitle: 'Tùy chỉnh ',
+      settings_name_label: 'Tên của bé:',
+      settings_name_hint: 'Hiển thị trong toàn bộ hành trình làm bài',
+      settings_name_save: 'Lưu',
+      settings_lang_label: 'Ngôn ngữ ',
+      settings_lang_hint: ' Tiếng Việt hoặc English',
+      settings_sound_label: 'Hiệu ứng âm thanh:',
+      settings_sound_hint: 'Âm thanh vui nhộn khi thao tác và hoàn thành bài',
+      settings_fs_label: 'Toàn màn hình:',
+      settings_fs_hint: 'Mở rộng tối đa không gian học tập',
+      settings_arcade_label: 'Màn hình',
+      settings_arcade_hint: 'Mở ',
+      settings_arcade_btn: 'Mở Arcade ',
+      settings_done_btn: 'Xong & Tiếp tục học ✨',
 
-      // Polya 4 Steps
-      step1Title: '1. Understand the Problem',
-      step1Subtitle: 'Read carefully & Categorize given data',
-      step2Title: '2. Devise a Plan',
-      step2Subtitle: 'Choose formulas & Strategy',
-      step3Title: '3. Carry Out the Plan',
-      step3Subtitle: 'Simulate & Calculate result',
-      step4Title: '4. Look Back & Review',
-      step4Subtitle: 'Evaluate result & Extend knowledge',
+      // Welcome Hero & Robot Signboard
+      hero_eyebrow: 'TƯ DUY GIẢI QUYẾT VẤN ĐỀ  ',
+      hero_title: 'Robot Math Lab',
+      hero_subtitle: `Môi trường học tập Toán - Tiếng Anh qua mô phỏng Robotics dành cho học sinh tiểu học.`,
+      signboard_badge: 'BẢNG ĐIỀU KHIỂN TƯƠNG TÁC',
+      signboard_title: 'Chọn Ngôn Ngữ',
+      signboard_subtitle: 'Chọn ngôn ngữ hiển thị cho các nút bấm và chức năng:',
+      lang_en: ' English',
+      lang_vi: ' Tiếng Việt',
+      btn_start: 'Bắt đầu 🚀',
+      student_name_label: 'Tên học sinh / Mã số:',
+      student_name_placeholder: 'Nhập họ và tên...',
+      robot_bubble_welcome: 'Xin chào bạn! Mình là robot Sparky 🤖 Hãy chọn ngôn ngữ trên bảng và bấm Bắt đầu nhé! ✨',
+      robot_easter_egg: 'Tuyệt vời! Chúng mình cùng học Toán và lập trình robot nào! 🚀',
+      scroll_down_hint: 'Bấm Bắt đầu để vào làm nhiệm vụ!',
+      btn_enter_missions: 'Bắt đầu Khám phá Nhiệm vụ ➔',
+      hub_greeting: 'Chào mừng bạn! Hãy chọn một nhiệm vụ học tập để bắt đầu:',
+      btn_back_to_start: '⚙️ Màn hình Chào mừng & Cài đặt',
 
-      // Polya UI Elements
-      knownData: 'GIVEN Information (Knowns)',
-      unknownData: 'TO FIND Information (Unknowns)',
-      dragHint: 'Drag or click to classify problem information:',
-      selectFormula: 'Select the appropriate formula to solve the problem:',
-      formulaTriangle: 'Relationship Triangle (s, v, t):',
-      formulaSpeed: 'v = s ÷ t  (Velocity = Distance ÷ Time)',
-      formulaDistance: 's = v × t  (Distance = Velocity × Time)',
-      formulaTime: 't = s ÷ v  (Time = Distance ÷ Velocity)',
-      formulaOpposite: 't = s ÷ (v₁ + v₂)  (Two objects in opposite motion)',
-      inputValues: 'Enter parameters to configure the Robot:',
-      runSimulation: 'Run Simulation',
-      pauseSimulation: 'Pause',
-      resetSimulation: 'Reset',
-      stepSimulation: 'Step',
-      speedLabel: 'Simulation Speed:',
-      timeElapsed: 'Time elapsed:',
-      distanceCovered: 'Distance covered:',
-      currentVelocity: 'Velocity:',
+      // Tasks Hub
+      hub_section_title: 'Chọn Nhiệm Vụ Học Tập',
+      hub_section_desc: 'Mỗi nhiệm vụ tập trung vào các khía cạnh giải quyết vấn đề toán chuyển động đều.',
 
-      // Action Buttons
-      btnNext: 'Next',
-      btnBack: 'Back',
-      btnHint: 'Hint',
-      btnCheck: 'Check Answer',
-      btnTryAgain: 'Try Again',
-      btnComplete: 'Finish Lesson',
-      btnExportData: 'Export Research Data (CSV)',
-      btnClearData: 'Clear Data',
+      // Task 1 Card
+      task1_badge: '🎯 Nhiệm vụ 1',
+      task1_title: 'Hành trình đến đích',
+      task1_btn: 'Bắt đầu Nhiệm vụ 1 ➔',
 
-      // Feedback & Dialogs
-      correctMessage: 'Awesome job! The calculation is completely correct.',
-      incorrectMessage: 'Not quite right yet. Try observing the simulation again!',
-      hintUsedText: 'You opened a hint:',
-      reviewQuestion1: 'Does the calculated result make sense in real life?',
-      reviewQuestion2: 'If the Robot velocity is doubled, how would the travel time change?',
-      congratsTitle: 'Congratulations! You completed the lesson!',
-      
-      // === NEW: Prediction-Observe-Compare Cycle (NCKH) ===
-      phasePredictionTitle: 'Phase 1: Initial Estimation & Prediction',
-      phasePredictionDesc: 'Before calculating, observe the scenario and make your initial estimate:',
-      phaseCalculationTitle: 'Phase 2: Mathematical Calculation & Robot Setup',
-      phaseComparisonTitle: 'Phase 3: Compare Prediction vs Actual Result',
-      btnSavePrediction: 'Save Prediction & Start Calculation',
-      predictionSavedNotice: '✓ Prediction logged! Now apply the mathematical formula to find the exact value.',
-      predictionLabel: 'Your Prediction:',
-      calculatedLabel: 'Calculated Value:',
-      actualSimLabel: 'Actual Simulation:',
-      deviationLabel: 'Estimation Error:',
-      observeSimulationPrompt: 'Observe the virtual robot run to verify your mathematical calculation!',
+      // Task 2 Card
+      task2_badge: '🔧 Nhiệm vụ 2',
+      task2_title: 'Chuyến đi bất ngờ',
+      task2_btn: 'Bắt đầu Nhiệm vụ 2 ➔',
 
-      // === NEW: Step 4 Interactive Review & What-if ===
-      step4InteractiveDesc: 'Complete 3 interactive review challenges to earn 30 bonus stars:',
-      unitCheckTitle: 'Challenge 1: Measurement Unit Verification',
-      whatIfTitle: 'Challenge 2: "What-If" Scenario Exploration',
-      whatIfDesc: 'Modify parameters and predict the new outcome to build extrapolation thinking:',
-      btnTestWhatIf: 'Run What-If Simulation',
-      selfAssessmentTitle: 'Challenge 3: Metacognitive Self-Assessment',
-      selfConfidencePrompt: 'How confident are you if you encounter this type of problem again?',
+      // Task 3 Card
+      task3_badge: '🆕 Nhiệm vụ 3',
+      task3_title: 'Thử thách đúng giờ',
+      task3_btn: 'Bắt đầu Nhiệm vụ 3 ➔',
 
-      // === NEW: Bilingual Math Vocabulary ===
-      mathVocabTitle: 'Math-English Vocabulary Glossary',
-      vocabDistance: 'Distance (Quãng đường - s)',
-      vocabVelocity: 'Velocity / Speed (Vận tốc - v)',
-      vocabTime: 'Time (Thời gian - t)',
-      vocabFormula: 'Formula (Công thức)',
-      vocabOpposite: 'Opposite direction (Ngược chiều)',
-      vocabSameDir: 'Same direction (Cùng chiều)',
+      // Workspace Common
+      btn_back_hub: '← Danh sách Nhiệm vụ',
+      btn_hint: '💡 Gợi ý',
+      btn_dict: '📖 Từ điển',
+      btn_feedback: '📋 Xem nhận xét',
+      btn_journal: '📒 Nhật ký',
+      confirm_leave_task: 'Bạn có chắc muốn quay lại danh sách nhiệm vụ? Tiến trình hiện tại đã được lưu vào nhật ký.',
 
-      // Units
-      unitMeters: 'm',
-      unitKilometers: 'km',
-      unitSeconds: 's',
-      unitHours: 'h',
-      unitMps: 'm/s',
-      unitKmph: 'km/h',
+      // Stepper
+      step_1_name: 'Tìm hiểu đề',
+      step_2_name: 'Lập kế hoạch',
+      step_3_name: 'Thực thi robot',
+      step_4_name: 'Kiểm tra lại',
 
-      // 5 Lessons Metadata
-      lesson1Title: 'Lesson 1: Robot Race – Concept of Velocity',
-      lesson1Desc: 'Help Robot Alpha and Beta race 100m. Determine which robot is faster and calculate their velocities.',
-      lesson2Title: 'Lesson 2: Delivery Robot – Calculating Distance',
-      lesson2Desc: 'Robot Eco delivers packages at a constant speed of 15 km/h for 3 hours. Calculate how far it traveled.',
-      lesson3Title: 'Lesson 3: Rescue Robot – Calculating Time',
-      lesson3Desc: 'The rescue station is 120 km away. The fire-fighting robot runs at 40 km/h. How many hours to arrive?',
-      lesson4Title: 'Lesson 4: Two Robots Moving Towards Each Other',
-      lesson4Desc: 'Two robots start simultaneously from two points 200 km apart moving towards each other. When and where do they meet?',
-      lesson5Title: 'Lesson 5: Multi-Stage Route Challenge',
-      lesson5Desc: 'Lunar Explorer Robot traverses 3 terrain segments at different speeds. Calculate total time and inspect the motion graph.'
+      // Problem Statement Card
+      problem_card_title: 'Đề bài nhiệm vụ (Problem Statement)',
+      btn_trans_show: '🌐 Xem dịch tiếng Việt',
+      btn_trans_hide: '🌐 Ẩn bản dịch',
+      problem_hint_meta: '💡 Gợi ý: Nhấp vào từ tiếng Anh có gạch chân để nghe phát âm & xem giải thích nghĩa tiếng Việt.',
+
+      // Simulation Card
+      sim_track_title: 'Đường chạy Robot Ảo',
+      sim_target_label: 'Đích đến:',
+      sim_speed_label: 'Vận tốc (v)',
+      sim_time_label: 'Thời gian (t)',
+      sim_dist_label: 'Quãng đường (s)',
+      sim_ready: 'Sẵn sàng. Kiểm tra các thông số và cho robot chạy!',
+      sim_moving: 'Robot đang di chuyển với vận tốc {speed} m/s trong {time} giây...',
+      sim_stopped: 'Robot đã dừng lại sau khi đi được {dist} m.',
+
+      // Dedicated Virtual Robot Track Sub-screen
+      s3_btn_open_track: 'Mở Virtual Robot Track ➔',
+      track_view_title: 'Virtual Robot Track',
+      track_btn_back_params: '← Quay lại nhập thông số',
+      track_btn_back_step4: '← Quay lại Bước 4',
+      track_btn_run: '🚀 Chạy Robot',
+      track_btn_running: '⏳ Robot đang chạy...',
+      track_btn_rerun: '🔄 Chạy lại mô phỏng',
+      track_btn_continue_step4: 'Tiếp tục: Kiểm tra kết quả (Bước 4 →)',
+      track_instruction: 'Quan sát chuyển động của robot, thước đo khoảng cách và vạch đích.',
+      track_progress_badge: 'Bước 3/4: Thực thi',
+      track_view_track_btn: '🔍 Xem lại đường chạy Robot',
+      track_status_ready: 'Sẵn sàng! Kiểm tra thông số đã nhập rồi bấm "🚀 Chạy Robot" để quan sát!',
+      track_status_running: 'Robot đang di chuyển với vận tốc {speed} {speedUnit} trong {time} {timeUnit}...',
+      track_status_finished: 'Mô phỏng hoàn thành. Robot đã đi được {dist} {unit}.',
+      track_result_match: '🎯 Đúng vạch đích! Robot đã đi chính xác {dist} {unit} đến đích!',
+      track_result_mismatch: '⚠️ Chưa đúng đích: Robot đi được {dist} {unit} (Vạch đích yêu cầu là {target} {unit}).',
+
+      // Step 1: Understand
+      s1_badge: 'Bước 1: Tìm hiểu',
+      s1_title: 'Tìm hiểu Đề bài (Understand the Problem)',
+      s1_given_heading: 'Xác định các dữ kiện đề bài đã cho:',
+      s1_error_missing: 'Vui lòng điền đầy đủ các số liệu đã cho và chọn đại lượng cần tìm!',
+      s1_btn_next: 'Kiểm tra & Tiếp tục (Bước 2 →)',
+
+      // Step 2: Plan
+      s2_badge: 'Bước 2: Kế hoạch',
+      s2_title: 'Lập Kế hoạch Giải (Devise a Plan)',
+      s2_error_missing: 'Vui lòng chọn công thức và điền kết quả tính toán!',
+      s2_btn_back: '← Quay lại Bước 1',
+      s2_btn_next: 'Xác nhận Kế hoạch (Bước 3 →)',
+
+      // Step 3: Execute
+      s3_badge: 'Bước 3: Thực thi',
+      s3_title: 'Thực thi Kế hoạch trên Robot (Execute)',
+      s3_speed_label: 'Vận tốc Robot:',
+      s3_speed_locked: '🔒 Cố định theo bài toán',
+      s3_time_label: 'Thời gian chạy:',
+      s3_param_placeholder: 'Nhập giá trị',
+      s3_time_flawed_note: 'Thời gian theo phương án đề xuất',
+      s3_btn_back: '← Quay lại Bước 2',
+      s3_btn_run: '🚀 Chạy Robot',
+      s3_btn_running: '⏳ Robot đang chạy...',
+      s3_btn_rerun: '🔁 Chạy lại Robot',
+      s3_btn_next: 'Kiểm tra & Đánh giá (Bước 4 →)',
+      s3_obs_title: '📊 Kết quả quan sát mô phỏng:',
+      s3_obs_traveled: 'Robot đã di chuyển được <strong>{dist} m</strong> trong {time} giây.',
+      s3_obs_target: 'Vạch đích yêu cầu: <strong>{target} m</strong>.',
+      s3_val_error: 'Vui lòng nhập thông số hợp lệ cho rô-bốt!',
+
+      // Step 4: Look Back
+      s4_badge: 'Bước 4: Kiểm tra',
+      s4_title: 'Kiểm tra & Đánh giá (Look Back & Verify)',
+      s4_banner_success: '🎉 Rô-bốt đã đến đúng vạch đích!',
+      s4_banner_retry: '⚠️ Rô-bốt chưa đến đúng vạch đích yêu cầu!',
+      s4_btn_yes: '✅ Có, đến chính xác đích {target}m',
+      s4_btn_no: '❌ Chưa đạt, chưa đến đích {target}m',
+      s4_btn_back: '← Quay lại Bước 3',
+      s4_math_proof_title: 'Kiểm chứng Toán học (Mathematical Verification):',
+      s4_refl_placeholder: 'Chia sẻ suy nghĩ hoặc bài học rút ra của bạn về bài toán này...',
+      s4_btn_complete: '🎉 Hoàn thành Nhiệm vụ!',
+      s4_btn_retry: '🔁 Thử nghiệm phương án mới ➔',
+      s4_testing_new: '⏳ Rô-bốt đang thử nghiệm phương án mới...',
+      s4_testing_status: 'Đang kiểm chứng với thông số mới: {speed} m/s × {time} s...',
+      s4_success_status: '🎉 Tuyệt vời! Rô-bốt đã đến đúng mốc <strong>{target} m</strong>!',
+      s4_input_error: 'Vui lòng nhập giá trị thông số đã điều chỉnh cho rô-bốt!',
+      s4_obs_prompt: '👀 Hãy quan sát vị trí dừng của rô-bốt trên đường chạy rồi chọn câu trả lời ở trên nhé!',
+      s4_obs_accurate: 'Nhận định chính xác!',
+      s4_obs_shortfall: 'Rô-bốt chưa đến vạch đích. Hãy cùng quan sát, phân tích và điều chỉnh phương án:',
+      s4_obs_recheck: 'Hãy quan sát kỹ lại thước đo trên đường chạy nhé! Rô-bốt dừng lại ở vạch {actual}m, còn lá cờ đích ở vạch {target}m. Như vậy rô-bốt đã đến đúng đích chưa?',
+
+      // Mascot Sparky Cheer Messages
+      sparky_step_1: 'Hãy đọc kỹ đề bài và tìm xem bài toán cho những số liệu nào nhé! 🧐',
+      sparky_step_2: 'Chọn công thức và tính toán thật chuẩn xác nào! Bạn làm được mà! 📐',
+      sparky_step_3: "Hồi hộp quá! Hãy kiểm tra thông số rồi bấm '🚀 Chạy Robot' để xem nhé! 🤖💨",
+      sparky_step_4: 'Kiểm tra lại xem robot có về đúng vạch đích không nhé! 🔍',
+      sparky_victory: "Tuyệt đỉnh! Robot đã đi đúng đích rồi! Hãy bấm 'Bước 4' để kiểm tra lại nào! 🏆✨",
+      sparky_oops: "Robot đã dừng trước vạch đích rồi! Bấm 'Bước 4' để chúng mình cùng quan sát và đánh giá nhé! 🔍",
+
+      // Dictionary Modal
+      dict_title: 'Từ điển Toán - Tiếng Anh Robotics',
+      dict_subtitle: 'Kho từ vựng song ngữ kèm phát âm audio giọng chuẩn bản ngữ',
+      dict_eyebrow: 'CÙNG HỌC TỪ VỰNG',
+      dict_search_placeholder: 'Gõ từ tiếng Anh cần tra (ví dụ: speed, distance)...',
+      dict_search_label: 'Tìm trong từ điển',
+      dict_filters_label: 'Lọc từ vựng theo chủ đề',
+      dict_count: 'Đang hiển thị {count} từ vựng',
+      dict_listen: 'Nghe phát âm',
+      dict_meaning_label: 'Nghĩa tiếng Việt',
+      dict_category_all: 'Tất cả từ',
+      dict_category_measurement: 'Toán & đo lường',
+      dict_category_robotics: 'Robot & chuyển động',
+      dict_category_reasoning: 'Tư duy giải toán',
+      dict_no_results: 'Chưa tìm thấy từ phù hợp. Em thử cách tìm khác nhé.',
+      dict_loading: 'Đang tải danh sách từ vựng…',
+      dict_close: 'Đóng từ điển',
+
+      // Hints Modal
+      hints_title: 'Gợi Ý Hỗ Trợ Tư Duy Toán Học',
+      hints_subtitle: 'Hệ thống gợi ý giàn giáo theo từng mức độ nhận thức',
+      hints_intro: 'Hãy cố gắng tự suy nghĩ trước khi mở từng mức gợi ý nhé! Mỗi lần mở gợi ý sẽ được ghi nhận vào nhật ký học tập.',
+      hints_unlock_btn: '🔓 Mở Gợi Ý Mức {level}',
+      hints_level_prefix: 'Mức {level}:'
     }
-  },
+  };
 
-  /**
-   * Get translated string by key
-   */
-  t(key) {
-    const lang = this.currentLang;
-    if (this.translations[lang] && this.translations[lang][key]) {
-      return this.translations[lang][key];
+  const I18N = {
+    get currentLang() {
+      return currentLang;
+    },
+
+    isVietnamese() {
+      return currentLang === 'vi';
+    },
+
+    isEnglish() {
+      return currentLang === 'en';
+    },
+
+    t(key, params = {}) {
+      const dict = translations[currentLang] || translations.en;
+      let str = dict[key] || translations.en[key] || key;
+      if (typeof str === 'string') {
+        Object.keys(params).forEach(k => {
+          str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), params[k]);
+        });
+      }
+      return str;
+    },
+
+    setLang(lang) {
+      if (lang !== 'en' && lang !== 'vi') return;
+      if (lang === currentLang) return;
+
+      currentLang = lang;
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(STORAGE_KEY, currentLang);
+        }
+      } catch (_) { }
+
+      // Play cute click audio
+      if (typeof window !== 'undefined' && window.SoundFX) {
+        window.SoundFX.playPop();
+      }
+
+      // Notify entire app of language change
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: currentLang } }));
+      }
+    },
+
+    toggleLang() {
+      this.setLang(currentLang === 'en' ? 'vi' : 'en');
     }
-    // Fallback to Vietnamese or key itself
-    return (this.translations.vi && this.translations.vi[key]) || key;
-  },
+  };
 
-  /**
-   * Switch language
-   */
-  setLang(lang) {
-    if (lang === 'vi' || lang === 'en') {
-      this.currentLang = lang;
-      localStorage.setItem('robot_math_lang', lang);
-      document.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
-      this.updateDOM();
-    }
-  },
-
-  /**
-   * Automatically update elements with data-i18n attribute
-   */
-  updateDOM() {
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      if (key) {
-        el.textContent = this.t(key);
-      }
-    });
-
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-      const key = el.getAttribute('data-i18n-placeholder');
-      if (key) {
-        el.setAttribute('placeholder', this.t(key));
-      }
-    });
-
-    document.querySelectorAll('[data-i18n-title]').forEach(el => {
-      const key = el.getAttribute('data-i18n-title');
-      if (key) {
-        el.setAttribute('title', this.t(key));
-      }
-    });
-
-    // Update active state in toggle buttons
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.lang === this.currentLang);
-    });
+  if (typeof window !== 'undefined') {
+    window.I18N = I18N;
   }
-};
-
-window.I18n = I18n;
+  if (typeof global !== 'undefined') {
+    global.I18N = I18N;
+  }
+})();

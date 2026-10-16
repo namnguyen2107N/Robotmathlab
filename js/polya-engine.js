@@ -1,7 +1,12 @@
 /**
  * ROBOT MATH LAB - POLYA PROBLEM SOLVING FINITE STATE MACHINE (FSM)
- * Controls pedagogical flow: Understand -> Plan -> Execute -> Review
- * Supports non-linear transitions (backtracking for reflection and debugging).
+ * Controls pedagogical flow:
+ * Step 1: Understand the Problem (PS1 - PS3)
+ * Step 2: Devise a Plan (PS4 - PS5)
+ * Step 3: Carry out the Plan / Execute (PS6 - PS7)
+ * Step 4: Look Back & Debug (PS8 - PS11)
+ *
+ * Supports non-linear transitions & metacognitive backtracking.
  */
 
 class PolyaEngine {
@@ -9,11 +14,19 @@ class PolyaEngine {
     UNDERSTAND: 1,
     PLAN: 2,
     EXECUTE: 3,
-    REVIEW: 4
+    REVIEW: 4,
+    LOOK_BACK: 4
   };
 
-  constructor(lessonInstance) {
-    this.lesson = lessonInstance;
+  static STEP_NAMES = {
+    1: 'Understand',
+    2: 'Plan',
+    3: 'Execute',
+    4: 'Look Back'
+  };
+
+  constructor(taskInstance = null) {
+    this.task = taskInstance;
     this.currentStep = PolyaEngine.STATES.UNDERSTAND;
     this.highestStepReached = PolyaEngine.STATES.UNDERSTAND;
     this.stepCompleted = {
@@ -27,97 +40,93 @@ class PolyaEngine {
     this.listeners = [];
   }
 
-  /**
-   * Subscribe to state machine changes
-   */
   onChange(callback) {
     this.listeners.push(callback);
+    return () => {
+      this.listeners = this.listeners.filter(cb => cb !== callback);
+    };
   }
 
   notify(oldStep, newStep, actionType) {
-    this.listeners.forEach(cb => cb({
-      oldStep,
-      newStep,
-      actionType,
-      engine: this
-    }));
+    this.listeners.forEach(cb => {
+      try {
+        cb({
+          oldStep,
+          newStep,
+          actionType,
+          engine: this
+        });
+      } catch (e) {
+        console.error('PolyaEngine listener error:', e);
+      }
+    });
   }
 
-  /**
-   * Start or reset the engine
-   */
   start() {
     this.currentStep = PolyaEngine.STATES.UNDERSTAND;
     this.highestStepReached = PolyaEngine.STATES.UNDERSTAND;
     this.stepCompleted = { 1: false, 2: false, 3: false, 4: false };
-    Telemetry.startStep(this.currentStep);
+
+    if (window.LogEngine) {
+      window.LogEngine.transitionStep(null, this.currentStep, 'START');
+    }
     this.notify(null, this.currentStep, 'START');
   }
 
-  /**
-   * Advance to the next step if current step is validated
-   */
   nextStep() {
     const oldStep = this.currentStep;
-    if (this.currentStep < PolyaEngine.STATES.REVIEW) {
-      this.currentStep++;
-      if (this.currentStep > this.highestStepReached) {
-        this.highestStepReached = this.currentStep;
-      }
-      this.attemptsInCurrentStep = 0;
-      Telemetry.startStep(this.currentStep);
-      Telemetry.logEvent(this.currentStep, Telemetry.EVENT_TYPES.STEP_TRANSITION, {
-        fromStep: oldStep,
-        toStep: this.currentStep
-      });
-      this.notify(oldStep, this.currentStep, 'NEXT');
-      return true;
+    if (this.currentStep >= PolyaEngine.STATES.REVIEW) {
+      return false;
     }
-    return false;
+
+    if (!this.stepCompleted[this.currentStep]) {
+      if (window.LogEngine) {
+        window.LogEngine.logEvent('PREMATURE_NEXT_BLOCKED', 'Attempted to advance without finishing current step', {
+          currentStep: this.currentStep
+        });
+      }
+      return false;
+    }
+
+    this.currentStep++;
+    if (this.currentStep > this.highestStepReached) {
+      this.highestStepReached = this.currentStep;
+    }
+    this.attemptsInCurrentStep = 0;
+
+    if (window.LogEngine) {
+      window.LogEngine.transitionStep(oldStep, this.currentStep, 'NEXT');
+    }
+    this.notify(oldStep, this.currentStep, 'NEXT');
+    return true;
   }
 
-  /**
-   * Backtrack to a previous step (Metacognitive debugging behavior)
-   */
   prevStep() {
     const oldStep = this.currentStep;
     if (this.currentStep > PolyaEngine.STATES.UNDERSTAND) {
       this.currentStep--;
-      Telemetry.startStep(this.currentStep);
-      Telemetry.logEvent(this.currentStep, Telemetry.EVENT_TYPES.BACKWARD_STEP, {
-        fromStep: oldStep,
-        toStep: this.currentStep,
-        reason: 'USER_NAVIGATION'
-      });
+      if (window.LogEngine) {
+        window.LogEngine.transitionStep(oldStep, this.currentStep, 'PREV_BUTTON');
+      }
       this.notify(oldStep, this.currentStep, 'PREV');
       return true;
     }
     return false;
   }
 
-  /**
-   * Jump directly to an unlocked step
-   */
   goToStep(stepNumber) {
     if (stepNumber >= 1 && stepNumber <= this.highestStepReached && stepNumber !== this.currentStep) {
       const oldStep = this.currentStep;
-      const isBackward = stepNumber < oldStep;
       this.currentStep = stepNumber;
-      Telemetry.startStep(this.currentStep);
-      Telemetry.logEvent(this.currentStep, isBackward ? Telemetry.EVENT_TYPES.BACKWARD_STEP : Telemetry.EVENT_TYPES.STEP_TRANSITION, {
-        fromStep: oldStep,
-        toStep: stepNumber,
-        reason: 'DIRECT_CLICK'
-      });
-      this.notify(oldStep, this.currentStep, isBackward ? 'PREV' : 'NEXT');
+      if (window.LogEngine) {
+        window.LogEngine.transitionStep(oldStep, this.currentStep, 'STEP_CLICK');
+      }
+      this.notify(oldStep, this.currentStep, stepNumber < oldStep ? 'PREV' : 'NEXT');
       return true;
     }
     return false;
   }
 
-  /**
-   * Mark a step as successfully completed
-   */
   markStepComplete(stepNumber) {
     this.stepCompleted[stepNumber] = true;
     if (stepNumber < 4 && this.highestStepReached < stepNumber + 1) {
@@ -128,6 +137,14 @@ class PolyaEngine {
 
   isStepCompleted(stepNumber) {
     return !!this.stepCompleted[stepNumber];
+  }
+
+  /**
+   * Reset completion of later steps when student adjusts parameters during Look Back
+   */
+  allowRerun() {
+    this.stepCompleted[3] = false;
+    this.stepCompleted[4] = false;
   }
 }
 

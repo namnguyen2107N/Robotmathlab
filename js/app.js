@@ -1,1317 +1,808 @@
 /**
- * ROBOT MATH LAB - MAIN APPLICATION CONTROLLER & ROUTER
- * Orchestrates views, lessons, Polya state transitions, telemetry, sound FX, and student profiles.
- * Includes Role-Based Access Control (Separating Regular Student and Admin/Teacher editions).
+ * ROBOT MATH LAB - APPLICATION CONTROLLER & ROUTER
+ * Orchestrates Mandatory Start Screen, Mission Hub, Robot Mascot, and Task Workspace.
  */
 
-const App = {
-  lessons: {},
-  activeLesson: null,
-  activePolyaEngine: null,
-  activeSimEngine: null,
-  selectedAvatarId: 'bot-spark',
+class AppController {
+  constructor() {
+    this.selectedLanguage = localStorage.getItem('rml_language') || localStorage.getItem('rml_ui_language') || (window.I18N ? window.I18N.currentLang : 'vi');
+    this.currentStudent = localStorage.getItem('rml_student_name') || (this.selectedLanguage === 'vi' ? 'Bé Yêu Toán' : 'Math Explorer');
+    this.taskEngine = null;
+    this.activeTaskId = null;
+    this.splashScreen = null;
+    this.init();
+  }
 
   init() {
-    this.registerLessons();
-    this.setupEventListeners();
-    this.setupUserModal();
-    this.setupControls();
-    this.updateHeaderUserProfile();
-    this.updateRoleVisibility();
-    Chatbot.init();
-    this.route();
+    // 1. Initialize retro pixel art splash screen
+    this.initSplashScreen();
 
-    // Hide chatbot badge after first open
-    const badge = document.getElementById('chatbot-badge');
-    if (badge) {
-      const chatToggle = document.getElementById('chatbot-toggle-btn');
-      if (chatToggle) {
-        chatToggle.addEventListener('click', () => {
-          badge.style.display = 'none';
-        }, { once: true });
-      }
-    }
-  },
+    // 2. Ensure task engine instance
+    this.taskEngine = new TaskEngine('main-view');
 
-  registerLessons() {
-    this.lessons = {
-      'motion-1': new Lesson1(),
-      'motion-2': new Lesson2(),
-      'motion-3': new Lesson3(),
-      'motion-4': new Lesson4(),
-      'motion-5': new Lesson5()
-    };
-  },
+    // 3. Update header student badge on startup
+    const badge = document.getElementById('header-student-name');
+    if (badge) badge.innerText = this.currentStudent;
 
-  setupEventListeners() {
-    // Hash change router
-    window.addEventListener('hashchange', () => {
-      this.route();
-      Analytics.trackPageView(window.location.hash);
+    // 4. Initialize Settings Modal
+    this.initSettingsModal();
+
+    // 5. Listen to I18N language changes
+    window.addEventListener('languageChanged', (e) => {
+      this.handleLanguageChanged(e.detail.lang);
     });
 
-    // Language change listener
-    document.addEventListener('languageChanged', () => {
-      this.route();
-      this.updateHeaderUserProfile();
-      this.updateRoleVisibility();
-    });
+    // 6. Hash-based router
+    window.addEventListener('hashchange', () => this.handleRoute());
 
-    // User changed listener
-    window.addEventListener('userChanged', () => {
-      this.updateHeaderUserProfile();
-      this.updateRoleVisibility();
-      this.route();
-    });
-
-    // Language toggle buttons
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        SoundFX.playPop();
-        I18n.setLang(btn.dataset.lang);
-      });
-    });
-
-    // Mascot click event
-    const mascotBot = document.getElementById('mascot-bot-avatar');
-    if (mascotBot) {
-      mascotBot.addEventListener('click', () => {
-        SoundFX.playPop();
-        this.mascotCheer();
-      });
-    }
-  },
-
-  setupControls() {
-    // 1. Fullscreen Toggle
-    const btnFullscreen = document.getElementById('btn-toggle-fullscreen');
-    if (btnFullscreen) {
-      btnFullscreen.addEventListener('click', () => {
-        SoundFX.playPop();
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(err => {
-            console.warn('Fullscreen error:', err);
-          });
-          btnFullscreen.textContent = '🗗';
-          btnFullscreen.title = 'Thoát toàn màn hình / Exit Fullscreen';
-        } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          }
-          btnFullscreen.textContent = '⛶';
-          btnFullscreen.title = 'Toàn màn hình / Fullscreen';
-        }
-      });
-    }
-
-    // 2. Sound FX Toggle
-    const btnSound = document.getElementById('btn-toggle-sound');
-    if (btnSound) {
-      btnSound.textContent = SoundFX.isMuted ? '🔇' : '🔊';
-      btnSound.addEventListener('click', () => {
-        const muted = SoundFX.toggleMute();
-        btnSound.textContent = muted ? '🔇' : '🔊';
-        if (!muted) SoundFX.playTing();
-      });
-    }
-  },
-
-  /**
-   * Update visibility of Admin/Research elements based on user role
-   */
-  updateRoleVisibility() {
-    const isAdmin = DB.isAdmin();
-    const navResearch = document.getElementById('nav-research-link');
-    if (navResearch) {
-      // Show research tab ONLY if user is Teacher/Admin
-      navResearch.style.display = isAdmin ? 'inline-flex' : 'none';
-    }
-  },
-
-  setupUserModal() {
-    const modal = document.getElementById('user-modal');
-    const btnOpen = document.getElementById('btn-open-user-modal');
-    const btnClose = document.getElementById('btn-close-user-modal');
-    const tabLogin = document.getElementById('tab-btn-login');
-    const tabReg = document.getElementById('tab-btn-register');
-    const contentLogin = document.getElementById('tab-content-login');
-    const contentReg = document.getElementById('tab-content-register');
-
-    if (!modal || !btnOpen) return;
-
-    btnOpen.addEventListener('click', () => {
-      SoundFX.playPop();
-      this.renderQuickUserList();
-      this.renderAvatarSelector();
-      modal.classList.add('open');
-    });
-
-    btnClose.addEventListener('click', () => {
-      SoundFX.playPop();
-      modal.classList.remove('open');
-    });
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.classList.remove('open');
-    });
-
-    // Tab switching
-    tabLogin.addEventListener('click', () => {
-      SoundFX.playPop();
-      tabLogin.classList.add('active');
-      tabReg.classList.remove('active');
-      contentLogin.style.display = 'block';
-      contentReg.style.display = 'none';
-    });
-
-    tabReg.addEventListener('click', () => {
-      SoundFX.playPop();
-      tabReg.classList.add('active');
-      tabLogin.classList.remove('active');
-      contentReg.style.display = 'block';
-      contentLogin.style.display = 'none';
-    });
-
-    // Custom login submit
-    const btnCustomLogin = document.getElementById('btn-submit-custom-login');
-    const inputLoginName = document.getElementById('login-input-name');
-    if (btnCustomLogin && inputLoginName) {
-      btnCustomLogin.addEventListener('click', () => {
-        const val = inputLoginName.value.trim();
-        if (!val) return;
-        const res = DB.login(val);
-        if (res.success) {
-          SoundFX.playTing();
-          modal.classList.remove('open');
-          this.setMascotMessage(`Chào mừng bạn ${res.user.name} đã quay trở lại! ⭐`);
-        } else {
-          SoundFX.playOops();
-          alert(res.message);
-        }
-      });
-    }
-
-    // Register submit
-    const btnRegister = document.getElementById('btn-submit-register');
-    if (btnRegister) {
-      btnRegister.addEventListener('click', () => {
-        const name = document.getElementById('reg-input-name').value.trim();
-        const grade = document.getElementById('reg-select-grade').value;
-        const className = document.getElementById('reg-input-class').value.trim();
-
-        if (!name) {
-          alert('Vui lòng nhập họ và tên của bạn nhé!');
-          return;
-        }
-
-        const newUser = DB.registerUser({
-          name,
-          grade,
-          className: className || '5A',
-          avatarId: this.selectedAvatarId
-        });
-
-        SoundFX.playVictory();
-        Confetti.burst(60);
-        modal.classList.remove('open');
-        this.setMascotMessage(`Tuyệt vời! Chào mừng bạn ${newUser.name} gia nhập Robot Math Lab! 🚀`);
-      });
-    }
-  },
-
-  renderQuickUserList() {
-    const list = document.getElementById('user-quick-list');
-    if (!list) return;
-
-    const users = DB.getUsers();
-    const currentUser = DB.getCurrentUser();
-    const isAdmin = DB.isAdmin();
-
-    list.innerHTML = `
-      <div style="margin-bottom: 0.5rem; font-weight: 800; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase;">
-        Tài khoản học sinh phổ thông:
-      </div>
-      ${users.filter(u => u.role === 'student').map(user => {
-        const avatar = DB.getAvatar(user.avatarId);
-        const isCurrent = currentUser && currentUser.id === user.id;
-        return `
-          <div class="card" style="padding: 0.85rem 1.1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-color: ${isCurrent ? 'var(--primary)' : 'var(--border-color)'}; background: ${isCurrent ? 'var(--primary-light)' : 'var(--bg-card)'};" data-user-id="${user.id}">
-            <div style="display: flex; align-items: center; gap: 0.85rem;">
-              <div style="font-size: 1.8rem; width: 46px; height: 46px; border-radius: 50%; background: ${avatar.color}; display: flex; align-items: center; justify-content: center;">
-                ${avatar.emoji}
-              </div>
-              <div>
-                <div style="font-weight: 900; font-size: 1.1rem; color: var(--text-main);">
-                  ${user.name} ${isCurrent ? '<span class="badge badge-emerald" style="font-size: 0.75rem;">Đang chọn</span>' : ''}
-                </div>
-                <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-muted);">
-                  Lớp ${user.className || '5A'} &bull; ⭐ ${user.stars || 0} sao &bull; Lv.${user.level || 1}
-                </div>
-              </div>
-            </div>
-            <button class="btn btn-sm ${isCurrent ? 'btn-success' : 'btn-outline-primary'}">
-              ${isCurrent ? '✓ Đang dùng' : 'Chọn'}
-            </button>
-          </div>
-        `;
-      }).join('')}
-
-      <div style="margin: 1.25rem 0 0.5rem 0; font-weight: 800; font-size: 0.9rem; color: #B45309; text-transform: uppercase;">
-        🔒 Dành riêng cho Giáo viên & Quản trị viên (Admin):
-      </div>
-      ${users.filter(u => u.role !== 'student').map(adminUser => {
-        const isCurrent = currentUser && currentUser.id === adminUser.id;
-        return `
-          <div class="card" style="padding: 0.85rem 1.1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-color: #F59E0B; background: #FFFBEB;" data-admin-id="${adminUser.id}">
-            <div style="display: flex; align-items: center; gap: 0.85rem;">
-              <div style="font-size: 1.8rem; width: 46px; height: 46px; border-radius: 50%; background: #F59E0B; display: flex; align-items: center; justify-content: center; color: white;">
-                🔑
-              </div>
-              <div>
-                <div style="font-weight: 900; font-size: 1.1rem; color: #92400E;">
-                  ${adminUser.name} ${isCurrent ? '<span class="badge badge-amber" style="font-size: 0.75rem;">Đang chọn</span>' : ''}
-                </div>
-                <div style="font-size: 0.85rem; font-weight: 800; color: #B45309;">
-                  Quyền Quản trị viên &bull; Xem dữ liệu nghiên cứu &bull; PIN: ${adminUser.pin}
-                </div>
-              </div>
-            </div>
-            <button class="btn btn-sm btn-warning">
-              ${isCurrent ? '✓ Admin' : 'Đăng nhập Admin'}
-            </button>
-          </div>
-        `;
-      }).join('')}
-    `;
-
-    // Student account selection
-    list.querySelectorAll('[data-user-id]').forEach(el => {
-      el.addEventListener('click', () => {
-        const uid = el.dataset.userId;
-        const u = DB.getUserById(uid);
-        if (u) {
-          DB.setCurrentUser(u);
-          SoundFX.playTing();
-          document.getElementById('user-modal').classList.remove('open');
-          this.setMascotMessage(`Chào bạn ${u.name}! Hãy cùng bắt đầu bài học nào! 🤖`);
-        }
-      });
-    });
-
-    // Admin account selection with PIN confirmation
-    list.querySelectorAll('[data-admin-id]').forEach(el => {
-      el.addEventListener('click', () => {
-        const uid = el.dataset.adminId;
-        const adminUser = DB.getUserById(uid);
-        if (adminUser) {
-          const pin = prompt(`Nhập mã PIN xác nhận quyền ${adminUser.name} (Mặc định: ${adminUser.pin}):`);
-          if (pin && pin.trim() === adminUser.pin) {
-            DB.setCurrentUser(adminUser);
-            SoundFX.playVictory();
-            document.getElementById('user-modal').classList.remove('open');
-            this.setMascotMessage(`Xin chào ${adminUser.name}! Bạn đã mở khóa chế độ Quản trị & Dữ liệu Nghiên cứu 🔬`);
-          } else if (pin !== null) {
-            SoundFX.playOops();
-            alert('Mã PIN không chính xác!');
-          }
-        }
-      });
-    });
-  },
-
-  renderAvatarSelector() {
-    const grid = document.getElementById('avatar-selector-grid');
-    if (!grid) return;
-
-    grid.innerHTML = DB.AVATARS.map(a => `
-      <div class="avatar-card-item ${a.id === this.selectedAvatarId ? 'selected' : ''}" data-avatar-id="${a.id}">
-        <span class="avatar-emoji-preview">${a.emoji}</span>
-        <span class="avatar-name-label">${a.name}</span>
-      </div>
-    `).join('');
-
-    grid.querySelectorAll('.avatar-card-item').forEach(card => {
-      card.addEventListener('click', () => {
-        SoundFX.playPop();
-        grid.querySelectorAll('.avatar-card-item').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
-        this.selectedAvatarId = card.dataset.avatarId;
-      });
-    });
-  },
-
-  updateHeaderUserProfile() {
-    const user = DB.getCurrentUser();
-    if (!user) return;
-
-    const avatar = DB.getAvatar(user.avatarId);
-    const avatarEl = document.getElementById('header-avatar-preview');
-    const nameEl = document.getElementById('header-user-name');
-    const starsEl = document.getElementById('header-user-stars');
-    const classEl = document.getElementById('header-user-class');
-    const mascotBotAvatar = document.getElementById('mascot-bot-avatar');
-
-    if (avatarEl) {
-      avatarEl.textContent = avatar.emoji;
-      avatarEl.style.background = avatar.color;
-    }
-    if (nameEl) nameEl.textContent = user.name;
-    if (starsEl) starsEl.textContent = `⭐ ${user.stars || 0}`;
-    if (classEl) {
-      if (user.role === 'teacher') {
-        classEl.textContent = '🔑 Giáo viên';
-        classEl.style.color = '#D97706';
-      } else if (user.role === 'researcher') {
-        classEl.textContent = '🔬 Nhà NCKH';
-        classEl.style.color = '#7C3AED';
-      } else {
-        classEl.textContent = `Lớp ${user.className || '5A'}`;
-        classEl.style.color = 'var(--primary)';
-      }
-    }
-    if (mascotBotAvatar) mascotBotAvatar.textContent = avatar.emoji;
-  },
-
-  setMascotMessage(msg) {
-    const bubble = document.getElementById('mascot-speech-bubble');
-    if (bubble) {
-      bubble.innerHTML = msg;
-    }
-  },
-
-  mascotCheer() {
-    const cheers = [
-      'Bạn làm rất tốt! Hãy tiếp tục phát huy nhé! 🌟',
-      'Đọc kĩ đề bài là đã giải quyết được một nửa vấn đề rồi đấy! 📖',
-      'Tam giác công thức (s, v, t) là chìa khóa vạn năng cho bài này! 📐',
-      'Mỗi lần thử lại là một lần não bộ chúng mình thông minh hơn! 💡',
-      'Robot của bạn đang tràn đầy năng lượng để về đích! 🏎️'
-    ];
-    const randomCheer = cheers[Math.floor(Math.random() * cheers.length)];
-    this.setMascotMessage(randomCheer);
-  },
-
-  route() {
-    const hash = window.location.hash || '#home';
-    const mainView = document.getElementById('main-view');
-    if (!mainView) return;
-
-    // Cleanup active simulation if leaving lesson
-    if (this.activeSimEngine && !hash.startsWith('#lesson/')) {
-      this.activeSimEngine.pause();
-      this.activeSimEngine = null;
-    }
-
-    // Update active nav links
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.classList.toggle('active', link.getAttribute('href') === hash);
-    });
-
-    if (hash === '#home' || hash === '') {
-      this.renderHome(mainView);
-      this.setMascotMessage('Xin chào! Hãy chọn một bài học trong danh mục để chúng mình cùng khám phá nhé! 🚀');
-    } else if (hash === '#lessons') {
-      this.renderLessons(mainView);
-      this.setMascotMessage('Đây là 5 thử thách chuyển động đều. Bạn muốn bắt đầu với bài nào trước? 📚');
-    } else if (hash.startsWith('#lesson/')) {
-      const lessonId = hash.replace('#lesson/', '');
-      this.renderLessonWorkspace(mainView, lessonId);
-    } else if (hash === '#progress') {
-      this.renderProgress(mainView);
-      this.setMascotMessage('Đây là bảng thành tích và huy hiệu bạn đã đạt được. Tuyệt vời lắm! 🏆');
-    } else if (hash === '#research') {
-      // Check Admin Role: If not Admin, show PIN challenge
-      if (!DB.isAdmin()) {
-        this.renderAdminAccessRestricted(mainView);
-      } else {
-        this.renderResearch(mainView);
-        this.setMascotMessage('Cổng dữ liệu nghiên cứu NCKH ghi nhận chi tiết quá trình học tập theo chuẩn xAPI! 🔬');
-      }
+    // 7. Initial access: ALWAYS show Start Screen first when accessing the website!
+    const currentHash = window.location.hash;
+    const isTask = currentHash && currentHash.startsWith('#task/');
+    if (!isTask) {
+      window.location.hash = '#start';
+      this.renderStartScreen();
     } else {
-      this.renderHome(mainView);
+      this.handleRoute();
+    }
+  }
+
+  handleLanguageChanged(lang) {
+    this.selectedLanguage = lang;
+    localStorage.setItem('rml_language', lang);
+    localStorage.setItem('rml_ui_language', lang);
+
+    // Update student name fallback if using standard defaults
+    if (this.currentStudent === 'Math Explorer' && lang === 'vi') {
+      this.setStudentName('Bé Yêu Toán');
+    } else if (this.currentStudent === 'Bé Yêu Toán' && lang === 'en') {
+      this.setStudentName('Math Explorer');
     }
 
-    I18n.updateDOM();
-  },
+    this.syncSettingsModalContent();
 
-  /**
-   * VIEW: ACCESS RESTRICTED SCREEN (Displayed when regular student tries to access #research)
-   */
-  renderAdminAccessRestricted(container) {
-    const lang = I18n.currentLang;
-    container.innerHTML = `
-      <div class="container">
-        <div class="admin-lock-card">
-          <span class="admin-lock-icon">🔒</span>
-          <h2 style="color: #92400E; margin-bottom: 0.75rem;">
-            ${lang === 'vi' ? 'Khu Vực Dành Riêng Cho Giáo Viên & Nhà Nghiên Cứu' : 'Restricted Area for Teachers & Researchers'}
-          </h2>
-          <p style="font-size: 1.1rem; color: #78350F; margin-bottom: 2rem;">
-            ${lang === 'vi' 
-              ? 'Dữ liệu nghiên cứu quá trình (Telemetry) và nhật ký người dùng được bảo mật để đảm bảo tính khách quan của đề tài NCKH. Học sinh không được phép xem phần này.' 
-              : 'Research process data (Telemetry) and user logs are restricted to ensure pedagogical research integrity. Students cannot view this section.'}
-          </p>
+    const hash = window.location.hash || '#hub';
+    if (hash === '#start' || hash === '#welcome') {
+      this.renderStartScreen();
+    } else if (hash.startsWith('#task/')) {
+      if (this.taskEngine) this.taskEngine.updateLanguage();
+    } else {
+      this.renderTaskHub();
+    }
+  }
 
-          <div style="max-width: 420px; margin: 0 auto 1.5rem auto;">
-            <label class="input-label" style="color: #92400E;">
-              🔑 ${lang === 'vi' ? 'Nhập mã PIN Quản trị (Gợi ý: 9999 hoặc 8888):' : 'Enter Admin PIN (Hint: 9999 or 8888):'}
-            </label>
-            <div style="display: flex; gap: 0.75rem;">
-              <input type="password" class="math-input" id="admin-pin-input" placeholder="****" style="font-size: 1.8rem; letter-spacing: 4px;" />
-              <button class="btn btn-warning btn-lg" id="btn-unlock-admin">
-                ${lang === 'vi' ? 'Mở khóa' : 'Unlock'}
-              </button>
-            </div>
-            <div id="admin-pin-error" style="margin-top: 0.75rem; color: var(--danger); font-weight: 800;"></div>
-          </div>
+  handleRoute() {
+    const hash = window.location.hash || '#start';
 
-          <a href="#home" class="btn btn-secondary" onclick="SoundFX.playPop()">
-            &larr; ${lang === 'vi' ? 'Quay lại Trang chủ học sinh' : 'Back to Student Home'}
-          </a>
-        </div>
-      </div>
-    `;
+    if (hash === '#start' || hash === '#welcome') {
+      this.activeTaskId = null;
+      this.renderStartScreen();
+    } else if (hash.startsWith('#task/')) {
+      this.hideSplashScreen();
+      const taskId = hash.replace('#task/', '');
+      this.launchTask(taskId);
+    } else {
+      this.hideSplashScreen();
+      this.activeTaskId = null;
+      this.renderTaskHub();
+    }
+  }
 
-    const btnUnlock = container.querySelector('#btn-unlock-admin');
-    const inputPin = container.querySelector('#admin-pin-input');
-    const errBox = container.querySelector('#admin-pin-error');
+  setStudentName(name) {
+    if (!name || !name.trim()) return;
+    this.currentStudent = name.trim();
+    localStorage.setItem('rml_student_name', this.currentStudent);
+    const badge = document.getElementById('header-student-name');
+    if (badge) badge.innerText = this.currentStudent;
+    const hubBadge = document.querySelector('.hub-student-badge-wrap .badge-name');
+    if (hubBadge) hubBadge.innerText = `${this.currentStudent} ✏️`;
+    const splashInput = document.getElementById('splash-student-name');
+    if (splashInput) splashInput.value = this.currentStudent;
+    const settingsInput = document.getElementById('settings-input-name');
+    if (settingsInput && settingsInput !== document.activeElement) settingsInput.value = this.currentStudent;
+  }
 
-    const handleUnlock = () => {
-      const pin = inputPin.value.trim();
-      const res = DB.verifyAdminPin(pin);
-      if (res.success) {
-        SoundFX.playVictory();
-        Confetti.burst(60);
-        this.updateHeaderUserProfile();
-        this.updateRoleVisibility();
-        this.renderResearch(container);
-      } else {
-        SoundFX.playOops();
-        errBox.textContent = lang === 'vi' ? 'Mã PIN Quản trị không chính xác! Vui lòng thử lại.' : 'Incorrect Admin PIN! Please try again.';
+  // =========================================================================
+  // SETTINGS & STUDENT PROFILE MODAL CONTROLLER
+  // =========================================================================
+  initSettingsModal() {
+    const btnToggleSettings = document.getElementById('btn-toggle-settings');
+    if (btnToggleSettings) {
+      btnToggleSettings.addEventListener('click', () => this.openSettingsModal());
+    }
+
+    const studentTag = document.getElementById('header-student-tag');
+    if (studentTag) {
+      studentTag.addEventListener('click', () => this.openSettingsModal());
+    }
+
+    const btnCloseSettings = document.getElementById('btn-close-settings');
+    if (btnCloseSettings) {
+      btnCloseSettings.addEventListener('click', () => this.closeSettingsModal());
+    }
+
+    const btnDone = document.getElementById('btn-settings-done');
+    if (btnDone) {
+      btnDone.addEventListener('click', () => this.closeSettingsModal());
+    }
+
+    const modal = document.getElementById('settings-modal');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeSettingsModal();
+      });
+    }
+
+    // Name input save inside settings modal
+    const btnSaveName = document.getElementById('btn-save-settings-name');
+    const inputName = document.getElementById('settings-input-name');
+    if (btnSaveName && inputName) {
+      const doSave = () => {
+        const val = inputName.value.trim();
+        if (val) {
+          this.setStudentName(val);
+          if (window.SoundFX) window.SoundFX.playTing();
+          btnSaveName.innerText = '✓';
+          setTimeout(() => {
+            const isVi = window.I18N ? window.I18N.isVietnamese() : false;
+            btnSaveName.innerText = isVi ? 'Lưu' : 'Save';
+          }, 1200);
+        }
+      };
+      btnSaveName.addEventListener('click', doSave);
+      inputName.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') doSave();
+      });
+    }
+
+    // Language pills inside modal
+    const modalLangEn = document.getElementById('btn-settings-lang-en');
+    const modalLangVi = document.getElementById('btn-settings-lang-vi');
+    if (modalLangEn) {
+      modalLangEn.addEventListener('click', () => {
+        if (window.I18N) window.I18N.setLang('en');
+        this.syncSettingsModalContent();
+      });
+    }
+    if (modalLangVi) {
+      modalLangVi.addEventListener('click', () => {
+        if (window.I18N) window.I18N.setLang('vi');
+        this.syncSettingsModalContent();
+      });
+    }
+
+    // Sound toggle inside modal
+    const modalSoundBtn = document.getElementById('btn-settings-sound-toggle');
+    if (modalSoundBtn) {
+      modalSoundBtn.addEventListener('click', () => {
+        if (window.SoundFX) {
+          const isMuted = window.SoundFX.toggleMute();
+          this.syncSettingsModalContent();
+          if (typeof window.syncSoundUI === 'function') window.syncSoundUI(isMuted);
+        }
+      });
+    }
+
+    // Fullscreen toggle inside modal
+    const modalFsBtn = document.getElementById('btn-settings-fs-toggle');
+    if (modalFsBtn) {
+      modalFsBtn.addEventListener('click', () => {
+        if (window.SoundFX) window.SoundFX.playPop();
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+        }
+        setTimeout(() => this.syncSettingsModalContent(), 120);
+      });
+    }
+
+    // Open arcade splash screen from settings
+    const btnOpenArcade = document.getElementById('btn-settings-open-arcade');
+    if (btnOpenArcade) {
+      btnOpenArcade.addEventListener('click', () => {
+        this.closeSettingsModal();
+        window.location.hash = '#start';
+        this.renderStartScreen();
+      });
+    }
+
+    // Escape key listener to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const settingsModal = document.getElementById('settings-modal');
+        if (settingsModal && settingsModal.classList.contains('active')) {
+          this.closeSettingsModal();
+        }
       }
-    };
-
-    btnUnlock.addEventListener('click', handleUnlock);
-    inputPin.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') handleUnlock();
     });
-  },
+  }
 
-  /**
-   * VIEW: HOME / DASHBOARD
-   */
-  renderHome(container) {
-    const lang = I18n.currentLang;
-    const user = DB.getCurrentUser();
-    const isAdmin = DB.isAdmin();
+  openSettingsModal() {
+    if (window.SoundFX) window.SoundFX.playPop();
+    const modal = document.getElementById('settings-modal');
+    if (!modal) return;
 
-    container.innerHTML = `
-      <div class="container">
-        <!-- Hero Section -->
-        <div style="background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 50%, #06B6D4 100%); border-radius: var(--radius-lg); padding: clamp(2.5rem, 5vw, 4rem); color: white; margin-bottom: 3rem; box-shadow: var(--shadow-xl); position: relative; overflow: hidden;">
-          <div style="max-width: 820px; position: relative; z-index: 2;">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
-              <span class="badge" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); font-size: 1rem; padding: 0.5rem 1rem;">
-                🚀 STEM Robotics & Math Lab
-              </span>
-              <span class="badge" style="background: #F59E0B; color: white; font-size: 1rem; padding: 0.5rem 1rem;">
-                ⭐ ${user ? user.stars : 0} Sao Tích Lũy
-              </span>
-              ${isAdmin ? '<span class="badge" style="background: #10B981; color: white; font-size: 1rem; padding: 0.5rem 1rem;">🔑 Chế độ Quản trị / Giáo viên</span>' : ''}
-            </div>
-            <h1 style="color: white; font-size: clamp(2.3rem, 4.5vw, 3.4rem); margin-bottom: 1.25rem; line-height: 1.2;">
-              ${lang === 'vi' ? 'Khám Phá Toán Học Cùng Thế Giới Robotics Ảo' : 'Explore Math with Virtual Robotics Lab'}
-            </h1>
-            <p style="color: #E0E7FF; font-size: clamp(1.15rem, 1.8vw, 1.4rem); margin-bottom: 2.25rem;">
-              ${lang === 'vi' 
-                ? 'Học giải toán chuyển động đều Lớp 5 theo phương pháp Pólya 4 bước trực quan, sinh động và tràn đầy hứng khởi!' 
-                : 'Learn Grade 5 uniform motion problem-solving through the 4-step Polya framework in an interactive virtual robotics lab!'}
+    const inputName = document.getElementById('settings-input-name');
+    if (inputName) inputName.value = this.currentStudent;
+
+    this.syncSettingsModalContent();
+
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => modal.classList.add('active'));
+    document.body.style.overflow = 'hidden';
+
+    const btnSettings = document.getElementById('btn-toggle-settings');
+    if (btnSettings) btnSettings.setAttribute('aria-expanded', 'true');
+  }
+
+  closeSettingsModal() {
+    const modal = document.getElementById('settings-modal');
+    if (!modal) return;
+    modal.classList.remove('active');
+    setTimeout(() => {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }, 200);
+
+    const btnSettings = document.getElementById('btn-toggle-settings');
+    if (btnSettings) btnSettings.setAttribute('aria-expanded', 'false');
+  }
+
+  syncSettingsModalContent() {
+    const t = (key) => window.I18N ? window.I18N.t(key) : key;
+    const isVi = window.I18N ? window.I18N.isVietnamese() : false;
+
+    const titleEl = document.getElementById('settings-modal-title');
+    if (titleEl) titleEl.innerText = t('settings_modal_title');
+    const subEl = document.getElementById('settings-modal-subtitle');
+    if (subEl) subEl.innerText = t('settings_modal_subtitle');
+
+    const lblName = document.getElementById('lbl-settings-name');
+    if (lblName) lblName.innerText = t('settings_name_label');
+    const hintName = document.getElementById('hint-settings-name');
+    if (hintName) hintName.innerText = t('settings_name_hint');
+    const btnSaveName = document.getElementById('btn-save-settings-name');
+    if (btnSaveName && btnSaveName.innerText !== '✓') btnSaveName.innerText = t('settings_name_save');
+
+    const lblLang = document.getElementById('lbl-settings-lang');
+    if (lblLang) lblLang.innerText = t('settings_lang_label');
+    const hintLang = document.getElementById('hint-settings-lang');
+    if (hintLang) hintLang.innerText = t('settings_lang_hint');
+
+    const btnLangEn = document.getElementById('btn-settings-lang-en');
+    const btnLangVi = document.getElementById('btn-settings-lang-vi');
+    if (btnLangEn) btnLangEn.classList.toggle('active', !isVi);
+    if (btnLangVi) btnLangVi.classList.toggle('active', isVi);
+
+    const lblSound = document.getElementById('lbl-settings-sound');
+    if (lblSound) lblSound.innerText = t('settings_sound_label');
+    const hintSound = document.getElementById('hint-settings-sound');
+    if (hintSound) hintSound.innerText = t('settings_sound_hint');
+
+    const isMuted = window.SoundFX ? window.SoundFX.isMuted : false;
+    const soundIcon = document.getElementById('settings-sound-status-icon');
+    if (soundIcon) soundIcon.innerText = isMuted ? '🔇' : '🔊';
+    const soundText = document.getElementById('settings-sound-status-text');
+    if (soundText) soundText.innerText = isMuted ? (isVi ? 'Đang tắt tiếng' : 'Muted') : (isVi ? 'Đang bật' : 'Sound On');
+
+    const lblFs = document.getElementById('lbl-settings-fs');
+    if (lblFs) lblFs.innerText = t('settings_fs_label');
+    const hintFs = document.getElementById('hint-settings-fs');
+    if (hintFs) hintFs.innerText = t('settings_fs_hint');
+
+    const isFs = !!document.fullscreenElement;
+    const fsIcon = document.getElementById('settings-fs-status-icon');
+    if (fsIcon) fsIcon.innerText = isFs ? '⤢' : '⛶';
+    const fsText = document.getElementById('settings-fs-status-text');
+    if (fsText) fsText.innerText = isFs ? (isVi ? 'Thu nhỏ' : 'Windowed') : (isVi ? 'Toàn màn hình' : 'Fullscreen');
+
+    const lblArcade = document.getElementById('lbl-settings-arcade');
+    if (lblArcade) lblArcade.innerText = t('settings_arcade_label');
+    const hintArcade = document.getElementById('hint-settings-arcade');
+    if (hintArcade) hintArcade.innerText = t('settings_arcade_hint');
+    const btnArcade = document.getElementById('btn-settings-open-arcade');
+    if (btnArcade) btnArcade.innerText = t('settings_arcade_btn');
+
+    const btnDone = document.getElementById('btn-settings-done');
+    if (btnDone) btnDone.innerText = t('settings_done_btn');
+  }
+
+  // =========================================================================
+  // RETRO PIXEL ART SPLASH SCREEN CONTROLLER
+  // =========================================================================
+  initSplashScreen() {
+    this.splashScreen = document.getElementById('splash-screen');
+    if (!this.splashScreen) return;
+
+    // Synchronize initial language from stored state without audio blip
+    const savedLang = localStorage.getItem('rml_language') || localStorage.getItem('rml_ui_language') || (window.I18N ? window.I18N.currentLang : 'vi');
+    this.selectSplashLanguage(savedLang, false);
+
+    // Language options: 1 PLAYER (vi) and 2 PLAYERS (en)
+    const langOptions = this.splashScreen.querySelectorAll('.lang-option');
+    langOptions.forEach(opt => {
+      const chooseOption = () => {
+        const lang = opt.getAttribute('data-lang');
+        this.selectSplashLanguage(lang, true);
+      };
+      opt.addEventListener('click', chooseOption);
+      opt.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+          e.preventDefault();
+          this.selectSplashLanguage('vi', true);
+          const viOpt = this.splashScreen.querySelector('.lang-option[data-lang="vi"]');
+          if (viOpt) viOpt.focus();
+        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+          e.preventDefault();
+          this.selectSplashLanguage('en', true);
+          const enOpt = this.splashScreen.querySelector('.lang-option[data-lang="en"]');
+          if (enOpt) enOpt.focus();
+        } else if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          chooseOption();
+        }
+      });
+    });
+
+    // START Button
+    const startBtn = document.getElementById('btn-splash-start');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        this.completeStartScreen();
+      });
+    }
+
+    // Interactive Robot Mascot: Welcoming Dialogue Board (Logic & Aesthetics)
+    const robotEl = document.getElementById('splash-robot');
+    const welcomeBoard = document.getElementById('splash-welcome-board');
+    const robotWrapper = robotEl?.closest?.('.splash-robot-wrapper') || document.querySelector('.splash-robot-wrapper');
+    const closeWelcomeBtn = document.getElementById('btn-close-splash-welcome');
+    const exploreWelcomeBtn = document.getElementById('btn-welcome-explore');
+
+    if (robotEl) {
+      const toggleWelcomeBoard = (e) => {
+        if (e) e.stopPropagation();
+        if (window.SoundFX) window.SoundFX.playRetroSelect();
+        robotEl.classList.add('sparky-jump');
+        setTimeout(() => robotEl.classList.remove('sparky-jump'), 600);
+
+        if (welcomeBoard) {
+          const isHidden = welcomeBoard.classList.contains('hidden');
+          if (isHidden) {
+            this.updateWelcomeBoardContent();
+            welcomeBoard.classList.remove('hidden');
+            welcomeBoard.classList.add('animate-welcome-pop');
+            robotWrapper?.classList.add('has-welcome-open');
+            robotEl.setAttribute('aria-expanded', 'true');
+          } else {
+            // Pulse/wiggle to acknowledge re-click
+            welcomeBoard.classList.remove('animate-welcome-pop');
+            void welcomeBoard.offsetWidth; // trigger reflow
+            welcomeBoard.classList.add('animate-welcome-pop');
+          }
+        }
+      };
+
+      robotEl.addEventListener('click', toggleWelcomeBoard);
+      robotEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleWelcomeBoard(e);
+        }
+      });
+    }
+
+    if (closeWelcomeBtn && welcomeBoard) {
+      closeWelcomeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.SoundFX) window.SoundFX.playPop();
+        welcomeBoard.classList.add('hidden');
+        robotWrapper?.classList.remove('has-welcome-open');
+        if (robotEl) robotEl.setAttribute('aria-expanded', 'false');
+      });
+    }
+
+    if (exploreWelcomeBtn) {
+      exploreWelcomeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (welcomeBoard) welcomeBoard.classList.add('hidden');
+        robotWrapper?.classList.remove('has-welcome-open');
+        this.completeStartScreen();
+      });
+    }
+
+    // Dismiss welcome board when clicking outside or pressing Escape
+    document.addEventListener('click', (e) => {
+      if (welcomeBoard && !welcomeBoard.classList.contains('hidden')) {
+        if (!welcomeBoard.contains(e.target) && !robotEl?.contains(e.target)) {
+          welcomeBoard.classList.add('hidden');
+          robotWrapper?.classList.remove('has-welcome-open');
+          if (robotEl) robotEl.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && welcomeBoard && !welcomeBoard.classList.contains('hidden')) {
+        welcomeBoard.classList.add('hidden');
+        robotWrapper?.classList.remove('has-welcome-open');
+        if (robotEl) robotEl.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Splash Sound toggle button
+    const splashSoundBtn = document.getElementById('btn-splash-sound');
+    if (splashSoundBtn) {
+      splashSoundBtn.addEventListener('click', () => {
+        if (window.SoundFX) {
+          const isMuted = window.SoundFX.toggleMute();
+          const icon = document.getElementById('splash-sound-icon');
+          if (icon) icon.innerText = isMuted ? '🔇' : '🔊';
+        }
+      });
+    }
+
+    // Splash Fullscreen toggle button
+    const splashFsBtn = document.getElementById('btn-splash-fs');
+    if (splashFsBtn) {
+      splashFsBtn.addEventListener('click', () => {
+        if (window.SoundFX) window.SoundFX.playPop();
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+        }
+      });
+    }
+
+    // Student Name Input
+    const nameInput = document.getElementById('splash-student-name');
+    if (nameInput) {
+      nameInput.value = this.currentStudent;
+      nameInput.addEventListener('input', (e) => this.setStudentName(e.target.value));
+      nameInput.addEventListener('change', (e) => this.setStudentName(e.target.value));
+    }
+
+    // Keyboard navigation (Strictly Arrow Left/Right or A/D to switch language, Enter to start)
+    document.addEventListener('keydown', (e) => {
+      if (!this.splashScreen || this.splashScreen.classList.contains('hidden')) return;
+
+      // When user is typing inside the name input, Enter triggers start, other keys type normally
+      if (document.activeElement === nameInput) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.completeStartScreen();
+        }
+        return;
+      }
+
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
+        this.selectSplashLanguage('vi', true);
+        const viOpt = this.splashScreen.querySelector('.lang-option[data-lang="vi"]');
+        if (viOpt) viOpt.focus();
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
+        this.selectSplashLanguage('en', true);
+        const enOpt = this.splashScreen.querySelector('.lang-option[data-lang="en"]');
+        if (enOpt) enOpt.focus();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        this.completeStartScreen();
+      }
+    });
+  }
+
+  selectSplashLanguage(lang, playSound = true) {
+    if (lang !== 'vi' && lang !== 'en') return;
+    this.selectedLanguage = lang;
+
+    if (window.I18N) {
+      window.I18N.setLang(lang);
+    }
+    if (playSound && window.SoundFX) {
+      window.SoundFX.playRetroSelect();
+    }
+
+    if (this.splashScreen) {
+      this.splashScreen.querySelectorAll('.lang-option').forEach(opt => {
+        const isMatch = opt.getAttribute('data-lang') === lang;
+        opt.classList.toggle('active', isMatch);
+        opt.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+      });
+
+      const eyebrow = document.getElementById('splash-eyebrow');
+      if (eyebrow) {
+        eyebrow.innerText = lang === 'vi' ? '★ NHẬP MÔN TOÁN HỌC & ROBOTICS ★' : '★ MATH & ROBOTICS LAB ★';
+      }
+
+      const subtitle = document.getElementById('splash-subtitle');
+      if (subtitle) {
+        subtitle.innerText = lang === 'vi' ? 'NỀN TẢNG TOÁN HỌC' : 'MATH PLATFORM';
+      }
+
+      const nameLabel = document.getElementById('splash-name-label');
+      if (nameLabel) {
+        nameLabel.innerText = lang === 'vi' ? '🧑‍🎓 TÊN BẠN:' : '🧑‍🎓 STUDENT:';
+      }
+
+      // Update name input placeholder and value if default
+      const nameInput = document.getElementById('splash-student-name');
+      if (nameInput) {
+        if (lang === 'vi') {
+          nameInput.placeholder = 'Nhập tên của bạn...';
+          if (this.currentStudent === 'Math Explorer') this.setStudentName('Bé Yêu Toán');
+        } else {
+          nameInput.placeholder = 'Enter your name...';
+          if (this.currentStudent === 'Bé Yêu Toán') this.setStudentName('Math Explorer');
+        }
+        nameInput.value = this.currentStudent;
+      }
+
+      // Update welcome board text dynamically if rendered/open
+      this.updateWelcomeBoardContent(lang);
+    }
+  }
+
+  updateWelcomeBoardContent(lang) {
+    const isVi = (lang ? lang === 'vi' : (window.I18N ? window.I18N.isVietnamese() : this.selectedLanguage !== 'en'));
+    const badge = document.getElementById('welcome-badge-text');
+    const title = document.getElementById('welcome-board-title');
+    const desc = document.getElementById('welcome-board-desc');
+    const tip = document.getElementById('welcome-tip-text');
+    const act = document.getElementById('welcome-action-text');
+    const chipMath = document.getElementById('chip-math-text');
+    const chipSim = document.getElementById('chip-sim-text');
+    const chipStem = document.getElementById('chip-stem-text');
+    const closeBtn = document.getElementById('btn-close-splash-welcome');
+
+    if (badge) badge.innerText = isVi ? 'LỜI CHÀO TỪ SPARKY' : "SPARKY'S GREETING";
+    if (title) title.innerText = isVi ? 'CHÀO MỪNG BẠN ĐẾN VỚI ROBOT MATH LAB! 🚀✨' : 'WELCOME TO ROBOT MATH LAB! 🚀✨';
+    if (desc) {
+      desc.innerHTML = isVi
+        ? 'Xin chào nhà thám hiểm nhí! Hãy cùng <strong>Sparky</strong> khám phá thế giới Toán học và Lập trình chuyển động rô-bốt đầy kỳ thú. Hãy chọn ngôn ngữ, nhập tên và sẵn sàng chinh phục các nhiệm vụ nhé!'
+        : 'Hello young explorer! Join <strong>Sparky</strong> to discover the exciting world of Math & Robotics simulation. Choose your language, enter your name, and get ready to conquer fun missions!';
+    }
+    if (chipMath) chipMath.innerText = isVi ? '📐 Toán chuyển động' : '📐 Motion Math';
+    if (chipSim) chipSim.innerText = isVi ? '🤖 Đường chạy thực tế' : '🤖 Live Robot Track';
+    if (chipStem) chipStem.innerText = isVi ? '🏆 Chiến binh STEM' : '🏆 STEM Champion';
+    if (tip) tip.innerHTML = isVi ? '💡 Nhấn <strong>START</strong> để bắt đầu ngay!' : '💡 Click <strong>START</strong> to begin right away!';
+    if (act) act.innerText = isVi ? 'Khám phá ngay' : 'Explore Now';
+    if (closeBtn) closeBtn.title = isVi ? 'Đóng lời chào' : 'Close greeting';
+  }
+
+  showSplashScreen() {
+    document.body.classList.add('view-start-screen');
+    if (!this.splashScreen) {
+      this.splashScreen = document.getElementById('splash-screen');
+    }
+    if (this.splashScreen) {
+      this.splashScreen.classList.remove('hidden', 'splash-exit');
+      const curr = window.I18N ? window.I18N.currentLang : (this.selectedLanguage || 'vi');
+      this.selectSplashLanguage(curr, false);
+
+      const nameInput = document.getElementById('splash-student-name');
+      if (nameInput) nameInput.value = this.currentStudent;
+
+      const fsIcon = document.getElementById('splash-fs-icon');
+      if (fsIcon) fsIcon.innerText = document.fullscreenElement ? '⤢' : '⛶';
+
+      const soundIcon = document.getElementById('splash-sound-icon');
+      if (soundIcon && window.SoundFX) {
+        soundIcon.innerText = window.SoundFX.isMuted ? '🔇' : '🔊';
+      }
+    }
+  }
+
+  hideSplashScreen() {
+    document.body.classList.remove('view-start-screen');
+    if (this.splashScreen) {
+      this.splashScreen.classList.add('hidden');
+    }
+  }
+
+  renderStartScreen() {
+    this.showSplashScreen();
+  }
+
+  completeStartScreen() {
+    const nameInput = document.getElementById('splash-student-name');
+    if (nameInput && nameInput.value.trim()) {
+      this.setStudentName(nameInput.value.trim());
+    }
+
+    sessionStorage.setItem('rml_started', 'true');
+    localStorage.setItem('rml_splash_done', 'true');
+    const lang = window.I18N ? window.I18N.currentLang : (this.selectedLanguage || 'vi');
+    localStorage.setItem('rml_ui_language', lang);
+    localStorage.setItem('rml_language', lang);
+
+    if (window.SoundFX) {
+      window.SoundFX.playRetroStart();
+    }
+
+    const robotEl = document.getElementById('splash-robot');
+    if (robotEl) {
+      robotEl.classList.add('sparky-jump');
+    }
+
+    if (this.splashScreen) {
+      this.splashScreen.classList.add('splash-exit');
+    }
+
+    setTimeout(() => {
+      this.hideSplashScreen();
+      this.renderTaskSelection();
+    }, 450);
+  }
+
+  renderTaskSelection() {
+    window.location.hash = '#hub';
+    this.renderTaskHub();
+  }
+
+  // =========================================================================
+  // SCREEN 2: MAIN MISSION HUB (CHOOSE TASK 1, 2, OR 3)
+  // =========================================================================
+  renderTaskHub() {
+    this.hideSplashScreen();
+    document.body.classList.remove('view-start-screen');
+    document.querySelectorAll('.modal-backdrop').forEach(m => {
+      m.classList.remove('active');
+      m.style.display = 'none';
+    });
+    document.body.style.overflow = '';
+    const main = document.getElementById('main-view');
+    if (!main) return;
+
+    const t = (key) => window.I18N ? window.I18N.t(key) : key;
+    const isVi = window.I18N ? window.I18N.isVietnamese() : true;
+
+    main.innerHTML = `
+      <div class="hub-container animate-fade-in">
+        
+        <!-- Mission Hub Hero Briefing Banner -->
+        <div class="hub-hero">
+          <div class="hub-hero-content">
+            <span class="hub-eyebrow">${t('hero_eyebrow')}</span>
+            <h1 class="hub-title">${t('hero_title')}</h1>
+            <p class="hub-subtitle">
+              ${t('hub_greeting')}
             </p>
-            <div style="display: flex; gap: 1.25rem; flex-wrap: wrap;">
-              <a href="#lessons" class="btn btn-warning btn-lg" onclick="SoundFX.playPop()">
-                🎮 ${lang === 'vi' ? 'Bắt đầu học ngay' : 'Start Learning Now'}
-              </a>
-              <button class="btn btn-secondary btn-lg" style="background: rgba(255,255,255,0.2); color: white; border-color: rgba(255,255,255,0.4);" onclick="SoundFX.playPop(); document.getElementById('btn-open-user-modal').click();">
-                👤 ${lang === 'vi' ? 'Đổi tài khoản học sinh' : 'Switch Student'}
-              </button>
+          </div>
+          
+          <div class="hub-actions-card">
+            <div class="hub-student-badge-wrap" onclick="window.App && window.App.openSettingsModal()" style="cursor: pointer;" title="${t('settings_btn_title') || 'Cài đặt'}">
+              <span class="badge-avatar">🧑‍🎓</span>
+              <div>
+                <div class="badge-role">${t('student_tag_title')}</div>
+                <div class="badge-name">${this.currentStudent} ✏️</div>
+              </div>
             </div>
+            <button type="button" class="journal-hub-button" id="btn-open-learning-journal">
+              ${t('btn_journal')}
+            </button>
           </div>
         </div>
 
-        <!-- Polya Framework Showcase -->
-        <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; font-size: 2rem;">
-          🧠 ${lang === 'vi' ? 'Quy Trình 4 Bước Giải Quyết Vấn Đề Pólya' : 'Polya 4-Step Problem-Solving Framework'}
-        </h2>
-        <div class="polya-stepper" style="margin-bottom: 2.5rem;">
-          <div class="step-card active" data-step="1">
-            <div class="step-number" style="background: var(--polya-step1); color: white;">1</div>
-            <div class="step-info">
-              <span class="step-title-vi">${I18n.t('step1Title')}</span>
-              <span class="step-title-en">${I18n.t('step1Subtitle')}</span>
-            </div>
+        <!-- Task Selection Grid -->
+        <section class="tasks-section" id="tasks-section">
+          <div class="section-title-wrap">
+            <h2 class="section-title">${t('hub_section_title')}</h2>
+            <p class="section-desc">${t('hub_section_desc')}</p>
           </div>
-          <div class="step-card active" data-step="2">
-            <div class="step-number" style="background: var(--polya-step2); color: white;">2</div>
-            <div class="step-info">
-              <span class="step-title-vi">${I18n.t('step2Title')}</span>
-              <span class="step-title-en">${I18n.t('step2Subtitle')}</span>
-            </div>
-          </div>
-          <div class="step-card active" data-step="3">
-            <div class="step-number" style="background: var(--polya-step3); color: white;">3</div>
-            <div class="step-info">
-              <span class="step-title-vi">${I18n.t('step3Title')}</span>
-              <span class="step-title-en">${I18n.t('step3Subtitle')}</span>
-            </div>
-          </div>
-          <div class="step-card active" data-step="4">
-            <div class="step-number" style="background: var(--polya-step4); color: white;">4</div>
-            <div class="step-info">
-              <span class="step-title-vi">${I18n.t('step4Title')}</span>
-              <span class="step-title-en">${I18n.t('step4Subtitle')}</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- NEW: Pedagogical Cycle & Research Rationale -->
-        <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.6rem; font-size: 1.85rem; color: #1E40AF;">
-          🔄 ${lang === 'vi' ? 'Chu Trình Sư Phạm: Dự Đoán → Mô Phỏng → Đối Chiếu' : 'Pedagogical Cycle: Predict → Simulate → Compare'}
-        </h2>
-        <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-          ${lang === 'vi' 
-            ? 'Khác với cách giải toán giấy bút truyền thống, Robot Math Lab xây dựng chu trình tương tác thực nghiệm giúp học sinh tự phát hiện sai lệch và điều chỉnh chiến lược giải quyết vấn đề:'
-            : 'Unlike traditional paper-and-pencil math, Robot Math Lab creates an experimental feedback loop allowing students to detect discrepancies and self-regulate problem-solving strategies:'}
-        </p>
+          <div class="tasks-grid">
+            
+            <!-- Task 1 Card: Hành trình đến đích / Reach the Goal -->
+            <div class="task-card task-card-1" id="card-task1">
+              <div class="task-card-header">
+                <span class="task-card-badge">${t('task1_badge')}</span>
+              </div>
+              <h3 class="task-card-title">${t('task1_title')}</h3>
+              <div class="task-card-footer">
+                <button type="button" class="btn-start-task" onclick="window.App.navigateToTask('task1-reach')">
+                  ${t('task1_btn')}
+                </button>
+              </div>
+            </div>
 
-        <div class="pedagogical-cycle">
-          <div class="cycle-step-card">
-            <span class="cycle-icon">🏁</span>
-            <h4>${lang === 'vi' ? '1. Tình Huống Thực Tế' : '1. Real Context'}</h4>
-            <p>${lang === 'vi' ? 'Nhiệm vụ chuyển động của Robot (đua xe, cứu hộ, giao hàng)' : 'Robotics mission context (racing, rescue, delivery)'}</p>
-          </div>
-          <div class="cycle-step-card">
-            <span class="cycle-icon">🔮</span>
-            <h4>${lang === 'vi' ? '2. Dự Đoán & Ước Lượng' : '2. Estimate & Predict'}</h4>
-            <p>${lang === 'vi' ? 'Kích hoạt trực giác toán học trước khi tính toán số liệu cụ thể' : 'Activate mathematical intuition before precise calculation'}</p>
-          </div>
-          <div class="cycle-step-card">
-            <span class="cycle-icon">📐</span>
-            <h4>${lang === 'vi' ? '3. Lập Mô Hình & Tính' : '3. Model & Calculate'}</h4>
-            <p>${lang === 'vi' ? 'Vận dụng tam giác công thức s, v, t để tính giá trị chính xác' : 'Apply formula triangle s, v, t to calculate exact values'}</p>
-          </div>
-          <div class="cycle-step-card">
-            <span class="cycle-icon">🤖</span>
-            <h4>${lang === 'vi' ? '4. Mô Phỏng Robot' : '4. Virtual Simulation'}</h4>
-            <p>${lang === 'vi' ? 'Quan sát robot di chuyển trên đường đua ảo theo thông số vừa tính' : 'Watch robots traverse the track based on calculated parameters'}</p>
-          </div>
-          <div class="cycle-step-card">
-            <span class="cycle-icon">⚖️</span>
-            <h4>${lang === 'vi' ? '5. Đối Chiếu & Nhìn Lại' : '5. Compare & Reflect'}</h4>
-            <p>${lang === 'vi' ? 'So sánh dự đoán vs thực tế, thử nghiệm kịch bản What-If' : 'Compare estimate vs reality, explore What-If scenarios'}</p>
-          </div>
-        </div>
+            <!-- Task 2 Card: Chuyến đi bất ngờ / The Unexpected Journey -->
+            <div class="task-card task-card-2" id="card-task2">
+              <div class="task-card-header">
+                <span class="task-card-badge">${t('task2_badge')}</span>
+              </div>
+              <h3 class="task-card-title">${t('task2_title')}</h3>
+              <div class="task-card-footer">
+                <button type="button" class="btn-start-task btn-start-task2" onclick="window.App.navigateToTask('task2-fix')">
+                  ${t('task2_btn')}
+                </button>
+              </div>
+            </div>
 
-        <!-- Featured Lessons Grid -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-          <h2 style="font-size: 2rem;">📚 ${I18n.t('grade5Motion')}</h2>
-          <a href="#lessons" class="btn btn-outline-primary btn-sm" onclick="SoundFX.playPop()">${lang === 'vi' ? 'Xem tất cả' : 'View All'} &rarr;</a>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.75rem; margin-bottom: 3.5rem;">
-          ${Object.values(this.lessons).slice(0, 3).map(lesson => this.renderLessonCard(lesson)).join('')}
-        </div>
+            <!-- Task 3 Card: Thử thách đúng giờ / The On-Time Challenge -->
+            <div class="task-card task-card-3" id="card-task3">
+              <div class="task-card-header">
+                <span class="task-card-badge">${t('task3_badge')}</span>
+              </div>
+              <h3 class="task-card-title">${t('task3_title')}</h3>
+              <div class="task-card-footer">
+                <button type="button" class="btn-start-task" onclick="window.App.navigateToTask('task3-new')">
+                  ${t('task3_btn')}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
       </div>
     `;
-  },
 
-  /**
-   * VIEW: LESSON CATALOG
-   */
-  renderLessons(container) {
-    const lang = I18n.currentLang;
-    container.innerHTML = `
-      <div class="container">
-        <div style="margin-bottom: 2.5rem;">
-          <h1 style="font-size: 2.8rem;">📚 ${I18n.t('navLessons')}</h1>
-          <p style="font-size: 1.25rem;">${lang === 'vi' ? 'Học và rèn luyện kỹ năng giải toán thông qua các thử thách Robotics thực tế.' : 'Learn and master math skills through hands-on virtual robotics challenges.'}</p>
-        </div>
+    document.getElementById('btn-open-learning-journal')?.addEventListener('click', () => {
+      window.LogEngine?.openJournal();
+    });
 
-        <h2 style="margin: 2rem 0 1.25rem 0; color: var(--primary); font-size: 2.2rem;">
-          🏎️ ${I18n.t('grade5Motion')}
-        </h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.75rem;">
-          ${Object.values(this.lessons).map(lesson => this.renderLessonCard(lesson)).join('')}
-        </div>
+    // Synchronize Sparky floating companion bubble
+    const sparkyBubble = document.getElementById('sparky-bubble');
+    if (sparkyBubble) {
+      sparkyBubble.innerText = t('robot_bubble_welcome');
+    }
+  }
 
-        <!-- Compact Architecture Roadmap Note (Reduced Scope) -->
-        <div style="background: var(--bg-surface); border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 1.5rem 1.75rem; margin-top: 3.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <h4 style="margin: 0 0 0.35rem 0; color: var(--text-main); font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
-              🧩 ${lang === 'vi' ? 'Định hướng phát triển kiến trúc hệ thống' : 'System Architecture Scalability Roadmap'}
-            </h4>
-            <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted); max-width: 780px;">
-              ${lang === 'vi' 
-                ? 'Nền tảng tập trung nghiên cứu chuyên sâu về <strong>Toán Chuyển Động Đều Lớp 5</strong>. Kiến trúc mô-đun hóa sẵn sàng mở rộng sang chủ đề Hình Học (Robot rùa vẽ hình Turtle Graphics) trong các giai đoạn phát triển tiếp theo.' 
-                : 'The research focuses deeply on <strong>Grade 5 Uniform Motion</strong>. The modular architecture is designed to scale to Geometry (Turtle Graphics) in future research phases.'}
-            </p>
-          </div>
-          <span class="badge badge-gray" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">${lang === 'vi' ? 'Giai đoạn tương lai' : 'Future Phase'}</span>
-        </div>
-      </div>
-    `;
-  },
+  animateRobotHappyCheer() {
+    if (window.SoundFX) window.SoundFX.playTing();
+    const robotEl = document.getElementById('hero-robot-character');
+    const bubbleEl = document.getElementById('hero-robot-bubble');
+    if (robotEl) {
+      robotEl.classList.add('robot-jump-spin');
+      setTimeout(() => robotEl.classList.remove('robot-jump-spin'), 800);
+    }
+    if (bubbleEl) {
+      const easterMsg = window.I18N ? window.I18N.t('robot_easter_egg') : 'Yay! Let\'s learn together! 🚀';
+      bubbleEl.innerText = easterMsg;
+      bubbleEl.classList.add('pop-highlight');
+      setTimeout(() => bubbleEl.classList.remove('pop-highlight'), 1200);
+    }
+  }
 
-  renderLessonCard(lesson) {
-    const lang = I18n.currentLang;
-    return `
-      <div class="card">
-        <div class="card-header">
-          <span class="badge badge-blue">Lớp ${lesson.grade}</span>
-          <span class="badge badge-gray">${lesson.trackLength} ${lesson.unitLabel}</span>
-        </div>
-        <h3 class="card-title" style="margin-bottom: 0.85rem;">
-          ${lesson.getTitle()}
-        </h3>
-        <p class="card-body" style="margin-bottom: 1.75rem;">
-          ${lesson.getDesc()}
-        </p>
-        <a href="#lesson/${lesson.id}" class="btn btn-primary btn-lg" style="width: 100%;" onclick="SoundFX.playPop()">
-          🚀 ${lang === 'vi' ? 'Vào bài học' : 'Enter Lesson'}
-        </a>
-      </div>
-    `;
-  },
+  navigateToTask(taskId) {
+    if (window.SoundFX) window.SoundFX.playPop();
+    const targetHash = `#task/${taskId}`;
+    if (window.location.hash === targetHash) {
+      this.launchTask(taskId);
+    } else {
+      window.location.hash = targetHash;
+    }
+  }
 
-  /**
-   * VIEW: INTERACTIVE LESSON WORKSPACE WITH POLYA STEPPER
-   */
-  renderLessonWorkspace(container, lessonId) {
-    const lesson = this.lessons[lessonId];
-    if (!lesson) {
-      window.location.hash = '#lessons';
+  launchTask(taskId) {
+    this.hideSplashScreen();
+    document.body.classList.remove('view-start-screen');
+
+    // Dismiss any active modals
+    document.querySelectorAll('.modal-backdrop').forEach(m => {
+      m.classList.remove('active');
+      m.style.display = 'none';
+    });
+    document.body.style.overflow = '';
+
+    let taskConfig = null;
+    if (taskId === 'task1-reach') taskConfig = window.Task1Reach;
+    else if (taskId === 'task2-fix') taskConfig = window.Task2Fix;
+    else if (taskId === 'task3-new') taskConfig = window.Task3New;
+
+    if (!taskConfig) {
+      window.location.hash = '#hub';
       return;
     }
 
-    this.activeLesson = lesson;
-    this.activePolyaEngine = new PolyaEngine(lesson);
-    Telemetry.setLesson(lesson.id);
-
-    const lang = I18n.currentLang;
-
-    container.innerHTML = `
-      <div class="container">
-        <!-- Back Navigation & Title -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <a href="#lessons" style="font-weight: 900; font-size: 1.15rem; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;" onclick="SoundFX.playPop()">
-              &larr; ${lang === 'vi' ? 'Danh mục bài học' : 'Lesson Catalog'}
-            </a>
-            <h1 style="font-size: clamp(1.6rem, 3vw, 2.3rem);">${lesson.getTitle()}</h1>
-          </div>
-          <div style="display: flex; gap: 0.75rem;">
-            <button class="btn btn-secondary btn-sm" id="btn-request-hint">
-              💡 ${I18n.t('btnHint')}
-            </button>
-            <button class="btn btn-secondary btn-sm" id="btn-restart-lesson">
-              🔄 ${lang === 'vi' ? 'Làm lại từ đầu' : 'Restart'}
-            </button>
-          </div>
-        </div>
-
-        <!-- Polya Stepper Bar -->
-        <div class="polya-stepper" id="polya-stepper-bar">
-          <div class="step-card active" data-step="1">
-            <div class="step-number">1</div>
-            <div class="step-info">
-              <span class="step-title-vi">${I18n.t('step1Title')}</span>
-              <span class="step-title-en">${I18n.t('step1Subtitle')}</span>
-            </div>
-          </div>
-          <div class="step-card" data-step="2">
-            <div class="step-number">2</div>
-            <div class="step-info">
-              <span class="step-title-vi">${I18n.t('step2Title')}</span>
-              <span class="step-title-en">${I18n.t('step2Subtitle')}</span>
-            </div>
-          </div>
-          <div class="step-card" data-step="3">
-            <div class="step-number">3</div>
-            <div class="step-info">
-              <span class="step-title-vi">${I18n.t('step3Title')}</span>
-              <span class="step-title-en">${I18n.t('step3Subtitle')}</span>
-            </div>
-          </div>
-          <div class="step-card" data-step="4">
-            <div class="step-number">4</div>
-            <div class="step-info">
-              <span class="step-title-vi">${I18n.t('step4Title')}</span>
-              <span class="step-title-en">${I18n.t('step4Subtitle')}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bilingual Math-English Vocabulary Bar -->
-        <div class="vocab-bar" id="lesson-vocab-bar">
-          <div class="vocab-bar-title">
-            <span>📖</span>
-            <span>${I18n.t('mathVocabTitle')}:</span>
-          </div>
-          <div class="vocab-chips">
-            <span class="vocab-chip" data-term="s" title="${lang === 'vi' ? 'Quãng đường: s = v × t (m, km)' : 'Distance: s = v × t (m, km)'}">s: Quãng đường / Distance</span>
-            <span class="vocab-chip" data-term="v" title="${lang === 'vi' ? 'Vận tốc: v = s ÷ t (m/s, km/h)' : 'Velocity: v = s ÷ t (m/s, km/h)'}">v: Vận tốc / Velocity</span>
-            <span class="vocab-chip" data-term="t" title="${lang === 'vi' ? 'Thời gian: t = s ÷ v (giây, giờ)' : 'Time: t = s ÷ v (seconds, hours)'}">t: Thời gian / Time</span>
-            <span class="vocab-chip" data-term="formula" title="${lang === 'vi' ? 'Tam giác công thức liên hệ s, v, t' : 'Formula relationship triangle'}">📐 s = v × t</span>
-            <span class="vocab-chip" data-term="opposite" title="${lang === 'vi' ? 'Ngược chiều: Tổng vận tốc = v₁ + v₂' : 'Opposite motion: Combined speed = v₁ + v₂'}">⇄ Ngược chiều / Opposite</span>
-            <span class="vocab-chip" data-term="avg" title="${lang === 'vi' ? 'Vận tốc trung bình = Tổng quãng đường ÷ Tổng thời gian' : 'Average speed = Total distance ÷ Total time'}">📊 v_tb / Average</span>
-          </div>
-        </div>
-
-        <!-- Simulation & Polya Interactive Layout -->
-        <div class="simulation-layout">
-          <!-- Left: Simulation Canvas -->
-          <div class="sim-viewport-card">
-            <div class="sim-header">
-              <div class="sim-title">
-                🤖 ${lang === 'vi' ? 'Đường Đua Robotics Ảo' : 'Virtual Robotics Track'}
-              </div>
-              <div class="sim-stats">
-                <div class="stat-item timer">
-                  ⏱️ <span id="stat-timer">0.0s</span>
-                </div>
-                <div class="stat-item">
-                  📏 <span id="stat-dist">0 ${lesson.unitLabel}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="canvas-wrapper">
-              <canvas id="simulation-canvas"></canvas>
-            </div>
-
-            <!-- Simulation Controls Bar -->
-            <div class="sim-controls-bar">
-              <div class="playback-buttons">
-                <button class="btn btn-primary" id="sim-play-btn">▶ ${I18n.t('runSimulation')}</button>
-                <button class="btn btn-secondary" id="sim-pause-btn">⏸ ${I18n.t('pauseSimulation')}</button>
-                <button class="btn btn-secondary" id="sim-step-btn">⏯ ${I18n.t('stepSimulation')}</button>
-                <button class="btn btn-secondary" id="sim-reset-btn">🔄 ${I18n.t('resetSimulation')}</button>
-              </div>
-              <div class="speed-control">
-                <span>${I18n.t('speedLabel')}</span>
-                <input type="range" min="0.5" max="3" step="0.5" value="1" class="speed-slider" id="sim-speed-slider">
-                <span id="speed-val">1x</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Polya Step Interactive Panel -->
-          <div class="polya-panel">
-            <div class="polya-panel-header">
-              <div class="polya-panel-step-badge step-1" id="panel-badge">1</div>
-              <div class="polya-panel-title" id="panel-title">${I18n.t('step1Title')}</div>
-            </div>
-
-            <div class="polya-panel-content" id="panel-content">
-              <!-- Content injected dynamically per step -->
-            </div>
-
-            <div class="polya-panel-footer">
-              <button class="btn btn-secondary btn-lg" id="btn-polya-prev" disabled>
-                ◀ ${I18n.t('btnBack')}
-              </button>
-              <button class="btn btn-primary btn-lg" id="btn-polya-next">
-                ${I18n.t('btnNext')} ▶
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    // Initialize Simulation Engine
-    this.activeSimEngine = new SimulationEngine('simulation-canvas', {
-      trackLengthUnits: lesson.trackLength,
-      unitLabel: lesson.unitLabel,
-      timeScale: lesson.timeScale,
-      mode: lesson.simMode
-    });
-
-    lesson.setupSimulation(this.activeSimEngine);
-
-    // Bind Sim Engine updates to UI stats
-    this.activeSimEngine.onTick = (simTime, robots) => {
-      const timerEl = document.getElementById('stat-timer');
-      const distEl = document.getElementById('stat-dist');
-      if (timerEl) timerEl.textContent = `${simTime.toFixed(1)}s`;
-      if (distEl && robots[0]) {
-        distEl.textContent = `${Math.round(robots[0].position)} ${lesson.unitLabel}`;
-      }
-    };
-
-    // Bind Sim Control Buttons
-    const playBtn = document.getElementById('sim-play-btn');
-    const pauseBtn = document.getElementById('sim-pause-btn');
-    const resetBtn = document.getElementById('sim-reset-btn');
-    const stepBtn = document.getElementById('sim-step-btn');
-    const speedSlider = document.getElementById('sim-speed-slider');
-    const speedVal = document.getElementById('speed-val');
-
-    playBtn.addEventListener('click', () => {
-      SoundFX.playPop();
-      this.activeSimEngine.start();
-    });
-    pauseBtn.addEventListener('click', () => {
-      SoundFX.playPop();
-      this.activeSimEngine.pause();
-    });
-    resetBtn.addEventListener('click', () => {
-      SoundFX.playPop();
-      this.activeSimEngine.reset();
-    });
-    stepBtn.addEventListener('click', () => {
-      SoundFX.playPop();
-      this.activeSimEngine.step(1.0);
-    });
-    speedSlider.addEventListener('input', (e) => {
-      const val = parseFloat(e.target.value);
-      this.activeSimEngine.setTimeScale(val);
-      speedVal.textContent = `${val}x`;
-    });
-
-    // Bind Vocabulary Chip clicks for interactive explanation
-    container.querySelectorAll('.vocab-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        SoundFX.playPop();
-        const term = chip.dataset.term;
-        const explanations = {
-          s: lang === 'vi' 
-            ? '📏 Quãng đường (Distance - s): Độ dài đường đi của Robot. Đơn vị thông dụng: mét (m) hoặc ki-lô-mét (km). Công thức: s = v × t'
-            : '📏 Distance (s): The total path traversed by the robot. Common units: meters (m) or kilometers (km). Formula: s = v × t',
-          v: lang === 'vi'
-            ? '🏎️ Vận tốc (Velocity / Speed - v): Quãng đường Robot đi được trong một đơn vị thời gian (1 giây hoặc 1 giờ). Đơn vị: m/s hoặc km/h. Công thức: v = s ÷ t'
-            : '🏎️ Velocity / Speed (v): Distance traveled per unit time (per second or hour). Units: m/s or km/h. Formula: v = s ÷ t',
-          t: lang === 'vi'
-            ? '⏱️ Thời gian (Time - t): Khoảng thời gian Robot di chuyển từ xuất phát đến đích. Đơn vị: giây (s) hoặc giờ (h). Công thức: t = s ÷ v'
-            : '⏱️ Time (t): Duration of the robot travel from start to target. Units: seconds (s) or hours (h). Formula: t = s ÷ v',
-          formula: lang === 'vi'
-            ? '📐 Tam giác công thức (s, v, t): Để tìm s: lấy v × t. Để tìm v: lấy s ÷ t. Để tìm t: lấy s ÷ v!'
-            : '📐 Formula Triangle (s, v, t): Find s = v × t; Find v = s ÷ t; Find t = s ÷ v!',
-          opposite: lang === 'vi'
-            ? '⇄ Chuyển động ngược chiều: Hai Robot đi về phía nhau, sau mỗi giờ khoảng cách thu hẹp bằng tổng hai vận tốc (v₁ + v₂). Thời gian gặp nhau: t = s ÷ (v₁ + v₂)'
-            : '⇄ Opposite Direction: Two robots move towards each other; relative speed is (v₁ + v₂). Meeting time: t = s ÷ (v₁ + v₂)',
-          avg: lang === 'vi'
-            ? '📊 Vận tốc trung bình (Average Speed - v_tb): Bằng TỔNG quãng đường chia cho TỔNG thời gian (v_tb = s_tổng ÷ t_tổng). Tuyệt đối không lấy trung bình cộng các vận tốc!'
-            : '📊 Average Speed (v_avg): Total distance divided by total time (v_avg = total_s ÷ total_t). Never take arithmetic mean of speeds!'
-        };
-        alert(explanations[term] || chip.title);
-      });
-    });
-
-    // Bind Hint button
-    document.getElementById('btn-request-hint').addEventListener('click', () => {
-      SoundFX.playPop();
-      this.showHint(lesson);
-    });
-
-    // Bind Restart button
-    document.getElementById('btn-restart-lesson').addEventListener('click', () => {
-      SoundFX.playPop();
-      if (confirm(lang === 'vi' ? 'Bạn có chắc chắn muốn làm lại bài từ đầu?' : 'Restart lesson from the beginning?')) {
-        this.activePolyaEngine.start();
-        this.activeSimEngine.reset();
-      }
-    });
-
-    // Bind Stepper Bar clicks
-    document.querySelectorAll('#polya-stepper-bar .step-card').forEach(card => {
-      card.addEventListener('click', () => {
-        SoundFX.playPop();
-        const stepNum = parseInt(card.dataset.step);
-        this.activePolyaEngine.goToStep(stepNum);
-      });
-    });
-
-    // Bind Prev/Next buttons
-    const btnPrev = document.getElementById('btn-polya-prev');
-    const btnNext = document.getElementById('btn-polya-next');
-
-    btnPrev.addEventListener('click', () => {
-      SoundFX.playPop();
-      this.activePolyaEngine.prevStep();
-    });
-    btnNext.addEventListener('click', () => {
-      SoundFX.playPop();
-      this.activePolyaEngine.nextStep();
-    });
-
-    // Listen for Polya Engine changes
-    this.activePolyaEngine.onChange((e) => {
-      this.updatePolyaUI(e.newStep);
-    });
-
-    // Start Polya Engine
-    this.activePolyaEngine.start();
-  },
-
-  updatePolyaUI(step) {
-    const lesson = this.activeLesson;
-    const engine = this.activePolyaEngine;
-
-    // Update Stepper Bar Active State
-    document.querySelectorAll('#polya-stepper-bar .step-card').forEach(card => {
-      const cardStep = parseInt(card.dataset.step);
-      card.classList.toggle('active', cardStep === step);
-      card.classList.toggle('completed', engine.isStepCompleted(cardStep));
-    });
-
-    // Update Panel Header Badge and Title
-    const badge = document.getElementById('panel-badge');
-    const title = document.getElementById('panel-title');
-    if (badge && title) {
-      badge.className = `polya-panel-step-badge step-${step}`;
-      badge.textContent = step;
-      title.textContent = I18n.t(`step${step}Title`);
-    }
-
-    // Update Prev / Next buttons
-    const btnPrev = document.getElementById('btn-polya-prev');
-    const btnNext = document.getElementById('btn-polya-next');
-    if (btnPrev) btnPrev.disabled = (step === 1);
-    if (btnNext) btnNext.disabled = (step === 4);
-
-    // Update Mascot hints based on step
-    if (step === 1) {
-      this.setMascotMessage('Bước 1: Bấm vào từng mảnh ghép dữ kiện để phân loại <strong>ĐÃ BIẾT</strong> và <strong>CẦN TÌM</strong> nhé! 🔵🟡');
-    } else if (step === 2) {
-      this.setMascotMessage('Bước 2: Hãy chọn công thức toán học phù hợp từ tam giác liên hệ (s, v, t)! 📐');
-    } else if (step === 3) {
-      this.setMascotMessage('Bước 3: Nhập kết quả tính toán rồi bấm "Kiểm tra" để xem robot lăn bánh nào! 🏎️');
-    } else if (step === 4) {
-      this.setMascotMessage('Bước 4: Xuất sắc! Hãy cùng nhìn lại lời giải và rút ra bài học thú vị nhé! 🏆');
-    }
-
-    // Render Step Content
-    const content = document.getElementById('panel-content');
-    if (!content) return;
-
-    if (step === 1) {
-      lesson.renderUnderstand(content, engine);
-    } else if (step === 2) {
-      lesson.renderPlan(content, engine);
-    } else if (step === 3) {
-      lesson.renderExecute(content, engine, this.activeSimEngine);
-    } else if (step === 4) {
-      lesson.renderReview(content, engine, this.activeSimEngine);
-    }
-  },
-
-  showHint(lesson) {
-    const lang = I18n.currentLang;
-    Telemetry.logEvent(this.activePolyaEngine.currentStep, Telemetry.EVENT_TYPES.HINT_REQUESTED, {
-      hintIndex: lesson.hintIndex
-    });
-    alert(`${I18n.t('hintUsedText')}\n\n${lang === 'vi' ? 'Hãy đọc kĩ đề bài và xác định những gì đã biết (s, v, hoặc t) rồi dùng tam giác công thức để tìm đại lượng còn thiếu!' : 'Read carefully to identify knowns (s, v, or t) and use the formula triangle to calculate the unknown!'}`);
-  },
-
-  /**
-   * VIEW: STUDENT PROGRESS
-   */
-  renderProgress(container) {
-    const lang = I18n.currentLang;
-    const summary = Telemetry.getAnalyticsSummary();
-    const user = DB.getCurrentUser() || { name: 'Học Sinh', stars: 120, exp: 350, level: 3, badges: ['Tân binh Robotics'] };
-    const avatar = DB.getAvatar(user.avatarId);
-
-    container.innerHTML = `
-      <div class="container">
-        <!-- Student Hero Profile Card -->
-        <div class="card" style="background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border-color: #818CF8; margin-bottom: 2rem; padding: 2.25rem;">
-          <div style="display: flex; align-items: center; gap: 1.75rem; flex-wrap: wrap;">
-            <div style="width: 90px; height: 90px; border-radius: 50%; background: ${avatar.color}; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);">
-              ${avatar.emoji}
-            </div>
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
-                <h2 style="font-size: 2rem; color: #1E1B4B;">${user.name}</h2>
-                <span class="badge badge-emerald">Cấp độ ${user.level || 1}</span>
-                <span class="badge badge-blue">${user.role === 'teacher' ? 'Giáo viên' : `Lớp ${user.className || '5A'}`}</span>
-              </div>
-              <div style="margin-top: 0.6rem; font-weight: 800; color: #4338CA; display: flex; gap: 1.75rem; flex-wrap: wrap; font-size: 1.15rem;">
-                <span>⭐ ${user.stars || 0} Sao thưởng</span>
-                <span>⚡ ${user.exp || 0} / ${((user.level || 1) * 100)} EXP</span>
-                <span>🏅 ${(user.badges || []).join(', ')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.75rem; margin-bottom: 2.75rem;">
-          <div class="card" style="text-align: center; padding: 2rem;">
-            <div style="font-size: 2.8rem; font-weight: 900; color: var(--primary);">${summary.lessonsAttempted} / 5</div>
-            <div style="font-weight: 800; font-size: 1.15rem; color: var(--text-muted);">${lang === 'vi' ? 'Bài học đã khám phá' : 'Lessons Attempted'}</div>
-          </div>
-          <div class="card" style="text-align: center; padding: 2rem;">
-            <div style="font-size: 2.8rem; font-weight: 900; color: var(--success);">${summary.correctTrials}</div>
-            <div style="font-weight: 800; font-size: 1.15rem; color: var(--text-muted);">${lang === 'vi' ? 'Lần giải chính xác' : 'Correct Trials'}</div>
-          </div>
-          <div class="card" style="text-align: center; padding: 2rem;">
-            <div style="font-size: 2.8rem; font-weight: 900; color: var(--warning);">${summary.backwardStepsCount}</div>
-            <div style="font-weight: 800; font-size: 1.15rem; color: var(--text-muted);">${lang === 'vi' ? 'Hành vi kiểm tra lại (Debug)' : 'Backward Review Steps'}</div>
-          </div>
-          <div class="card" style="text-align: center; padding: 2rem;">
-            <div style="font-size: 2.8rem; font-weight: 900; color: #8B5CF6;">${summary.totalHintsUsed}</div>
-            <div style="font-weight: 800; font-size: 1.15rem; color: var(--text-muted);">${lang === 'vi' ? 'Gợi ý đã sử dụng' : 'Hints Used'}</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3 style="margin-bottom: 1.25rem; font-size: 1.6rem;">🎯 ${lang === 'vi' ? 'Bản Đồ Năng Lực Giải Quyết Vấn Đề (Pólya)' : 'Polya Problem-Solving Competency Map'}</h3>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.25rem;">
-            <li style="display: flex; justify-content: space-between; align-items: center; font-size: 1.15rem;">
-              <span><strong>1. ${I18n.t('step1Title')}</strong> (${lang === 'vi' ? 'Phân loại dữ kiện' : 'Data Classification'})</span>
-              <span class="badge badge-blue">Thành thạo</span>
-            </li>
-            <li style="display: flex; justify-content: space-between; align-items: center; font-size: 1.15rem;">
-              <span><strong>2. ${I18n.t('step2Title')}</strong> (${lang === 'vi' ? 'Lựa chọn công thức' : 'Formula Selection'})</span>
-              <span class="badge badge-amber">Đang phát triển</span>
-            </li>
-            <li style="display: flex; justify-content: space-between; align-items: center; font-size: 1.15rem;">
-              <span><strong>3. ${I18n.t('step3Title')}</strong> (${lang === 'vi' ? 'Mô phỏng & Tính toán' : 'Simulation & Calculation'})</span>
-              <span class="badge badge-emerald">Tốt</span>
-            </li>
-            <li style="display: flex; justify-content: space-between; align-items: center; font-size: 1.15rem;">
-              <span><strong>4. ${I18n.t('step4Title')}</strong> (${lang === 'vi' ? 'Nhìn lại & Đánh giá' : 'Reflection & Evaluation'})</span>
-              <span class="badge badge-purple">Khuyến khích</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    `;
-  },
-
-  /**
-   * VIEW: RESEARCHER & TEACHER PORTAL WITH TRAFFIC ANALYTICS (Admin Only)
-   */
-  renderResearch(container) {
-    const lang = I18n.currentLang;
-    const events = Telemetry.getAllEvents();
-    const trafficSummary = Analytics.getSummary();
-    const currentUser = DB.getCurrentUser();
-
-    container.innerHTML = `
-      <div class="container">
-        <!-- Admin Header Bar -->
-        <div style="background: #FFFBEB; border: 2px solid #FCD34D; border-radius: var(--radius-lg); padding: 1.25rem 1.75rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <span style="font-size: 1.75rem;">🔒</span>
-            <div>
-              <strong style="color: #92400E; font-size: 1.15rem;">Chế độ Quản Trị Viên: ${currentUser ? currentUser.name : 'Admin'}</strong>
-              <div style="font-size: 0.95rem; color: #B45309;">Người dùng phổ thông (học sinh) không thấy được trang này.</div>
-            </div>
-          </div>
-          <button class="btn btn-secondary btn-sm" id="btn-switch-to-student">
-            👤 Chuyển về Chế độ Học sinh
-          </button>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <h1 style="font-size: 2.6rem;">🔬 ${I18n.t('navResearch')}</h1>
-            <p style="font-size: 1.15rem;">${lang === 'vi' ? 'Hệ thống thống kê lưu lượng truy cập và dữ liệu quá trình (Process Data Telemetry).' : 'Web Traffic Analytics & Process Data Telemetry System.'}</p>
-          </div>
-          <div style="display: flex; gap: 0.85rem;">
-            <button class="btn btn-primary" id="btn-export-csv" onclick="SoundFX.playPop()">
-              📥 ${I18n.t('btnExportData')}
-            </button>
-            <button class="btn btn-secondary" id="btn-export-json" onclick="SoundFX.playPop()">
-              📄 JSON
-            </button>
-            <button class="btn btn-secondary" id="btn-clear-telemetry" style="color: var(--danger);" onclick="SoundFX.playPop()">
-              🗑️ ${I18n.t('btnClearData')}
-            </button>
-          </div>
-        </div>
-
-        <!-- Web Traffic & Access Stats Dashboard -->
-        <h2 style="margin-bottom: 1.25rem; color: var(--primary); font-size: 2rem;">
-          📈 ${lang === 'vi' ? 'Thống Kê Lượng Truy Cập Hệ Thống' : 'Web Traffic & Access Analytics'}
-        </h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.25rem;">
-          <div class="card" style="border-left: 6px solid #4F46E5;">
-            <div style="font-size: 2.5rem; font-weight: 900; color: #4F46E5;">${trafficSummary.totalVisits}</div>
-            <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-muted);">${lang === 'vi' ? 'Tổng lượt truy cập' : 'Total Visits'}</div>
-          </div>
-          <div class="card" style="border-left: 6px solid #06B6D4;">
-            <div style="font-size: 2.5rem; font-weight: 900; color: #06B6D4;">${trafficSummary.totalPageViews}</div>
-            <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-muted);">${lang === 'vi' ? 'Lượt xem trang (Pageviews)' : 'Total Page Views'}</div>
-          </div>
-          <div class="card" style="border-left: 6px solid #10B981;">
-            <div style="font-size: 2.5rem; font-weight: 900; color: #10B981;">${trafficSummary.deviceBreakdown['Desktop/Smartboard'] || 0}</div>
-            <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-muted);">${lang === 'vi' ? 'Máy tính / Bảng TV' : 'Desktop / Smartboard'}</div>
-          </div>
-          <div class="card" style="border-left: 6px solid #F59E0B;">
-            <div style="font-size: 2.5rem; font-weight: 900; color: #F59E0B;">${trafficSummary.deviceBreakdown['Tablet'] || 0}</div>
-            <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-muted);">${lang === 'vi' ? 'Máy tính bảng (Tablet)' : 'Tablet Visits'}</div>
-          </div>
-        </div>
-
-        <!-- Traffic Chart Card -->
-        <div class="card" style="margin-bottom: 2.5rem;">
-          <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">📊 ${lang === 'vi' ? 'Biểu Đồ Lượng Truy Cập Theo Ngày' : 'Daily Visits Chart'}</h3>
-          <div style="width: 100%; height: 220px;">
-            <canvas id="traffic-canvas" style="width: 100%; height: 100%;"></canvas>
-          </div>
-        </div>
-
-        <!-- Research Coding Scheme Card -->
-        <div class="card" style="margin-bottom: 2rem;">
-          <h3 style="margin-bottom: 0.85rem; font-size: 1.5rem;">📋 ${lang === 'vi' ? 'Khung Mã Hóa Năng Lực (Coding Scheme)' : 'Competency Coding Scheme'}</h3>
-          <p style="font-size: 1.1rem; margin-bottom: 1.25rem;">
-            ${lang === 'vi' 
-              ? 'Hệ thống tự động ghi nhận các sự kiện theo chuẩn xAPI (Actor-Verb-Object) tương ứng với 4 pha của Pólya:' 
-              : 'The system automatically captures events in xAPI format corresponding to the 4 Polya phases:'}
-          </p>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
-            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); font-size: 1.05rem;">
-              <strong>Pha 1 (Hiểu):</strong> Tỉ lệ phân loại chính xác dữ kiện Đã biết / Cần tìm; thời gian dừng đọc đề.
-            </div>
-            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); font-size: 1.05rem;">
-              <strong>Pha 2 (Kế hoạch):</strong> Lựa chọn công thức ($s, v, t$); nhận diện dạng bài đơn lẻ hay chuyển động ngược chiều.
-            </div>
-            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); font-size: 1.05rem;">
-              <strong>Pha 3 (Thực hiện):</strong> Dự đoán ban đầu, số lần thử lại (Trials), phân loại lỗi (Khái niệm, Tính toán, Nhập số).
-            </div>
-            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); font-size: 1.05rem;">
-              <strong>Pha 4 (Nhìn lại):</strong> Thử thách What-If, kiểm tra đơn vị đo, tự đánh giá mức độ tự tin (Metacognition).
-            </div>
-          </div>
-        </div>
-
-        <!-- NEW: Research Questions Matrix Card -->
-        <div class="card" style="margin-bottom: 2rem;">
-          <h3 style="margin-bottom: 0.85rem; font-size: 1.5rem; color: #4F46E5;">
-            🔬 ${lang === 'vi' ? 'Ma Trận Câu Hỏi Nghiên Cứu & Dữ Liệu Quá Trình (Research Matrix)' : 'Research Questions & Process Data Matrix'}
-          </h3>
-          <p style="font-size: 1.05rem; margin-bottom: 1.25rem; color: var(--text-muted);">
-            ${lang === 'vi' 
-              ? 'Ánh xạ phương pháp luận trực tiếp giữa Câu hỏi Nghiên cứu (CHNC) với dữ liệu Telemetry phục vụ phân tích định lượng & định tính:' 
-              : 'Direct methodological mapping between Research Questions (RQ) and collected Telemetry Data for quantitative & qualitative analysis:'}
-          </p>
-          <div style="overflow-x: auto;">
-            <table class="research-matrix-table">
-              <thead>
-                <tr>
-                  <th style="min-width: 140px;">${lang === 'vi' ? 'Câu hỏi Nghiên cứu (CHNC)' : 'Research Question (RQ)'}</th>
-                  <th style="min-width: 130px;">${lang === 'vi' ? 'Khung Pólya' : 'Polya Phase'}</th>
-                  <th style="min-width: 190px;">${lang === 'vi' ? 'Chỉ báo Telemetry (xAPI)' : 'Telemetry Indicators'}</th>
-                  <th style="min-width: 160px;">${lang === 'vi' ? 'Phương pháp phân tích' : 'Analysis Method'}</th>
-                  <th style="min-width: 190px;">${lang === 'vi' ? 'Ý nghĩa sư phạm' : 'Pedagogical Implication'}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>CHNC 1:</strong> Khả năng đọc hiểu & mô hình hóa bài toán chuyển động?</td>
-                  <td><span class="badge badge-blue">Pha 1 & 2</span><br/><small>Hiểu & Kế hoạch</small></td>
-                  <td><code>DATA_CLASSIFICATION</code><br/><code>FORMULA_SELECTED</code><br/><code>STEP_TIME_RECORD</code></td>
-                  <td>Tần suất phân loại đúng/sai; Thời gian dừng đọc đề; Phân tích lựa chọn công thức.</td>
-                  <td>Đánh giá khả năng chuyển đổi ngôn ngữ đề bài thành mô hình toán học (s, v, t).</td>
-                </tr>
-                <tr>
-                  <td><strong>CHNC 2:</strong> Năng lực ước lượng & phản hồi với mô phỏng trực quan?</td>
-                  <td><span class="badge badge-amber">Pha 3</span><br/><small>Thực hiện giải</small></td>
-                  <td><code>PREDICTION_SUBMITTED</code><br/><code>PREDICTION_COMPARED</code><br/><code>TRIAL_ATTEMPT</code><br/><code>ERROR_RECORDED</code></td>
-                  <td>Độ lệch dự đoán (Delta); Số lần thử lại (Trials); Phân bố loại lỗi (Khái niệm/Tính toán).</td>
-                  <td>Chứng minh mô phỏng giúp học sinh thu hẹp sai lệch và tự điều chỉnh chiến lược tính toán.</td>
-                </tr>
-                <tr>
-                  <td><strong>CHNC 3:</strong> Hành vi tự kiểm tra & năng lực tư duy ngoại suy (What-If)?</td>
-                  <td><span class="badge badge-purple">Pha 4</span><br/><small>Nhìn lại & Mở rộng</small></td>
-                  <td><code>UNIT_CHECK_ANSWER</code><br/><code>WHAT_IF_TESTED</code><br/><code>SELF_ASSESSMENT</code><br/><code>BACKWARD_STEP</code></td>
-                  <td>Tỉ lệ vượt qua thử thách What-If; Thang đo tự tin 5 mức; Hành vi quay lui sửa lỗi.</td>
-                  <td>Chứng minh sự phát triển năng lực siêu nhận thức (Metacognition) và hiểu bản chất quan hệ tỉ lệ.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Telemetry Log Table -->
-        <div class="card">
-          <h3 style="margin-bottom: 1.25rem; font-size: 1.5rem;">
-            ⏱️ ${lang === 'vi' ? 'Dòng Sự Kiện Ghi Nhận Thực Thời' : 'Real-time Event Stream'} (${events.length} events)
-          </h3>
-          <div style="max-height: 420px; overflow-y: auto; border: 2px solid var(--border-color); border-radius: var(--radius-md);">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem; text-align: left;">
-              <thead style="background: var(--bg-surface); position: sticky; top: 0;">
-                <tr>
-                  <th style="padding: 0.85rem; border-bottom: 2px solid var(--border-color);">Timestamp</th>
-                  <th style="padding: 0.85rem; border-bottom: 2px solid var(--border-color);">Student ID</th>
-                  <th style="padding: 0.85rem; border-bottom: 2px solid var(--border-color);">Lesson</th>
-                  <th style="padding: 0.85rem; border-bottom: 2px solid var(--border-color);">Polya Step</th>
-                  <th style="padding: 0.85rem; border-bottom: 2px solid var(--border-color);">Event Type</th>
-                  <th style="padding: 0.85rem; border-bottom: 2px solid var(--border-color);">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${events.slice(-50).reverse().map(ev => `
-                  <tr style="border-bottom: 1px solid var(--border-color);">
-                    <td style="padding: 0.75rem; font-family: monospace;">${new Date(ev.timestamp).toLocaleTimeString()}</td>
-                    <td style="padding: 0.75rem; font-family: monospace;">${ev.studentId}</td>
-                    <td style="padding: 0.75rem;">${ev.lessonId || '-'}</td>
-                    <td style="padding: 0.75rem;">
-                      <span class="badge ${ev.polyaStep ? `badge-${['blue','amber','emerald','purple'][ev.polyaStep-1]}` : 'badge-gray'}">
-                        ${ev.polyaStep ? `Step ${ev.polyaStep}` : '-'}
-                      </span>
-                    </td>
-                    <td style="padding: 0.75rem; font-weight: 800;">${ev.eventType}</td>
-                    <td style="padding: 0.75rem; font-family: monospace; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      ${JSON.stringify(ev.data)}
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Chatbot Admin Panel (Q&A Management) -->
-        <div id="chatbot-admin-section">
-          ${Chatbot.renderAdminPanel()}
-        </div>
-      </div>
-    `;
-
-    // Render traffic chart
-    setTimeout(() => {
-      Analytics.renderTrafficChart('traffic-canvas');
-    }, 50);
-
-    // Switch to student button
-    const btnSwitch = container.querySelector('#btn-switch-to-student');
-    if (btnSwitch) {
-      btnSwitch.addEventListener('click', () => {
-        SoundFX.playPop();
-        DB.switchToStudent();
-        window.location.hash = '#home';
-      });
-    }
-
-    document.getElementById('btn-export-csv').addEventListener('click', () => Telemetry.exportCSV());
-    document.getElementById('btn-export-json').addEventListener('click', () => Telemetry.exportJSON());
-    document.getElementById('btn-clear-telemetry').addEventListener('click', () => {
-      if (confirm(lang === 'vi' ? 'Bạn có chắc chắn muốn xóa toàn bộ dữ liệu telemetry?' : 'Clear all telemetry events?')) {
-        Telemetry.clearData();
-        this.renderResearch(container);
-      }
-    });
-
-    // Bind Chatbot Admin Events
-    Chatbot.bindAdminEvents(container);
+    this.activeTaskId = taskId;
+    this.taskEngine.loadTask(taskConfig, this.currentStudent);
   }
-};
+}
 
-window.App = App;
-
-// Bootstrap application once DOM is ready
+// Global bootstrap
 document.addEventListener('DOMContentLoaded', () => {
-  App.init();
+  window.App = new AppController();
 });

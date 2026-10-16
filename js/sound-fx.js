@@ -150,6 +150,56 @@ const SoundFX = {
 
       t += note.d * 0.9;
     });
+  },
+
+  /**
+   * Retro 8-bit blip for option navigation
+   */
+  playRetroSelect() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.setValueAtTime(880, now + 0.04);
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.09);
+  },
+
+  /**
+   * Retro 8-bit game start chime / fanfare
+   */
+  playRetroStart() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+    const notes = [
+      { f: 523.25, d: 0.07 }, // C5
+      { f: 659.25, d: 0.07 }, // E5
+      { f: 783.99, d: 0.07 }, // G5
+      { f: 1046.50, d: 0.22 } // C6
+    ];
+    let t = this.ctx.currentTime;
+    notes.forEach((n) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(n.f, t);
+      gain.gain.setValueAtTime(0.22, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + n.d);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + n.d);
+      t += n.d * 0.85;
+    });
   }
 };
 

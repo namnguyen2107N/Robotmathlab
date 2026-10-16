@@ -1,239 +1,810 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Robot Math Lab - Mô Phỏng Toán Học & Robotics Tiểu Học</title>
+  <title>Robot Math Lab - Kids Fun Math & Robotics Simulation</title>
   <meta name="description"
-    content="Nền tảng mô phỏng Robotics ảo tích hợp quy trình 4 bước Pólya giúp học sinh tiểu học rèn luyện tư duy giải quyết vấn đề trong môn Toán." />
+    content="Virtual Robotics simulation platform helping elementary students master problem-solving in Math and STEM English." />
 
-  <!-- Google Fonts: Nunito -->
+  <!-- Google Fonts: Lexend, Be Vietnam Pro, Baloo 2, Nunito & Quicksand -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&family=Press+Start+2P&family=Quicksand:wght@500;600;700&display=swap"
+    rel="stylesheet">
 
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/main.css" />
-  <link rel="stylesheet" href="css/components.css" />
-  <link rel="stylesheet" href="css/simulation.css" />
+  <!-- Main Unified Kid-Friendly Fullscreen Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Retro Pixel Art Splash Screen Stylesheet -->
+  <link rel="stylesheet" href="css/splash.css" />
+
+  <!-- Cute Tab Favicon -->
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
 </head>
 
-<body>
+<body class="kid-theme">
 
-  <!-- Application Header -->
-  <header class="app-header">
-    <div class="container header-content">
-      <!-- Logo -->
-      <a href="#home" class="brand-logo" id="brand-logo">
-        <div class="logo-icon">🤖</div>
-        <div>
-          <div style="line-height: 1.1;">Robot Math Lab</div>
-          <small style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px;">
-            STEM & POLYA LEARNING
-          </small>
-        </div>
-      </a>
+  <!-- =========================================================================
+       RETRO PIXEL ART SPLASH SCREEN (8-BIT ARCADE CONSOLE)
+       ========================================================================= -->
+  <div id="splash-screen" class="splash-screen" role="dialog" aria-modal="true"
+    aria-label="Màn hình khởi động Robot Math Lab">
+    <div class="splash-content">
 
-      <!-- Main Navigation -->
-      <nav class="main-nav" id="main-nav">
-        <a href="#home" class="nav-link active" data-i18n="navHome">Trang chủ</a>
-        <a href="#lessons" class="nav-link" data-i18n="navLessons">Danh mục Bài học</a>
-        <a href="#progress" class="nav-link" data-i18n="navProgress">Nhật ký & Tiến trình</a>
-        <a href="#research" class="nav-link" id="nav-research-link" data-i18n="navResearch" style="display: none;">🔬 Dữ
-          liệu Nghiên cứu</a>
-      </nav>
+      <!-- Background Scene Layers: Cheerful Sky, Golden Sun, Clouds, Flying Rocket, Math Bubbles & Floating Symbols -->
+      <div class="splash-sky">
+        <div class="pixel-stars" aria-hidden="true"></div>
 
-      <!-- Header Actions: Sound, Fullscreen, Lang Toggle, Student Profile -->
-      <div class="header-actions">
-        <!-- Sound FX Toggle -->
-        <button class="btn-control-icon" id="btn-toggle-sound" title="Bật/Tắt âm thanh (Sound FX)">
-          🔊
-        </button>
-
-        <!-- Fullscreen Toggle Button -->
-        <button class="btn-control-icon" id="btn-toggle-fullscreen"
-          title="Toàn màn hình / Fullscreen (TV, Bảng tương tác)">
-          ⛶
-        </button>
-
-        <!-- Language Toggle Switch -->
-        <div class="lang-toggle" title="Chuyển đổi ngôn ngữ / Switch Language">
-          <button class="lang-btn active" data-lang="vi">VI</button>
-          <button class="lang-btn" data-lang="en">EN</button>
+        <!-- Warm Smiling Sun with Gentle Pulsing Rays -->
+        <div class="splash-sun" aria-hidden="true">
+          <div class="sun-core"></div>
+          <div class="sun-rays"></div>
         </div>
 
-        <!-- Student Profile Badge -->
-        <div class="student-header-badge" id="btn-open-user-modal" title="Hồ sơ học sinh / Đổi tài khoản">
-          <div class="student-avatar-circle" id="header-avatar-preview">🤖</div>
-          <div class="student-meta">
-            <span class="student-name-text" id="header-user-name">Chicken</span>
-            <div class="student-stats-row">
-              <span id="header-user-stars">⭐ 120</span>
-              <span>&bull;</span>
-              <span id="header-user-class" style="color: var(--primary);">Lớp 5A</span>
+        <!-- Flying Space Rocket Crossing the Sky -->
+        <div class="splash-flying-rocket" aria-hidden="true">
+          <span class="rocket-body">🚀</span>
+          <span class="rocket-trail">💨</span>
+        </div>
+
+        <!-- Floating Math Equation Bubbles (Animated Upward Drift) -->
+        <div class="floating-math-bubble bubble-eq-1" aria-hidden="true">1 + 1 = 2</div>
+        <div class="floating-math-bubble bubble-eq-2" aria-hidden="true">3 × 4 = 12</div>
+        <div class="floating-math-bubble bubble-eq-3" aria-hidden="true">10 ÷ 2 = 5</div>
+        <div class="floating-math-bubble bubble-eq-4" aria-hidden="true">x + 5 = 9</div>
+        <div class="floating-math-bubble bubble-eq-5" aria-hidden="true">5 x 5 = 25</div>
+
+        <!-- Floating Playful Math & Robotics Symbols -->
+        <div class="floating-icon-item icon-plus" aria-hidden="true">➕</div>
+        <div class="floating-icon-item icon-minus" aria-hidden="true">➖</div>
+        <div class="floating-icon-item icon-multiply" aria-hidden="true">✖️</div>
+        <div class="floating-icon-item icon-divide" aria-hidden="true">➗</div>
+        <div class="floating-icon-item icon-abacus" aria-hidden="true">🧮</div>
+        <div class="floating-icon-item icon-ruler" aria-hidden="true">📐</div>
+        <div class="floating-icon-item icon-star-1" aria-hidden="true">⭐</div>
+        <div class="floating-icon-item icon-star-2" aria-hidden="true">✨</div>
+        <div class="floating-icon-item icon-bulb" aria-hidden="true">💡</div>
+        <div class="floating-icon-item icon-infinity" aria-hidden="true">∞</div>
+        <div class="floating-icon-item icon-pi" aria-hidden="true">π</div>
+
+        <!-- Fluffy Drifting Clouds -->
+        <div class="pixel-cloud cloud-1" aria-hidden="true"></div>
+        <div class="pixel-cloud cloud-2" aria-hidden="true"></div>
+        <div class="pixel-cloud cloud-3" aria-hidden="true"></div>
+        <div class="pixel-cloud cloud-4" aria-hidden="true"></div>
+      </div>
+
+      <!-- Rotating Robotics Machine Gears (Left and Right Clusters) -->
+      <div class="splash-gears-cluster cluster-left" aria-hidden="true">
+        <div class="gear-wheel gear-indigo gear-large animate-spin-cw">⚙️</div>
+        <div class="gear-wheel gear-amber gear-medium animate-spin-ccw">⚙️</div>
+      </div>
+
+      <div class="splash-gears-cluster cluster-right" aria-hidden="true">
+        <div class="gear-wheel gear-emerald gear-large animate-spin-ccw">⚙️</div>
+        <div class="gear-wheel gear-cyan gear-small animate-spin-cw">⚙️</div>
+      </div>
+
+      <div class="splash-hills back-hills" aria-hidden="true"></div>
+      <div class="splash-hills mid-hills" aria-hidden="true"></div>
+      <div class="splash-ground" aria-hidden="true">
+        <div class="pixel-grass-edge"></div>
+      </div>
+
+      <!-- Main Arcade Center Stage (Grand 2X Scaled Size) -->
+      <div class="splash-center-stage grand-stage">
+
+        <!-- Top Status Bar: Sound/Fullscreen Tools -->
+        <div class="splash-top-bar">
+          <div class="splash-top-tools">
+            <button type="button" class="btn-splash-tool" id="btn-splash-sound" title="Âm thanh / Sound">
+              <span id="splash-sound-icon">🔊</span>
+            </button>
+            <button type="button" class="btn-splash-tool" id="btn-splash-fs" title="Toàn màn hình / Fullscreen">
+              <span id="splash-fs-icon">⛶</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Robot Mascot Sparky Peaking Behind the Signboard (Enlarged with Waving Hand & Battery Meter) -->
+        <div class="splash-robot-wrapper">
+
+          <!-- Welcoming Speech Board from Robot Sparky -->
+          <div class="splash-welcome-board hidden" id="splash-welcome-board" role="dialog" aria-modal="false"
+            aria-labelledby="welcome-board-title">
+            <div class="welcome-board-header">
+              <div class="welcome-board-badge">
+                <span class="welcome-badge-icon">👋</span>
+                <span class="welcome-badge-text" id="welcome-badge-text">LỜI CHÀO TỪ SPARKY</span>
+              </div>
+              <button type="button" class="btn-close-welcome" id="btn-close-splash-welcome" title="Đóng lời chào" aria-label="Đóng bảng chào mừng">✕</button>
+            </div>
+
+            <div class="welcome-board-body">
+              <h3 class="welcome-board-title" id="welcome-board-title">
+                CHÀO MỪNG BẠN ĐẾN VỚI ROBOT MATH LAB! 🚀✨
+              </h3>
+              <p class="welcome-board-desc" id="welcome-board-desc">
+                Xin chào nhà thám hiểm nhí! Hãy cùng <strong>Sparky</strong> khám phá thế giới Toán học và Lập trình chuyển động rô-bốt đầy kỳ thú. Hãy chọn ngôn ngữ, nhập tên và sẵn sàng chinh phục các nhiệm vụ nhé!
+              </p>
+
+              <div class="welcome-board-features">
+                <span class="feature-chip chip-math" id="chip-math-text">📐 Toán chuyển động</span>
+                <span class="feature-chip chip-sim" id="chip-sim-text">🤖 Đường chạy thực tế</span>
+                <span class="feature-chip chip-stem" id="chip-stem-text">🏆 Chiến binh STEM</span>
+              </div>
+            </div>
+
+            <div class="welcome-board-footer">
+              <span class="welcome-tip-text" id="welcome-tip-text">💡 Nhấn <strong>START</strong> để bắt đầu ngay!</span>
+              <button type="button" class="btn-welcome-action" id="btn-welcome-explore">
+                <span id="welcome-action-text">Khám phá ngay</span> ➔
+              </button>
+            </div>
+
+            <!-- Speech bubble arrow pointing to Sparky -->
+            <div class="welcome-board-tail" aria-hidden="true"></div>
+          </div>
+
+          <div class="splash-robot grand-robot" id="splash-robot"
+            title="Robot Sparky! Bấm để xem lời chào mừng 🚀" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false">
+            <div class="pixel-robot-antenna">
+              <span class="antenna-bulb animate-pixel-glow">💡</span>
+              <span class="antenna-wave wave-1"></span>
+              <span class="antenna-wave wave-2"></span>
+              <span class="antenna-stick"></span>
+            </div>
+
+            <div class="pixel-robot-head-wrap">
+              <!-- Waving Left Arm -->
+              <div class="robot-waving-arm arm-left animate-wave-hand" aria-hidden="true">
+                <span class="robot-hand">👋</span>
+              </div>
+
+              <!-- Main Robot Head -->
+              <div class="pixel-robot-head">
+                <div class="pixel-ear ear-l"></div>
+                <div class="pixel-face">
+                  <div class="pixel-eyes">
+                    <span class="pixel-eye eye-l"><span class="pupil"></span></span>
+                    <span class="pixel-eye eye-r"><span class="pupil"></span></span>
+                  </div>
+                  <div class="pixel-mouth">‿</div>
+                  <div class="face-heart-meter">🔋 100%</div>
+                </div>
+                <div class="pixel-ear ear-r"></div>
+              </div>
+
+              <!-- Right Arm -->
+              <div class="robot-waving-arm arm-right" aria-hidden="true">
+                <span class="robot-hand">🦾</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Grand Signboard / Console Card (Doubled Size & Prominence) -->
+        <div class="splash-signboard grand-signboard" id="splash-signboard">
+          <!-- 4 Corner Tech Screws / Rivets -->
+          <div class="signboard-rivet rivet-tl" aria-hidden="true"></div>
+          <div class="signboard-rivet rivet-tr" aria-hidden="true"></div>
+          <div class="signboard-rivet rivet-bl" aria-hidden="true"></div>
+          <div class="signboard-rivet rivet-br" aria-hidden="true"></div>
+
+          <div class="signboard-inner grand-inner">
+
+            <!-- Sparky Clamp Hands gripping the top board edge -->
+            <div class="robot-clamp-hands" aria-hidden="true">
+              <div class="clamp-hand hand-l">🦾</div>
+              <div class="clamp-hand hand-r">🦾</div>
+            </div>
+
+            <!-- Header & App Title -->
+            <div class="signboard-header">
+              <div class="arcade-eyebrow" id="splash-eyebrow">★ NHẬP MÔN TOÁN HỌC & ROBOTICS ★</div>
+              <h1 class="arcade-title grand-title">
+                <span class="title-word-1">ROBOT</span>
+                <span class="title-word-2">MATH</span>
+                <span class="title-word-3">LAB</span>
+              </h1>
+              <div class="arcade-sub grand-sub" id="splash-subtitle">NỀN TẢNG TOÁN HỌC</div>
+            </div>
+
+            <!-- Big Tactile 3D START Action Button (Extra Grand Size) -->
+            <div class="signboard-btn-wrap">
+              <button id="btn-splash-start" class="btn-start grand-start-btn animate-arcade-pulse" type="button"
+                aria-label="Bắt đầu học tập">
+                <span class="start-arrow-l">▶</span>
+                <span class="start-btn-text">START</span>
+                <span class="start-arrow-r">◀</span>
+              </button>
+            </div>
+
+            <!-- Language Selection Menu: Clean Vietnamese & English Options (Doubled Touch Target) -->
+            <div class="splash-lang-select grand-lang-select" role="radiogroup" aria-label="Chọn ngôn ngữ giao diện">
+              <div class="lang-option active" data-lang="vi" role="radio" aria-checked="true" tabindex="0">
+                <span class="lang-arrow">▶</span>
+                <span class="lang-flag">VIE</span>
+                <span class="lang-text">TIẾNG VIỆT</span>
+              </div>
+              <div class="lang-option" data-lang="en" role="radio" aria-checked="false" tabindex="0">
+                <span class="lang-arrow">▶</span>
+                <span class="lang-flag">EN</span>
+                <span class="lang-text">ENGLISH</span>
+              </div>
+            </div>
+
+            <!-- Player / Student Name Input (Grand Size) -->
+            <div class="splash-player-name-wrap grand-name-wrap">
+              <label for="splash-student-name" class="name-label" id="splash-name-label">🧑‍🎓 TÊN Bé</label>
+              <input type="text" id="splash-student-name" class="pixel-name-input grand-name-input" maxlength="20"
+                placeholder="Nhập tên của bé..." value="Bé Yêu Toán" />
+            </div>
+
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Cute Expansive Header -->
+  <header class="app-header" id="app-header">
+    <div class="header-container">
+      <!-- Brand Logo -->
+      <a href="#start" class="brand-link" id="brand-home-link" title="Start Screen / Màn hình bắt đầu" aria-label="Robot Math Lab — Start Screen / Màn hình bắt đầu">
+        <div class="brand-icon-cute animate-bounce-gentle">🤖</div>
+        <div>
+          <div class="brand-name">Robot Math Lab ✨</div>
+          <div class="brand-sub">KIDS FUN MATH & ROBOTICS LAB</div>
+        </div>
+      </a>
+
+      <!-- Header Tools: Language Switcher, Student Tag, Sound, Fullscreen, Settings (Compact icon-only) -->
+      <div class="header-tools header-tools--compact" role="toolbar" aria-label="Quick tools">
+        <!-- Language Switcher Pill -->
+        <div class="header-lang-pill" id="header-lang-pill" title="Interface Language / Ngôn ngữ giao diện">
+          <button type="button" class="btn-lang-tab active" id="btn-lang-en" title="English Interface" aria-label="Switch to English">EN</button>
+          <button type="button" class="btn-lang-tab" id="btn-lang-vi" title="Giao diện Tiếng Việt" aria-label="Chuyển sang Tiếng Việt">VIE</button>
+        </div>
+
+        <!-- Compact Student Badge (Clickable to open profile/settings) -->
+        <button type="button" class="header-student-tag header-student-tag--compact" id="header-student-tag"
+          title="Học sinh / Student Profile & Settings" aria-label="Student Profile & Settings" aria-haspopup="dialog">
+          <span class="student-avatar-icon">🧑‍🎓</span>
+          <span id="header-student-name">Math Explorer</span>
+        </button>
+
+        <!-- Divider -->
+        <span class="header-tools-divider" aria-hidden="true"></span>
+
+        <!-- Sound Toggle (Icon-only) -->
+        <button type="button" class="btn-header-icon" id="btn-toggle-sound" title="Sound / Âm thanh" aria-label="Toggle Sound">
+          <span id="sound-icon">🔊</span>
+        </button>
+
+        <!-- Fullscreen Toggle (Icon-only) -->
+        <button type="button" class="btn-header-icon btn-icon-fullscreen" id="btn-toggle-fullscreen"
+          title="Fullscreen / Toàn màn hình" aria-label="Toggle Fullscreen">
+          <span id="fullscreen-icon">⛶</span>
+        </button>
+
+        <!-- Settings Icon Button (Thu gọn "Màn hình & Cài đặt" lên đầu trang) -->
+        <button type="button" class="btn-header-icon btn-icon-settings" id="btn-toggle-settings"
+          title="Cài đặt & Thông tin / Settings" aria-label="Cài đặt & Thông tin" aria-haspopup="dialog" aria-expanded="false">
+          <span id="settings-icon">⚙️</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Dynamic View Container -->
+  <!-- Main Dynamic Fullscreen Application Container -->
   <main id="main-view">
-    <!-- Rendered dynamically by js/app.js -->
+    <!-- Rendered dynamically by js/app.js (Mission Hub or Task Workspace) -->
   </main>
 
-  <!-- Chatbot Widget - Sparky Bot -->
-  <button class="chatbot-toggle-btn" id="chatbot-toggle-btn" title="Hỏi Sparky Bot">
-    💬
-    <div class="chatbot-badge" id="chatbot-badge">!</div>
-  </button>
-
-  <div class="chatbot-widget" id="chatbot-widget">
-    <!-- Chat Header -->
-    <div class="chatbot-header">
-      <div class="chatbot-header-info">
-        <div class="chatbot-header-avatar">🤖</div>
-        <div class="chatbot-header-text">
-          <h4>Sparky Bot</h4>
-          <span><span class="chatbot-status-dot"></span> Trợ lý thông minh</span>
+  <!-- Cute Floating Mascot Companion: Robot Sparky -->
+  <div class="sparky-mascot-container" id="sparky-container" role="complementary" aria-label="Robot companion Sparky">
+    <div class="sparky-speech-bubble" id="sparky-bubble" title="Drag to move Sparky anywhere! 🤖">
+      Hi! I'm Sparky the Robot 🤖 Choose your language and click Start to explore! ✨
+    </div>
+    <div class="sparky-bot-avatar" id="sparky-avatar" title="Click for cheer or drag to move Sparky! 🤖" tabindex="0">
+      <div class="sparky-antenna">💡</div>
+      <div class="sparky-face">
+        <div class="sparky-eyes">
+          <span class="sparky-eye">👀</span>
         </div>
+        <div class="sparky-smile">‿</div>
       </div>
-      <button class="chatbot-close-btn" id="chatbot-close-btn" title="Đóng">&times;</button>
-    </div>
-
-    <!-- Chat Messages -->
-    <div class="chatbot-messages" id="chatbot-messages">
-      <!-- Messages injected dynamically -->
-    </div>
-
-    <!-- Quick Suggestion Buttons -->
-    <div class="chatbot-quick-btns" id="chatbot-quick-btns">
-      <button class="chatbot-quick-btn" data-query="Quy trình Pólya là gì?">🧠 Pólya 4 bước</button>
-      <button class="chatbot-quick-btn" data-query="Công thức vận tốc">🏎️ Vận tốc</button>
-      <button class="chatbot-quick-btn" data-query="Tam giác công thức">📐 Tam giác s,v,t</button>
-      <button class="chatbot-quick-btn" data-query="Bài 1 học gì?">📚 Bài học 1</button>
-      <button class="chatbot-quick-btn" data-query="Sao thưởng">⭐ Sao thưởng</button>
-    </div>
-
-    <!-- Chat Input -->
-    <div class="chatbot-input-bar">
-      <input type="text" id="chatbot-input" placeholder="Hỏi Sparky bất cứ điều gì..." autocomplete="off" />
-      <button class="chatbot-send-btn" id="chatbot-send-btn" title="Gửi">➤</button>
     </div>
   </div>
 
-  <!-- Floating Robot Mascot & Speech Bubble -->
-  <div class="mascot-container" id="mascot-container">
-    <div class="mascot-bubble" id="mascot-speech-bubble">
-      Xin chào bạn! Mình là Sparky. Hãy chọn một bài học để chúng ta cùng giải toán nào! 🚀
-    </div>
-    <div class="mascot-bot" id="mascot-bot-avatar" title="Bấm vào mình để nghe lời khuyên nhé!">
-      🤖
-    </div>
-  </div>
-
-  <!-- Student Login & Registration Modal -->
-  <div class="modal-backdrop" id="user-modal">
-    <div class="modal-container">
-      <button class="modal-close-btn" id="btn-close-user-modal">&times;</button>
-
-      <!-- Modal Tabs -->
-      <div class="tab-group">
-        <button class="tab-btn active" id="tab-btn-login">Đăng Nhập Học Sinh</button>
-        <button class="tab-btn" id="tab-btn-register">Tạo Tài Khoản Mới</button>
+  <!-- =========================================================================
+       SETTINGS & STUDENT PROFILE MODAL (COMPACT & ACCESSIBLE)
+       ========================================================================= -->
+  <div id="settings-modal" class="modal-backdrop settings-modal-backdrop" role="dialog" aria-modal="true"
+    aria-labelledby="settings-modal-title" style="display: none;">
+    <div class="modal-card settings-modal-card">
+      <div class="modal-header settings-modal-header">
+        <div>
+          <div class="modal-title" id="settings-modal-title">⚙️ Cài đặt & Thông tin</div>
+          <div class="modal-subtitle" id="settings-modal-subtitle">Tùy chỉnh thông tin và môi trường học tập</div>
+        </div>
+        <button type="button" class="btn-modal-close" id="btn-close-settings" aria-label="Đóng cài đặt">✕</button>
       </div>
 
-      <!-- Tab Content: Quick Login -->
-      <div id="tab-content-login">
-        <h3 style="margin-bottom: 0.5rem;">👋 Chọn tài khoản của bạn</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 1.25rem;">Bấm nhanh vào tên học sinh bên dưới để tiếp tục học tập:
-        </p>
-
-        <div id="user-quick-list" style="display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem;">
-          <!-- Injected dynamically -->
+      <div class="settings-modal-body">
+        <!-- Student Name Option -->
+        <div class="settings-row">
+          <div class="settings-label-wrap">
+            <span class="settings-icon-bubble">🧑‍🎓</span>
+            <div>
+              <label for="settings-input-name" class="settings-label" id="lbl-settings-name">Tên của bé:</label>
+              <div class="settings-hint" id="hint-settings-name">Hiển thị trong toàn bộ hành trình làm bài</div>
+            </div>
+          </div>
+          <div class="settings-input-wrap">
+            <input type="text" id="settings-input-name" class="settings-text-input" maxlength="24"
+              placeholder="Nhập tên bé..." />
+            <button type="button" class="btn-settings-save-name" id="btn-save-settings-name">Lưu</button>
+          </div>
         </div>
 
-        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
-          <label class="input-label">Hoặc đăng nhập bằng Tên / Mã Học sinh:</label>
-          <div style="display: flex; gap: 0.5rem;">
-            <input type="text" class="math-input" id="login-input-name" placeholder="Ví dụ: Bảo Nam hoặc stu_001"
-              style="max-width: 100%; text-align: left; font-size: 1rem;" />
-            <button class="btn btn-primary" id="btn-submit-custom-login">Vào học</button>
+        <!-- Language Switch Option -->
+        <div class="settings-row">
+          <div class="settings-label-wrap">
+            <span class="settings-icon-bubble">🌐</span>
+            <div>
+              <span class="settings-label" id="lbl-settings-lang">Ngôn ngữ hiển thị:</span>
+              <div class="settings-hint" id="hint-settings-lang">Chuyển đổi Tiếng Việt hoặc English</div>
+            </div>
           </div>
+          <div class="header-lang-pill settings-lang-pill">
+            <button type="button" class="btn-lang-tab" id="btn-settings-lang-en">EN</button>
+            <button type="button" class="btn-lang-tab" id="btn-settings-lang-vi">VIE</button>
+          </div>
+        </div>
+
+        <!-- Sound FX Option -->
+        <div class="settings-row">
+          <div class="settings-label-wrap">
+            <span class="settings-icon-bubble">🔊</span>
+            <div>
+              <span class="settings-label" id="lbl-settings-sound">Hiệu ứng âm thanh:</span>
+              <div class="settings-hint" id="hint-settings-sound">Âm thanh vui nhộn khi thao tác và hoàn thành bài</div>
+            </div>
+          </div>
+          <button type="button" class="btn-settings-action-pill" id="btn-settings-sound-toggle">
+            <span id="settings-sound-status-icon">🔊</span>
+            <span id="settings-sound-status-text">Bật âm thanh</span>
+          </button>
+        </div>
+
+        <!-- Fullscreen Option -->
+        <div class="settings-row">
+          <div class="settings-label-wrap">
+            <span class="settings-icon-bubble">⛶</span>
+            <div>
+              <span class="settings-label" id="lbl-settings-fs">Chế độ toàn màn hình:</span>
+              <div class="settings-hint" id="hint-settings-fs">Mở rộng không gian học tập tối đa</div>
+            </div>
+          </div>
+          <button type="button" class="btn-settings-action-pill btn-settings-fs-pill" id="btn-settings-fs-toggle">
+            <span id="settings-fs-status-icon">⛶</span>
+            <span id="settings-fs-status-text">Toàn màn hình</span>
+          </button>
+        </div>
+
+        <!-- Retro Arcade Screen Option -->
+        <div class="settings-row settings-row-arcade">
+          <div class="settings-label-wrap">
+            <span class="settings-icon-bubble">🎮</span>
+            <div>
+              <span class="settings-label" id="lbl-settings-arcade">Màn hình Arcade cổ điển:</span>
+              <div class="settings-hint" id="hint-settings-arcade">Xem lại robot nhảy múa và máy chơi game 8-bit</div>
+            </div>
+          </div>
+          <button type="button" class="btn-arcade-jump" id="btn-settings-open-arcade">
+            Mở Arcade ▶
+          </button>
         </div>
       </div>
 
-      <!-- Tab Content: Register New Student -->
-      <div id="tab-content-register" style="display: none;">
-        <h3 style="margin-bottom: 0.5rem;">✨ Tạo Hồ Sơ Học Sinh Mới</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 1rem;">Chọn Avatar Robot yêu thích và điền tên của bạn:</p>
-
-        <!-- Avatar Grid Selector -->
-        <label class="input-label">1. Chọn bạn Robot đồng hành:</label>
-        <div class="avatar-grid" id="avatar-selector-grid">
-          <!-- Injected dynamically -->
-        </div>
-
-        <div class="input-group">
-          <label class="input-label">2. Họ và tên học sinh:</label>
-          <input type="text" class="math-input" id="reg-input-name" placeholder="Ví dụ: Nguyễn Văn An"
-            style="max-width: 100%; text-align: left; font-size: 1rem;" />
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-          <div>
-            <label class="input-label">3. Khối lớp:</label>
-            <select class="math-input" id="reg-select-grade" style="max-width: 100%; font-size: 1rem;">
-              <option value="5">Lớp 5</option>
-              <option value="4">Lớp 4</option>
-            </select>
-          </div>
-          <div>
-            <label class="input-label">4. Tên lớp:</label>
-            <input type="text" class="math-input" id="reg-input-class" placeholder="5A, 5B, 4A..."
-              style="max-width: 100%; text-align: left; font-size: 1rem;" />
-          </div>
-        </div>
-
-        <button class="btn btn-success btn-lg" id="btn-submit-register" style="width: 100%;">
-          🎉 Tạo Tài Khoản & Vào Học Ngay
+      <div class="modal-footer settings-modal-footer">
+        <button type="button" class="btn-start-task" id="btn-settings-done" style="width: 100%;">
+          Xong & Tiếp tục học ✨
         </button>
       </div>
     </div>
   </div>
 
   <!-- Application Footer -->
-  <footer class="app-footer">
-    <div class="container footer-content">
-      <div>
-        <strong>Robot Math Lab</strong> &copy; 2026 &bull; Đề tài Nghiên Cứu Khoa Học Sư Phạm
+  <footer class="app-footer" id="app-footer">
+    <div class="footer-container">
+      <div class="footer-copy">
+        <strong>Robot Math Lab</strong> &copy; 2026 &bull; Hanoi National University of Education
       </div>
-      <div>
-        Tích hợp mô hình <strong>Pólya 4 bước</strong> &bull; Zero-install HTML5 Canvas
+      <div class="footer-tech">
+        <strong>Project</strong> &bull; Trường Đại học Sư phạm Hà Nội
       </div>
     </div>
   </footer>
 
-  <!-- Scripts in dependency order -->
+  <!-- Core Scripts in Clean Dependency Order -->
   <script src="js/i18n.js"></script>
-  <script src="js/database.js"></script>
   <script src="js/sound-fx.js"></script>
-  <script src="js/confetti.js"></script>
-  <script src="js/analytics.js"></script>
-  <script src="js/telemetry.js"></script>
   <script src="js/polya-engine.js"></script>
   <script src="js/simulation-engine.js"></script>
-  <script src="js/lessons/lesson-base.js"></script>
-  <script src="js/lessons/motion/lesson1.js"></script>
-  <script src="js/lessons/motion/lesson2.js"></script>
-  <script src="js/lessons/motion/lesson3.js"></script>
-  <script src="js/lessons/motion/lesson4.js"></script>
-  <script src="js/lessons/motion/lesson5.js"></script>
-  <script src="js/chatbot.js"></script>
+  <script src="js/log-engine.js"></script>
+  <script src="js/vocab-support.js"></script>
+  <script src="js/math-hints.js"></script>
+  <script src="js/tasks/task1-reach.js"></script>
+  <script src="js/tasks/task2-fix.js"></script>
+  <script src="js/tasks/task3-new.js"></script>
+  <script src="js/feedback-engine.js"></script>
+  <script src="js/task-engine.js"></script>
   <script src="js/app.js"></script>
 
+  <script>
+    // Fullscreen toggle logic & sync
+    const fsBtn = document.getElementById('btn-toggle-fullscreen');
+    const fsIcon = document.getElementById('fullscreen-icon');
+
+    function syncFullscreenUI() {
+      const isFs = !!document.fullscreenElement;
+      if (fsIcon) fsIcon.innerText = isFs ? '⤢' : '⛶';
+      // Icon-only mode: update tooltip instead of text
+      if (fsBtn) {
+        const isVi = window.I18N ? window.I18N.isVietnamese() : false;
+        fsBtn.title = isFs
+          ? (isVi ? 'Thu nhỏ' : 'Exit Fullscreen')
+          : (isVi ? 'Toàn màn hình' : 'Fullscreen');
+      }
+
+      const startFsIcon = document.getElementById('start-fs-icon');
+      const startFsText = document.getElementById('start-fs-text');
+      const isViFull = window.I18N ? window.I18N.isVietnamese() : false;
+      if (startFsIcon) startFsIcon.innerText = isFs ? '⤢' : '⛶';
+      if (startFsText) startFsText.innerText = isFs
+        ? (isViFull ? 'Thu nhỏ' : 'Windowed')
+        : (isViFull ? 'Toàn màn hình' : 'Fullscreen');
+    }
+
+    if (fsBtn) {
+      fsBtn.onclick = function () {
+        if (window.SoundFX) window.SoundFX.playPop();
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => { });
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+        }
+      };
+    }
+    document.addEventListener('fullscreenchange', syncFullscreenUI);
+
+    // Sound toggle logic
+    const soundBtn = document.getElementById('btn-toggle-sound');
+
+    function syncSoundUI(isMuted) {
+      if (soundBtn) {
+        const icon = soundBtn.querySelector('#sound-icon');
+        if (icon) icon.innerText = isMuted ? '🔇' : '🔊';
+        // Icon-only mode: update tooltip
+        const isVi = window.I18N ? window.I18N.isVietnamese() : false;
+        soundBtn.title = isMuted
+          ? (isVi ? 'Đang tắt âm thanh' : 'Sound Muted')
+          : (isVi ? 'Bật âm thanh' : 'Sound On');
+      }
+    }
+    window.syncFullscreenUI = syncFullscreenUI;
+    window.syncSoundUI = syncSoundUI;
+
+    if (soundBtn) {
+      soundBtn.onclick = function () {
+        if (window.SoundFX) {
+          const isMuted = window.SoundFX.toggleMute();
+          syncSoundUI(isMuted);
+        }
+      };
+    }
+    window.addEventListener('soundMuteChanged', (e) => {
+      const isMuted = e.detail?.isMuted ?? (window.SoundFX ? window.SoundFX.isMuted : false);
+      syncSoundUI(isMuted);
+    });
+
+    // Header Language Toggle Buttons
+    const btnLangEn = document.getElementById('btn-lang-en');
+    const btnLangVi = document.getElementById('btn-lang-vi');
+    if (btnLangEn && btnLangVi) {
+      btnLangEn.onclick = () => window.I18N && window.I18N.setLang('en');
+      btnLangVi.onclick = () => window.I18N && window.I18N.setLang('vi');
+    }
+
+    function syncHeaderLanguage() {
+      if (!window.I18N) return;
+      const isVi = window.I18N.isVietnamese();
+      document.documentElement.lang = isVi ? 'vi' : 'en';
+
+      if (btnLangEn) btnLangEn.classList.toggle('active', !isVi);
+      if (btnLangVi) btnLangVi.classList.toggle('active', isVi);
+
+      const brandSub = document.querySelector('.brand-sub');
+      if (brandSub) brandSub.innerText = window.I18N.t('brand_sub');
+
+      const isMuted = window.SoundFX ? window.SoundFX.isMuted : false;
+      syncSoundUI(isMuted);
+      syncFullscreenUI();
+
+      // Update titles
+      if (soundBtn) soundBtn.title = isVi ? 'Bật/Tắt âm thanh' : 'Toggle Sound FX';
+      if (fsBtn) fsBtn.title = isVi ? 'Toàn màn hình' : 'Toggle Fullscreen';
+      const settingsBtn = document.getElementById('btn-toggle-settings');
+      if (settingsBtn) settingsBtn.title = isVi ? 'Cài đặt & Thông tin học sinh' : 'Settings & Student Profile';
+      const studentTag = document.getElementById('header-student-tag');
+      if (studentTag) studentTag.title = isVi ? 'Hồ sơ học sinh & Cài đặt' : 'Student Profile & Settings';
+
+      if (window.App && typeof window.App.syncSettingsModalContent === 'function') {
+        window.App.syncSettingsModalContent();
+      }
+    }
+
+    window.addEventListener('languageChanged', syncHeaderLanguage);
+    document.addEventListener('DOMContentLoaded', syncHeaderLanguage);
+    syncHeaderLanguage(); // Call immediately in case DOM is already parsed
+
+    // Sparky mascot companion: freely draggable across the page & click-to-cheer
+    const sparkyContainer = document.getElementById('sparky-container');
+    const sparkyAvatar = document.getElementById('sparky-avatar');
+    const sparkyBubble = document.getElementById('sparky-bubble');
+
+    function getSparkyCheerMessages() {
+      if (window.I18N && window.I18N.isVietnamese()) {
+        return [
+          "Bạn học giỏi lắm, cố gắng lên nào! ⭐",
+          "Hãy nhớ đọc kỹ đề bài trước khi tính nhé! 📖",
+          "Toán học thật thú vị đúng không nào? 🚀",
+          "Mình luôn ở đây để đồng hành cùng bạn! 🤖✨",
+          "Nếu gặp khó khăn, hãy bấm nút 'Gợi ý' nhé! 💡",
+          "Mỗi lần thử sai là một lần chúng mình học thêm điều mới! 🌱"
+        ];
+      }
+      return [
+        "You're doing great! Keep it up! ⭐",
+        "Always read the problem carefully before calculating! 📖",
+        "Math and robots are so fun together! 🚀",
+        "I'm always right here with you! 🤖✨",
+        "Need help? Click the 'Hint' button anytime! 💡",
+        "Every mistake is a step toward learning something new! 🌱"
+      ];
+    }
+
+    function triggerSparkyCheer() {
+      if (window.SoundFX) window.SoundFX.playTing();
+      sparkyAvatar.classList.add('sparky-jump');
+      setTimeout(() => sparkyAvatar.classList.remove('sparky-jump'), 600);
+      const msgs = getSparkyCheerMessages();
+      const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+      if (sparkyBubble) sparkyBubble.innerText = randomMsg;
+    }
+
+    let isDragging = false;
+    let hasMoved = false;
+    let startPointerX = 0;
+    let startPointerY = 0;
+    let grabOffsetX = 0;
+    let grabOffsetY = 0;
+    let currentSide = 'bubble-on-left';
+    let activePointerTarget = null;
+    let activePointerId = null;
+
+    // Restore saved position from localStorage if available
+    try {
+      const savedPos = localStorage.getItem('sparky_pos');
+      if (savedPos) {
+        const parsed = JSON.parse(savedPos);
+        if (parsed) {
+          if (parsed.side) {
+            currentSide = parsed.side;
+            sparkyContainer.classList.remove('bubble-on-left', 'bubble-on-right');
+            sparkyContainer.classList.add(currentSide);
+          }
+          if (parsed.right !== undefined) sparkyContainer.style.right = parsed.right;
+          if (parsed.left !== undefined) sparkyContainer.style.left = parsed.left;
+          if (parsed.bottom !== undefined) sparkyContainer.style.bottom = parsed.bottom;
+          if (parsed.top !== undefined) sparkyContainer.style.top = parsed.top;
+        }
+      }
+    } catch (_) { }
+
+    function updateSparkyPosition(clientX, clientY) {
+      const avatarRect = sparkyAvatar.getBoundingClientRect();
+      const winW = window.innerWidth;
+      const winH = window.innerHeight;
+
+      const avatarW = avatarRect.width || 88;
+      const avatarH = avatarRect.height || 88;
+
+      const minAvatarX = 12;
+      const maxAvatarX = Math.max(12, winW - avatarW - 12);
+      const desiredAvatarX = Math.max(minAvatarX, Math.min(clientX - grabOffsetX, maxAvatarX));
+
+      const minAvatarY = 12;
+      const maxAvatarY = Math.max(12, winH - avatarH - 12);
+      const desiredAvatarY = Math.max(minAvatarY, Math.min(clientY - grabOffsetY, maxAvatarY));
+
+      const side = desiredAvatarX < (winW / 2) ? 'bubble-on-right' : 'bubble-on-left';
+      if (side !== currentSide) {
+        currentSide = side;
+        sparkyContainer.classList.remove('bubble-on-left', 'bubble-on-right');
+        sparkyContainer.classList.add(currentSide);
+      }
+
+      let containerX;
+      const gap = 16;
+      const bubbleW = (sparkyBubble && sparkyBubble.offsetWidth) ? sparkyBubble.offsetWidth : 260;
+
+      if (currentSide === 'bubble-on-left') {
+        containerX = desiredAvatarX - bubbleW - gap;
+        if (containerX < 12) containerX = 12;
+      } else {
+        containerX = desiredAvatarX;
+        const totalW = sparkyContainer.offsetWidth;
+        if (containerX + totalW > winW - 12) {
+          containerX = Math.max(12, winW - totalW - 12);
+        }
+      }
+
+      const containerH = sparkyContainer.offsetHeight;
+      let containerY = (desiredAvatarY + avatarH) - containerH;
+      if (containerY < 12) containerY = 12;
+      if (containerY + containerH > winH - 12) {
+        containerY = Math.max(12, winH - containerH - 12);
+      }
+
+      sparkyContainer.style.left = `${Math.round(containerX)}px`;
+      sparkyContainer.style.top = `${Math.round(containerY)}px`;
+      sparkyContainer.style.right = 'auto';
+      sparkyContainer.style.bottom = 'auto';
+    }
+
+    function onPointerStart(e) {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+      isDragging = true;
+      hasMoved = false;
+      startPointerX = e.clientX;
+      startPointerY = e.clientY;
+      activePointerTarget = e.currentTarget;
+      activePointerId = e.pointerId;
+
+      const avatarRect = sparkyAvatar.getBoundingClientRect();
+      grabOffsetX = e.clientX - avatarRect.left;
+      grabOffsetY = e.clientY - avatarRect.top;
+
+      try {
+        activePointerTarget.setPointerCapture(activePointerId);
+      } catch (_) { }
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      const dx = e.clientX - startPointerX;
+      const dy = e.clientY - startPointerY;
+
+      if (!hasMoved && Math.hypot(dx, dy) > 5) {
+        hasMoved = true;
+        sparkyContainer.classList.add('is-dragging');
+        sparkyAvatar.classList.add('is-dragging');
+        if (sparkyBubble) sparkyBubble.classList.add('is-dragging');
+      }
+
+      if (hasMoved) {
+        updateSparkyPosition(e.clientX, e.clientY);
+      }
+    }
+
+    function onPointerEnd(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      sparkyContainer.classList.remove('is-dragging');
+      sparkyAvatar.classList.remove('is-dragging');
+      if (sparkyBubble) sparkyBubble.classList.remove('is-dragging');
+
+      if (activePointerTarget && activePointerId !== null) {
+        try {
+          activePointerTarget.releasePointerCapture(activePointerId);
+        } catch (_) { }
+      }
+      activePointerTarget = null;
+      activePointerId = null;
+
+      if (!hasMoved) {
+        triggerSparkyCheer();
+      } else {
+        const avatarRect = sparkyAvatar.getBoundingClientRect();
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        const avatarW = avatarRect.width || 88;
+        const avatarH = avatarRect.height || 88;
+
+        let rightVal = 'auto';
+        let leftVal = 'auto';
+        let bottomVal = 'auto';
+        let topVal = 'auto';
+
+        if (avatarRect.left >= winW / 2) {
+          const distRight = Math.max(12, winW - (avatarRect.left + avatarW));
+          rightVal = `${Math.round(distRight)}px`;
+        } else {
+          leftVal = `${Math.max(12, Math.round(avatarRect.left))}px`;
+        }
+
+        if (avatarRect.top >= winH / 2) {
+          const distBottom = Math.max(12, winH - (avatarRect.top + avatarH));
+          bottomVal = `${Math.round(distBottom)}px`;
+        } else {
+          const containerRect = sparkyContainer.getBoundingClientRect();
+          topVal = `${Math.max(12, Math.round(containerRect.top))}px`;
+        }
+
+        sparkyContainer.style.right = rightVal;
+        sparkyContainer.style.left = leftVal;
+        sparkyContainer.style.bottom = bottomVal;
+        sparkyContainer.style.top = topVal;
+
+        try {
+          localStorage.setItem('sparky_pos', JSON.stringify({
+            side: currentSide,
+            right: rightVal,
+            left: leftVal,
+            bottom: bottomVal,
+            top: topVal
+          }));
+        } catch (_) { }
+      }
+    }
+
+    if (sparkyAvatar) {
+      sparkyAvatar.addEventListener('pointerdown', onPointerStart);
+      sparkyAvatar.addEventListener('pointermove', onPointerMove);
+      sparkyAvatar.addEventListener('pointerup', onPointerEnd);
+      sparkyAvatar.addEventListener('pointercancel', onPointerEnd);
+
+      sparkyAvatar.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          triggerSparkyCheer();
+        }
+      });
+    }
+
+    if (sparkyBubble) {
+      sparkyBubble.addEventListener('pointerdown', onPointerStart);
+      sparkyBubble.addEventListener('pointermove', onPointerMove);
+      sparkyBubble.addEventListener('pointerup', onPointerEnd);
+      sparkyBubble.addEventListener('pointercancel', onPointerEnd);
+    }
+
+    window.addEventListener('resize', () => {
+      if (!sparkyContainer) return;
+      const containerRect = sparkyContainer.getBoundingClientRect();
+      const maxW = Math.max(12, window.innerWidth - containerRect.width - 12);
+      const maxH = Math.max(12, window.innerHeight - containerRect.height - 12);
+      if (sparkyContainer.style.left && sparkyContainer.style.left !== 'auto') {
+        const currL = parseFloat(sparkyContainer.style.left) || containerRect.left;
+        sparkyContainer.style.left = `${Math.max(12, Math.min(currL, maxW))}px`;
+      }
+      if (sparkyContainer.style.top && sparkyContainer.style.top !== 'auto') {
+        const currT = parseFloat(sparkyContainer.style.top) || containerRect.top;
+        sparkyContainer.style.top = `${Math.max(12, Math.min(currT, maxH))}px`;
+      }
+    });
+  </script>
 </body>
 
 </html>

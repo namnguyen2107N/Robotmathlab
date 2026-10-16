@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-13T10:11:10.284Z",
+  "entries": [
+    "ui-component",
+    "ui-motion",
+    "ui-pattern",
+    "ui-review",
+    "ui-tokens",
+    "ui-ux-designer",
+    "ui-ux-pro-max",
+    "ui-visual-validator",
+    "ux-audit",
+    "ux-flow",
+    "uxui-principles",
+    "wcag-audit-patterns",
+    "web-design-guidelines"
+  ]
+}

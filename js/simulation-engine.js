@@ -38,11 +38,24 @@ class SimulationEngine {
     this._resizeTimeout = null;
 
     this.resizeCanvas();
-    window.addEventListener('resize', () => {
+    this._resizeHandler = () => {
       // Debounce resize events for performance
       if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
       this._resizeTimeout = setTimeout(() => this.resizeCanvas(), 150);
-    });
+    };
+    window.addEventListener('resize', this._resizeHandler);
+  }
+
+  destroy() {
+    this.pause();
+    if (this._resizeHandler) {
+      window.removeEventListener('resize', this._resizeHandler);
+      this._resizeHandler = null;
+    }
+    if (this._resizeTimeout) {
+      clearTimeout(this._resizeTimeout);
+      this._resizeTimeout = null;
+    }
   }
 
   resizeCanvas() {
@@ -55,6 +68,9 @@ class SimulationEngine {
     this.width = rect.width;
     this.height = rect.height;
     this.render();
+    if (this.onResize) {
+      try { this.onResize(); } catch(e) {}
+    }
   }
 
   /**
@@ -84,13 +100,18 @@ class SimulationEngine {
 
   start() {
     if (this.isRunning) return;
+    if (this.isFinished) {
+      this.reset();
+    }
     this.isRunning = true;
-    this.lastTimestamp = performance.now();
-    Telemetry.logEvent(null, Telemetry.EVENT_TYPES.SIMULATION_START, {
-      simTime: this.elapsedSimTime,
-      robots: this.robots.map(r => ({ id: r.id, v: r.velocity }))
-    });
-    this.loop(this.lastTimestamp);
+    this.lastTimestamp = performance.now(); // Reset timestamp to prevent time jump
+    if (typeof Telemetry !== 'undefined') {
+      Telemetry.logEvent(null, Telemetry.EVENT_TYPES?.SIMULATION_START || 'SIMULATION_START', {
+        simTime: this.elapsedSimTime,
+        robots: this.robots.map(r => ({ id: r.id, v: r.velocity }))
+      });
+    }
+    this.animationFrameId = requestAnimationFrame(t => this.loop(t));
   }
 
   pause() {
@@ -99,9 +120,11 @@ class SimulationEngine {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
     }
-    Telemetry.logEvent(null, Telemetry.EVENT_TYPES.SIMULATION_PAUSE, {
-      simTime: this.elapsedSimTime
-    });
+    if (typeof Telemetry !== 'undefined') {
+      Telemetry.logEvent(null, Telemetry.EVENT_TYPES?.SIMULATION_PAUSE || 'SIMULATION_PAUSE', {
+        simTime: this.elapsedSimTime
+      });
+    }
   }
 
   reset() {
@@ -121,7 +144,9 @@ class SimulationEngine {
     this.recordHistoryPoint();
     this.render();
     if (this.onTick) this.onTick(this.elapsedSimTime, this.robots);
-    Telemetry.logEvent(null, Telemetry.EVENT_TYPES.SIMULATION_RESET, {});
+    if (typeof Telemetry !== 'undefined') {
+      Telemetry.logEvent(null, Telemetry.EVENT_TYPES?.SIMULATION_RESET || 'SIMULATION_RESET', {});
+    }
   }
 
   step(stepSeconds = 0.5) {
@@ -132,11 +157,18 @@ class SimulationEngine {
   }
 
   setTimeScale(scale) {
-    this.options.timeScale = Math.max(0.1, Math.min(10.0, scale));
+    this.options.timeScale = Math.max(0.1, Math.min(100.0, scale));
   }
 
   loop(timestamp) {
     if (!this.isRunning) return;
+
+    // Tạm dừng tính toán vật lý khi tab bị ẩn để tiết kiệm CPU và tránh time jump khi quay lại
+    if (typeof document !== 'undefined' && document.hidden) {
+      this.lastTimestamp = timestamp;
+      this.animationFrameId = requestAnimationFrame(t => this.loop(t));
+      return;
+    }
 
     const deltaRealMs = timestamp - this.lastTimestamp;
     this.lastTimestamp = timestamp;
@@ -144,8 +176,8 @@ class SimulationEngine {
     // Convert real dt (ms) to simulated dt (seconds)
     const dt = (deltaRealMs / 1000) * this.options.timeScale;
     
-    // Cap dt to prevent huge jumps
-    const safeDt = Math.min(dt, 0.2);
+    // Cap dt to prevent huge jumps while allowing high timeScale
+    const safeDt = Math.min(dt, 0.1 * Math.max(1, this.options.timeScale));
 
     this.updatePhysics(safeDt);
     this.render();
@@ -209,24 +241,26 @@ class SimulationEngine {
         }
       }
 
-      // Check opposite motion meeting condition
-      if (this.options.mode === 'opposite' && this.robots.length >= 2) {
-        const r1 = this.robots[0];
-        const r2 = this.robots[1];
-        if (r1.position >= r2.position) {
-          r1.position = (r1.position + r2.position) / 2;
-          r2.position = r1.position;
-          r1.isFinished = true;
-          r2.isFinished = true;
-          r1.finishTime = this.elapsedSimTime;
-          r2.finishTime = this.elapsedSimTime;
-        }
-      }
-
       if (!robot.isFinished) {
         allDone = false;
       }
     });
+
+    // Check opposite motion meeting condition once per frame
+    if (this.options.mode === 'opposite' && this.robots.length >= 2) {
+      const r1 = this.robots[0];
+      const r2 = this.robots[1];
+      if (r1.position >= r2.position) {
+        const meetingPoint = (r1.position + r2.position) / 2;
+        r1.position = meetingPoint;
+        r2.position = meetingPoint;
+        r1.isFinished = true;
+        r2.isFinished = true;
+        r1.finishTime = this.elapsedSimTime;
+        r2.finishTime = this.elapsedSimTime;
+        allDone = true;
+      }
+    }
 
     this.isFinished = allDone;
     this.recordHistoryPoint();
@@ -325,9 +359,30 @@ class SimulationEngine {
     ctx.lineTo(startX, h);
     ctx.stroke();
 
+    // Start label
+    ctx.fillStyle = '#22C55E';
+    ctx.font = 'bold 11px "Lexend", "Nunito", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('START (0m)', startX, h * 0.65 - 8);
+
     // Finish Line (Checkerboard)
     const finishX = this.unitsToPixels(this.options.trackLengthUnits);
     this.drawCheckeredLine(ctx, finishX, h * 0.65, h);
+
+    // Target Destination Line (Red dashed line on track)
+    const targetDist = this.options.targetDistance || (this.robots && this.robots[0]?.target);
+    if (targetDist && targetDist < this.options.trackLengthUnits) {
+      const targetX = this.unitsToPixels(targetDist);
+      ctx.save();
+      ctx.strokeStyle = '#EF4444';
+      ctx.lineWidth = 4;
+      ctx.setLineDash([8, 6]);
+      ctx.beginPath();
+      ctx.moveTo(targetX, h * 0.65);
+      ctx.lineTo(targetX, h);
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
   drawCheckeredLine(ctx, x, y1, y2) {
@@ -343,30 +398,63 @@ class SimulationEngine {
   }
 
   drawRuler(ctx, w, h) {
-    const rulerY = h - 25;
-    const paddingX = 60;
+    const rulerY = h - 26;
     const totalUnits = this.options.trackLengthUnits;
     const unitLabel = this.options.unitLabel;
 
-    ctx.fillStyle = '#94A3B8';
-    ctx.font = 'bold 11px Nunito, sans-serif';
+    // Dynamic major and minor tick interval according to totalUnits scale
+    let majorStep;
+    if (totalUnits <= 60) majorStep = 5;
+    else if (totalUnits <= 120) majorStep = 10;
+    else if (totalUnits <= 600) majorStep = 50;
+    else if (totalUnits <= 2000) majorStep = 200;
+    else majorStep = Math.pow(10, Math.floor(Math.log10(totalUnits))) / 2;
+
+    const minorStep = Math.max(1, majorStep / 5);
+
+    // Minor ticks
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    for (let u = 0; u <= totalUnits; u += minorStep) {
+      if (Math.abs(u % majorStep) > 0.001) {
+        const px = this.unitsToPixels(u);
+        ctx.beginPath();
+        ctx.moveTo(px, rulerY - 1);
+        ctx.lineTo(px, rulerY + 5);
+        ctx.stroke();
+      }
+    }
+
+    // Major ticks & labels
+    ctx.font = 'bold 12px "Lexend", "Nunito", sans-serif';
     ctx.textAlign = 'center';
+    for (let u = 0; u <= totalUnits; u += majorStep) {
+      const px = this.unitsToPixels(u);
 
-    const intervals = 5;
-    for (let i = 0; i <= intervals; i++) {
-      const val = Math.round((totalUnits / intervals) * i);
-      const px = this.unitsToPixels(val);
-
-      // Tick line
-      ctx.strokeStyle = '#64748B';
-      ctx.lineWidth = 2;
+      // Major tick line
+      ctx.strokeStyle = '#94A3B8';
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(px, rulerY - 6);
-      ctx.lineTo(px, rulerY + 4);
+      ctx.moveTo(px, rulerY - 5);
+      ctx.lineTo(px, rulerY + 7);
       ctx.stroke();
 
-      // Label
-      ctx.fillText(`${val} ${unitLabel}`, px, rulerY + 18);
+      // Number Label
+      ctx.fillStyle = (u === 0) ? '#4ADE80' : '#F8FAFC';
+      ctx.fillText(`${u}${unitLabel}`, px, rulerY + 20);
+    }
+
+    // Always ensure trackLengthUnits tick is drawn if not a multiple of majorStep
+    if (totalUnits % majorStep > majorStep * 0.2 && totalUnits % majorStep < majorStep * 0.8) {
+      const px = this.unitsToPixels(totalUnits);
+      ctx.strokeStyle = '#94A3B8';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(px, rulerY - 5);
+      ctx.lineTo(px, rulerY + 7);
+      ctx.stroke();
+      ctx.fillStyle = '#F8FAFC';
+      ctx.fillText(`${totalUnits}${unitLabel}`, px, rulerY + 20);
     }
   }
 
@@ -438,8 +526,9 @@ class SimulationEngine {
     ctx.font = 'bold 12px Nunito, sans-serif';
     ctx.textAlign = 'center';
     
-    // Tag background
-    const tagText = `${robot.name} (${robot.velocity} ${this.options.unitLabel}/s)`;
+    // Tag background with correct physical unit (km -> km/h, m -> m/s)
+    const speedUnit = (this.options.unitLabel === 'km') ? 'km/h' : (this.options.unitLabel === 'm' ? 'm/s' : `${this.options.unitLabel}/s`);
+    const tagText = `${robot.name} (${robot.velocity} ${speedUnit})`;
     const textWidth = ctx.measureText(tagText).width;
     
     ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
