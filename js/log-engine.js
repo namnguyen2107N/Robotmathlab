@@ -2,7 +2,7 @@
  * ROBOT MATH LAB - LOG ENGINE
  * Specialized pedagogical process logger for elementary STEM & Polya problem solving.
  * Formats data according to the PS1-PS11 problem-solving process codes.
- * Stores events in localStorage for research analysis and enables JSON export.
+ * Stores and displays learning events from the PS1-PS11 problem-solving process.
  */
 
 class LogEngine {
@@ -447,15 +447,11 @@ class LogEngine {
         </div>
         <footer class="learning-journal-footer">
           <span>🔒 ${isVi ? 'Nhật ký được lưu trên thiết bị này.' : 'Journal is stored on this device.'}</span>
-          <button type="button" class="btn-secondary journal-export-btn" data-journal-action="export" ${sessions.length ? '' : 'disabled'}>
-            📥 ${isVi ? 'Xuất nhật ký JSON' : 'Export JSON'}
-          </button>
         </footer>
       </section>
     `;
 
     modal.querySelector('[data-journal-action="close"]')?.addEventListener('click', () => this.closeJournal());
-    modal.querySelector('[data-journal-action="export"]')?.addEventListener('click', () => this.exportJSON(false));
     modal.querySelectorAll('[data-session-id]').forEach(button => {
       button.addEventListener('click', () => {
         this.selectedJournalSessionId = button.getAttribute('data-session-id');
@@ -489,30 +485,6 @@ class LogEngine {
     this.notify({ type: 'SESSIONS_CLEARED' });
   }
 
-  /**
-   * Export all sessions or current session as formatted JSON file
-   */
-  exportJSON(onlyCurrent = false) {
-    const dataToExport = onlyCurrent && this.currentSession 
-      ? this.currentSession 
-      : {
-          exportedAt: new Date().toISOString(),
-          system: 'Robot Math Lab - Process Telemetry',
-          version: '2.0',
-          totalSessions: this.getAllSessions().length,
-          sessions: this.getAllSessions()
-        };
-
-    const jsonString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
-    const filename = `robot_math_lab_logs_${onlyCurrent ? (this.currentSession?.sessionId || 'single') : 'all'}_${Date.now()}.json`;
-    
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", jsonString);
-    downloadAnchor.setAttribute("download", filename);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-  }
 }
 
 // Global singleton instance

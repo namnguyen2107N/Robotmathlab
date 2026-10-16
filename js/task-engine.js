@@ -12,7 +12,10 @@ class TaskEngine {
     this.polya = null;
     this.sim = null;
     this.attemptCount = 0;
+<<<<<<< HEAD
     this.trackReturnContext = 'step3';
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     this.studentInputs = {
       step1: {},
       step2: {},
@@ -27,7 +30,10 @@ class TaskEngine {
   loadTask(taskConfig, studentName = 'Student') {
     this.taskConfig = taskConfig;
     this.attemptCount = 0;
+<<<<<<< HEAD
     this.trackReturnContext = 'step3';
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     this.studentInputs = { step1: {}, step2: {}, step3: {}, step4: {} };
 
     // Initialize Log Session
@@ -53,12 +59,17 @@ class TaskEngine {
   }
 
   /**
+<<<<<<< HEAD
    * Render the full workspace shell with Config View and Dedicated Track View
+=======
+   * Render the full workspace shell
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
    */
   renderLayout() {
     if (!this.container) return;
     const task = this.taskConfig;
     const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
+<<<<<<< HEAD
     const isVi = window.I18N ? window.I18N.isVietnamese() : false;
     const currentTitle = isVi ? (task.titleVi || task.title) : task.title;
 
@@ -101,6 +112,43 @@ class TaskEngine {
 
           <!-- Configuration View Content -->
           <div class="workspace-config-content">
+=======
+
+    // Rule: Problem Statement ALWAYS in English with interactive vocabulary markup!
+    const decoratedEn = window.VocabSupport 
+      ? window.VocabSupport.decorateText(task.descriptionEn) 
+      : task.descriptionEn;
+
+    this.container.innerHTML = `
+      <div class="task-workspace animate-fade-in">
+        <!-- Top Navigation / Actions Bar -->
+        <div class="workspace-top-bar">
+          <button type="button" class="btn-back-hub" id="btn-back-hub" title="${t('btn_back_hub')}">
+            ${t('btn_back_hub')}
+          </button>
+          <div class="workspace-task-header">
+            <span class="task-badge">${task.badge}</span>
+            <h2 class="workspace-task-title">${task.title}</h2>
+          </div>
+          <div class="workspace-top-tools">
+            <button type="button" class="btn-tool-pill" id="btn-open-hints" title="${t('btn_hint')}">
+              ${t('btn_hint')}
+            </button>
+            <button type="button" class="btn-tool-pill" id="btn-open-dict" title="${t('btn_dict')}">
+              ${t('btn_dict')}
+            </button>
+            <button type="button" class="btn-tool-pill btn-tool-feedback hidden" id="btn-open-feedback" title="${t('btn_feedback')}">
+              ${t('btn_feedback')}
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Workspace Grid: Left = Problem & Step Form, Right = Robot Simulation -->
+        <div class="workspace-main-grid">
+          
+          <!-- Left Column: Problem Briefing & Interactive Step Body -->
+          <div class="workspace-left-col">
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
             <!-- Problem Description Card -->
             <section class="card problem-card">
               <div class="problem-card-header">
@@ -109,7 +157,11 @@ class TaskEngine {
                   <span class="problem-card-title">${t('problem_card_title')}</span>
                 </div>
                 <!-- Mode to show Vietnamese translation if needed -->
+<<<<<<< HEAD
                 <button type="button" class="btn-toggle-translation" id="btn-toggle-trans" title="Tiếng Việt">
+=======
+                <button type="button" class="btn-toggle-translation" id="btn-toggle-trans" title="Xem dịch nghĩa Tiếng Việt">
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
                   ${t('btn_trans_show')}
                 </button>
               </div>
@@ -135,6 +187,7 @@ class TaskEngine {
               <!-- Dynamically populated based on active Polya step -->
             </section>
           </div>
+<<<<<<< HEAD
         </div>
 
         <!-- =========================================================================
@@ -216,6 +269,55 @@ class TaskEngine {
           </div>
         </div>
 
+=======
+
+          <!-- Right Column: Virtual Robot Simulation Sandbox -->
+          <div class="workspace-right-col">
+            <div class="card sim-card">
+              <div class="sim-card-header">
+                <div class="sim-title-group">
+                  <span class="sim-icon">🤖</span>
+                  <span class="sim-title">${t('sim_track_title')}</span>
+                </div>
+                <div class="sim-target-indicator">
+                  ${t('sim_target_label')} <strong>${task.targetDistance} ${task.unit}</strong>
+                </div>
+              </div>
+
+              <!-- Canvas Simulation Container -->
+              <div class="canvas-wrapper" id="canvas-container">
+                <canvas id="robot-canvas"></canvas>
+                <!-- Target flag label overlay -->
+                <div class="track-destination-flag" id="destination-flag" title="Destination: ${task.targetDistance}m">
+                  🏁 ${task.targetDistance}m
+                </div>
+              </div>
+
+              <!-- Kinematics Readout Bar -->
+              <div class="kinematics-readout">
+                <div class="readout-item">
+                  <span class="readout-label">${t('sim_speed_label')}</span>
+                  <span class="readout-value" id="disp-speed">-- ${task.speedUnit}</span>
+                </div>
+                <div class="readout-item">
+                  <span class="readout-label">${t('sim_time_label')}</span>
+                  <span class="readout-value" id="disp-time">-- ${task.timeUnit}</span>
+                </div>
+                <div class="readout-item readout-highlight">
+                  <span class="readout-label">${t('sim_dist_label')}</span>
+                  <span class="readout-value" id="disp-dist">0.0 ${task.unit}</span>
+                </div>
+              </div>
+
+              <!-- Simulation Message Box -->
+              <div class="sim-status-box" id="sim-status-box">
+                ${t('sim_ready')}
+              </div>
+            </div>
+          </div>
+
+        </div>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       </div>
     `;
 
@@ -245,9 +347,12 @@ class TaskEngine {
       };
     }
 
+<<<<<<< HEAD
     const journalBtn = document.getElementById('btn-open-journal');
     if (journalBtn) journalBtn.onclick = () => window.LogEngine?.openJournal();
 
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     // Problem translation toggle
     const toggleTransBtn = document.getElementById('btn-toggle-trans');
     const viText = document.getElementById('problem-text-vi');
@@ -266,6 +371,7 @@ class TaskEngine {
         }
       };
     }
+<<<<<<< HEAD
 
     // Track Screen Controls
     const trackBackBtn = document.getElementById('btn-track-back');
@@ -443,6 +549,8 @@ class TaskEngine {
       resultCard.classList.add('hidden');
       resultCard.innerHTML = '';
     }
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   }
 
   /**
@@ -451,16 +559,22 @@ class TaskEngine {
   updateLanguage() {
     if (!this.container || !this.taskConfig) return;
     const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
+<<<<<<< HEAD
     const isVi = window.I18N ? window.I18N.isVietnamese() : false;
     const currentTitle = isVi ? (this.taskConfig.titleVi || this.taskConfig.title) : this.taskConfig.title;
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     // Top Bar
     const backBtn = document.getElementById('btn-back-hub');
     if (backBtn) backBtn.innerText = t('btn_back_hub');
 
+<<<<<<< HEAD
     const titleEl = this.container.querySelector('.workspace-task-title');
     if (titleEl) titleEl.innerText = currentTitle;
 
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     const hintBtn = document.getElementById('btn-open-hints');
     if (hintBtn) {
       const count = window.MathHints?.unlockedLevel || 0;
@@ -470,12 +584,15 @@ class TaskEngine {
     const dictBtn = document.getElementById('btn-open-dict');
     if (dictBtn) dictBtn.innerText = t('btn_dict');
 
+<<<<<<< HEAD
     const journalBtn = document.getElementById('btn-open-journal');
     if (journalBtn) {
       journalBtn.innerText = t('btn_journal');
       journalBtn.title = t('btn_journal');
     }
 
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     // Problem Card
     const probTitle = document.querySelector('.problem-card-title');
     if (probTitle) probTitle.innerText = t('problem_card_title');
@@ -490,10 +607,26 @@ class TaskEngine {
     const metaHint = document.querySelector('.problem-meta-hint');
     if (metaHint) metaHint.innerHTML = t('problem_hint_meta');
 
+<<<<<<< HEAD
     // Update Track Screen elements if instantiated
     this.updateTrackViewUI();
 
     // Re-render active step in config view
+=======
+    // Simulation Card
+    const simTitle = document.querySelector('.sim-title');
+    if (simTitle) simTitle.innerText = t('sim_track_title');
+
+    const simTargetInd = document.querySelector('.sim-target-indicator');
+    if (simTargetInd) simTargetInd.innerHTML = `${t('sim_target_label')} <strong>${this.taskConfig.targetDistance} ${this.taskConfig.unit}</strong>`;
+
+    const labels = document.querySelectorAll('.kinematics-readout .readout-label');
+    if (labels[0]) labels[0].innerText = t('sim_speed_label');
+    if (labels[1]) labels[1].innerText = t('sim_time_label');
+    if (labels[2]) labels[2].innerText = t('sim_dist_label');
+
+    // Re-render active step
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     if (this.polya) {
       this.renderStep(this.polya.currentStep);
     }
@@ -515,7 +648,11 @@ class TaskEngine {
       trackLengthUnits: task.trackLength,
       unitLabel: task.unit,
       targetDistance: task.targetDistance,
+<<<<<<< HEAD
       timeScale: task.timeScale || 1.0
+=======
+      timeScale: 1.0
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     });
 
     this.sim.setRobots([{
@@ -531,6 +668,7 @@ class TaskEngine {
       this.updateFlagPosition();
     };
 
+<<<<<<< HEAD
     this.sim.onTick = (state) => {
       const bot = this.sim.robots[0];
       if (bot) {
@@ -540,6 +678,19 @@ class TaskEngine {
         if (distEl) distEl.innerText = `${bot.position.toFixed(1)} ${task.unit}`;
         if (speedEl) speedEl.innerText = `${bot.velocity.toFixed(1)} ${task.speedUnit}`;
         if (timeEl) timeEl.innerText = `${this.sim.elapsedSimTime.toFixed(1)} ${task.timeUnit}`;
+=======
+    setTimeout(() => {
+      if (this.sim) this.sim.resizeCanvas();
+      this.updateFlagPosition();
+    }, 60);
+
+    this.sim.onTick = (state) => {
+      const bot = this.sim.robots[0];
+      if (bot) {
+        document.getElementById('disp-dist').innerText = `${bot.position.toFixed(1)} ${task.unit}`;
+        document.getElementById('disp-speed').innerText = `${bot.velocity.toFixed(1)} ${task.speedUnit}`;
+        document.getElementById('disp-time').innerText = `${this.sim.elapsedSimTime.toFixed(1)} ${task.timeUnit}`;
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       }
     };
   }
@@ -625,7 +776,11 @@ class TaskEngine {
                 <strong>${f.label}:</strong>
               </label>
               <div class="input-with-unit">
+<<<<<<< HEAD
                 <input type="text" inputmode="decimal" id="input-s1-${f.key}" class="input-field" placeholder="${f.placeholder}" value="${this.studentInputs.step1[f.key] !== undefined ? this.studentInputs.step1[f.key] : ''}" />
+=======
+                <input type="number" step="any" id="input-s1-${f.key}" class="input-field" placeholder="${f.placeholder}" value="${this.studentInputs.step1[f.key] !== undefined ? this.studentInputs.step1[f.key] : ''}" />
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
                 <span class="unit-tag">${f.unit}</span>
               </div>
             </div>
@@ -681,8 +836,12 @@ class TaskEngine {
     let allFilled = true;
 
     s1.fields.forEach(f => {
+<<<<<<< HEAD
       const raw = document.getElementById(`input-s1-${f.key}`)?.value || '';
       const val = parseFloat(String(raw).trim().replace(',', '.'));
+=======
+      const val = parseFloat(document.getElementById(`input-s1-${f.key}`).value);
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       if (isNaN(val)) allFilled = false;
       enteredData[f.key] = val;
     });
@@ -690,6 +849,7 @@ class TaskEngine {
     const selectedTarget = document.querySelector('input[name="s1-target-qty"]:checked')?.value;
 
     if (!allFilled || !selectedTarget) {
+<<<<<<< HEAD
       if (window.LogEngine) {
         window.LogEngine.logEvent('INPUT_VALIDATION_FAILED', 'Step 1 submission missing required answers', {
           step: 1,
@@ -697,6 +857,8 @@ class TaskEngine {
           missingTarget: !selectedTarget
         });
       }
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       errorBox.innerText = t('s1_error_missing');
       errorBox.classList.remove('hidden');
       return;
@@ -792,7 +954,11 @@ class TaskEngine {
             <div class="text-muted small">${s2.calcPromptVi}</div>
           </label>
           <div class="input-with-unit">
+<<<<<<< HEAD
             <input type="text" inputmode="decimal" id="input-s2-calc" class="input-field" placeholder="" value="${this.studentInputs.step2.calcResult !== undefined ? this.studentInputs.step2.calcResult : ''}" />
+=======
+            <input type="number" step="any" id="input-s2-calc" class="input-field" placeholder="" value="${this.studentInputs.step2.calcResult !== undefined ? this.studentInputs.step2.calcResult : ''}" />
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
             <span class="unit-tag">${s2.resultUnit}</span>
           </div>
         </div>
@@ -824,6 +990,7 @@ class TaskEngine {
     const t = (k) => window.I18N ? window.I18N.t(k) : k;
 
     const formulaId = document.querySelector('input[name="s2-formula"]:checked')?.value;
+<<<<<<< HEAD
     const rawCalc = document.getElementById('input-s2-calc')?.value || '';
     const calcVal = parseFloat(String(rawCalc).trim().replace(',', '.'));
 
@@ -835,6 +1002,11 @@ class TaskEngine {
           missingCalculation: isNaN(calcVal)
         });
       }
+=======
+    const calcVal = parseFloat(document.getElementById('input-s2-calc').value);
+
+    if (!formulaId || isNaN(calcVal)) {
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       errorBox.innerText = t('s2_error_missing');
       errorBox.classList.remove('hidden');
       return;
@@ -842,7 +1014,11 @@ class TaskEngine {
 
     const selectedFormula = s2.formulaOptions.find(f => f.id === formulaId);
     const formulaCorrect = !!selectedFormula?.correct;
+<<<<<<< HEAD
     const calcCorrect = Math.abs(calcVal - s2.expectedResult) < 0.001;
+=======
+    const calcCorrect = calcVal === s2.expectedResult;
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     if (!formulaCorrect || !calcCorrect) {
       if (window.LogEngine) {
@@ -867,6 +1043,7 @@ class TaskEngine {
       calcResult: calcVal
     };
 
+<<<<<<< HEAD
     // Transfer only a result the student entered and passed validation.
     // Missions with a prescribed trial run (Task 2) have no targetParam and
     // keep using their explicitly provided trial values.
@@ -874,6 +1051,9 @@ class TaskEngine {
     if (targetParam === 'speed' && this.taskConfig.step3?.canEditSpeed) {
       this.studentInputs.step3.speed = calcVal;
     } else if (targetParam === 'time' && this.taskConfig.step3?.canEditTime) {
+=======
+    if (this.taskConfig.step3?.canEditTime) {
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       this.studentInputs.step3.time = calcVal;
     }
 
@@ -904,6 +1084,7 @@ class TaskEngine {
     const s3 = this.taskConfig.step3;
     const task = this.taskConfig;
     const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
+<<<<<<< HEAD
     const isVi = window.I18N ? window.I18N.isVietnamese() : false;
 
     // Editable parameters are either entered here or transferred from a
@@ -915,6 +1096,18 @@ class TaskEngine {
     const prefilledTime = this.studentInputs.step3.time !== undefined
       ? this.studentInputs.step3.time
       : (s3.canEditTime ? '' : (s3.defaultTime ?? task.correctTime ?? ''));
+=======
+
+    const prefilledTime = this.studentInputs.step3.time !== undefined 
+      ? this.studentInputs.step3.time 
+      : (s3.canEditTime && this.studentInputs.step2.calcResult !== undefined 
+          ? this.studentInputs.step2.calcResult 
+          : s3.defaultTime);
+
+    const prefilledSpeed = this.studentInputs.step3.speed !== undefined
+      ? this.studentInputs.step3.speed
+      : s3.defaultSpeed;
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     container.innerHTML = `
       <div class="step-view animate-fade-in">
@@ -930,7 +1123,11 @@ class TaskEngine {
 
         ${s3.noteEn ? `
           <div class="alert-box-info">
+<<<<<<< HEAD
             ℹ️ ${isVi && s3.noteVi ? s3.noteVi : s3.noteEn}
+=======
+            ℹ️ ${s3.noteEn}
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
           </div>
         ` : ''}
 
@@ -939,6 +1136,7 @@ class TaskEngine {
           <div class="param-row">
             <label class="param-label" for="param-speed">
               <span>${t('s3_speed_label')}</span>
+<<<<<<< HEAD
               <span class="unit-tag">${task.speedUnit}</span>
             </label>
             ${s3.canEditSpeed ? `
@@ -946,6 +1144,15 @@ class TaskEngine {
             ` : `
               <input type="hidden" id="param-speed" value="${prefilledSpeed}" />
               <div class="locked-field-badge">${prefilledSpeed} ${task.speedUnit} (${t('s3_speed_locked')})</div>
+=======
+              <strong class="param-badge">${prefilledSpeed} ${task.speedUnit}</strong>
+            </label>
+            ${s3.canEditSpeed ? `
+              <input type="number" step="any" id="param-speed" class="input-field" value="${prefilledSpeed}" />
+            ` : `
+              <input type="hidden" id="param-speed" value="${prefilledSpeed}" />
+              <div class="locked-field-badge">${t('s3_speed_locked')}</div>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
             `}
           </div>
 
@@ -955,14 +1162,22 @@ class TaskEngine {
               <span class="unit-tag">${task.timeUnit}</span>
             </label>
             ${s3.canEditTime ? `
+<<<<<<< HEAD
               <input type="number" step="any" id="param-time" class="input-field" value="${prefilledTime}" placeholder="${t('s3_param_placeholder')}" />
             ` : `
               <input type="number" step="any" id="param-time" class="input-field" value="${prefilledTime}" readonly style="background:#f1f5f9; cursor:not-allowed;" />
               <small class="text-muted">${isVi && s3.noteVi ? s3.noteVi : (s3.noteEn || t('s3_time_flawed_note'))}</small>
+=======
+              <input type="number" step="any" id="param-time" class="input-field" value="${prefilledTime}" />
+            ` : `
+              <input type="number" step="any" id="param-time" class="input-field" value="${prefilledTime}" readonly style="background:#f1f5f9; cursor:not-allowed;" />
+              <small class="text-muted">${t('s3_time_flawed_note')}</small>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
             `}
           </div>
         </div>
 
+<<<<<<< HEAD
         <div class="step-actions">
           <button type="button" class="btn-secondary" id="btn-back-step-2">${t('s3_btn_back')}</button>
           <button type="button" class="btn-action-run btn-open-track" id="btn-open-track" disabled>
@@ -973,10 +1188,23 @@ class TaskEngine {
               ${t('s3_btn_next')}
             </button>
           ` : ''}
+=======
+        <div class="sim-feedback-card hidden" id="step-3-sim-feedback"></div>
+
+        <div class="step-actions">
+          <button type="button" class="btn-secondary" id="btn-back-step-2">${t('s3_btn_back')}</button>
+          <button type="button" class="btn-action-run" id="btn-run-robot">
+            ${t('s3_btn_run')}
+          </button>
+          <button type="button" class="btn-primary hidden" id="btn-go-to-step-4">
+            ${t('s3_btn_next')}
+          </button>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
         </div>
       </div>
     `;
 
+<<<<<<< HEAD
     document.getElementById('btn-back-step-2').onclick = () => {
       if (this.polya.stepCompleted[3]) {
         this.polya.allowRerun();
@@ -1039,10 +1267,23 @@ class TaskEngine {
         this.polya.nextStep();
       };
     }
+=======
+    document.getElementById('btn-back-step-2').onclick = () => this.polya.prevStep();
+
+    document.getElementById('btn-run-robot').onclick = () => {
+      this.executeSimulationRun();
+    };
+
+    document.getElementById('btn-go-to-step-4').onclick = () => {
+      this.polya.markStepComplete(3);
+      this.polya.nextStep();
+    };
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   }
 
   executeSimulationRun() {
     const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
+<<<<<<< HEAD
     const task = this.taskConfig;
 
     // The track may only run with the values explicitly submitted from Step 3.
@@ -1059,6 +1300,12 @@ class TaskEngine {
       }
       const runBtn = document.getElementById('btn-track-run-robot');
       if (runBtn) runBtn.disabled = true;
+=======
+    const speed = parseFloat(document.getElementById('param-speed').value);
+    const time = parseFloat(document.getElementById('param-time').value);
+
+    if (isNaN(speed) || isNaN(time) || time <= 0) {
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       alert(t('s3_val_error'));
       return;
     }
@@ -1067,6 +1314,7 @@ class TaskEngine {
     this.studentInputs.step3 = { speed, time };
 
     // Update readout displays immediately
+<<<<<<< HEAD
     const speedDisp = document.getElementById('disp-speed');
     const timeDisp = document.getElementById('disp-time');
     const distDisp = document.getElementById('disp-dist');
@@ -1097,6 +1345,19 @@ class TaskEngine {
 
     const resultCard = document.getElementById('track-result-card');
     if (resultCard) resultCard.classList.add('hidden');
+=======
+    document.getElementById('disp-speed').innerText = `${speed.toFixed(1)} ${this.taskConfig.speedUnit}`;
+    document.getElementById('disp-time').innerText = `0.0 ${this.taskConfig.timeUnit}`;
+    document.getElementById('disp-dist').innerText = `0.0 ${this.taskConfig.unit}`;
+
+    // Disable run button while running
+    const runBtn = document.getElementById('btn-run-robot');
+    runBtn.disabled = true;
+    runBtn.innerText = t('s3_btn_running');
+
+    const statusBox = document.getElementById('sim-status-box');
+    statusBox.innerText = t('sim_moving', { speed, time });
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     // Log PS6 (Set Robot Parameters)
     if (window.LogEngine) {
@@ -1105,7 +1366,11 @@ class TaskEngine {
         speed,
         time,
         expectedDistance: speed * time,
+<<<<<<< HEAD
         targetDistance: task.targetDistance
+=======
+        targetDistance: this.taskConfig.targetDistance
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       });
     }
 
@@ -1122,12 +1387,21 @@ class TaskEngine {
 
     // Robot finish handler
     this.sim.onFinish = () => {
+<<<<<<< HEAD
       const finalDist = Number((speed * time).toFixed(1));
       const targetDist = task.targetDistance;
+=======
+      runBtn.disabled = false;
+      runBtn.innerText = t('s3_btn_rerun');
+
+      const finalDist = Number((speed * time).toFixed(1));
+      const targetDist = this.taskConfig.targetDistance;
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       const discrepancy = Number((finalDist - targetDist).toFixed(1));
       const isMatch = Math.abs(discrepancy) < 0.01;
 
       // Update observation readout
+<<<<<<< HEAD
       if (distDisp) distDisp.innerText = `${finalDist.toFixed(1)} ${task.unit}`;
       if (timeDisp) timeDisp.innerText = `${time.toFixed(1)} ${task.timeUnit}`;
 
@@ -1163,6 +1437,25 @@ class TaskEngine {
         contBtn.classList.remove('hidden');
         contBtn.innerText = t('track_btn_continue_step4');
       }
+=======
+      document.getElementById('disp-dist').innerText = `${finalDist} ${this.taskConfig.unit}`;
+      document.getElementById('disp-time').innerText = `${time} ${this.taskConfig.timeUnit}`;
+
+      // Factual feedback
+      const feedbackEl = document.getElementById('step-3-sim-feedback');
+      feedbackEl.classList.remove('hidden');
+      feedbackEl.innerHTML = `
+        <div class="feedback-title">${t('s3_obs_title')}</div>
+        <div class="feedback-metric">
+          ${t('s3_obs_traveled', { dist: finalDist, time })}
+        </div>
+        <div class="feedback-target-comp">
+          ${t('s3_obs_target', { target: targetDist })}
+        </div>
+      `;
+
+      statusBox.innerHTML = t('sim_stopped', { dist: finalDist });
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
       // Audio & Mascot Feedback
       if (isMatch) {
@@ -1185,6 +1478,12 @@ class TaskEngine {
           meetsRequirement: isMatch
         });
       }
+<<<<<<< HEAD
+=======
+
+      // Show Next Step button
+      document.getElementById('btn-go-to-step-4').classList.remove('hidden');
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     };
   }
 
@@ -1196,11 +1495,18 @@ class TaskEngine {
     const task = this.taskConfig;
     const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
 
+<<<<<<< HEAD
     const speed = this.studentInputs.step3.speed;
     const time = this.studentInputs.step3.time;
     const hasValidParameters = Number.isFinite(speed) && speed > 0 && Number.isFinite(time) && time > 0;
     const lastDist = hasValidParameters ? Number((speed * time).toFixed(1)) : 0;
     const isSuccess = hasValidParameters && Math.abs(lastDist - task.targetDistance) < 0.01;
+=======
+    const speed = this.studentInputs.step3.speed !== undefined ? this.studentInputs.step3.speed : (this.taskConfig.robotSpeed || 0);
+    const time = this.studentInputs.step3.time !== undefined ? this.studentInputs.step3.time : (this.taskConfig.correctTime || 0);
+    const lastDist = Number((speed * time).toFixed(1));
+    const isSuccess = Math.abs(lastDist - task.targetDistance) < 0.01;
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     container.innerHTML = `
       <div class="step-view animate-fade-in">
@@ -1216,10 +1522,17 @@ class TaskEngine {
             <div class="text-muted small">${s4.checkQuestionVi}</div>
           </label>
           <div class="binary-choice-group">
+<<<<<<< HEAD
             <button type="button" class="btn-choice ${this.studentInputs.step4.checkResult === 'yes' ? 'selected' : ''}" id="btn-check-yes" ${hasValidParameters ? '' : 'disabled'}>
               ${t('s4_btn_yes', { target: task.targetDistance })}
             </button>
             <button type="button" class="btn-choice ${this.studentInputs.step4.checkResult === 'no' ? 'selected' : ''}" id="btn-check-no" ${hasValidParameters ? '' : 'disabled'}>
+=======
+            <button type="button" class="btn-choice ${this.studentInputs.step4.checkResult === 'yes' ? 'selected' : ''}" id="btn-check-yes">
+              ${t('s4_btn_yes', { target: task.targetDistance })}
+            </button>
+            <button type="button" class="btn-choice ${this.studentInputs.step4.checkResult === 'no' ? 'selected' : ''}" id="btn-check-no">
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
               ${t('s4_btn_no', { target: task.targetDistance })}
             </button>
           </div>
@@ -1232,18 +1545,25 @@ class TaskEngine {
 
         <div class="step-actions">
           <button type="button" class="btn-secondary" id="btn-back-step-3">${t('s4_btn_back')}</button>
+<<<<<<< HEAD
           <button type="button" class="btn-secondary btn-view-track" id="btn-view-track-s4">${t('track_view_track_btn')}</button>
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
           <div id="step-4-finish-action"></div>
         </div>
       </div>
     `;
 
+<<<<<<< HEAD
     document.getElementById('btn-back-step-3').onclick = () => {
       this.polya.allowRerun();
       this.studentInputs.step4 = {};
       this.polya.prevStep();
     };
     document.getElementById('btn-view-track-s4').onclick = () => this.openTrackView('step4');
+=======
+    document.getElementById('btn-back-step-3').onclick = () => this.polya.prevStep();
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     document.getElementById('btn-check-yes').onclick = () => {
       if (isSuccess) {
@@ -1266,7 +1586,11 @@ class TaskEngine {
             <div class="observation-hint-box animate-fade-in">
               <span class="obs-icon">🧐</span>
               <div>
+<<<<<<< HEAD
                 <strong>${t('s4_obs_recheck', { actual: lastDist, target: task.targetDistance })}</strong>
+=======
+                <strong>${t('s4_obs_recheck')}</strong>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
               </div>
             </div>
           `;
@@ -1279,6 +1603,7 @@ class TaskEngine {
         this.handlePS8Choice('no');
       } else {
         // Robot actually reached destination
+<<<<<<< HEAD
         if (window.LogEngine) {
           const actualSpeed = this.studentInputs.step3.speed;
           const actualTime = this.studentInputs.step3.time;
@@ -1289,6 +1614,8 @@ class TaskEngine {
             targetDistance: task.targetDistance
           });
         }
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
         document.getElementById('btn-check-yes')?.classList.remove('selected');
         document.getElementById('btn-check-no')?.classList.remove('selected');
         const subflow = document.getElementById('lookback-subflow');
@@ -1324,6 +1651,7 @@ class TaskEngine {
   }
 
   handlePS8Choice(choice, isRepaint = false) {
+<<<<<<< HEAD
     const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
     const observedSpeed = this.studentInputs.step3.speed;
     const observedTime = this.studentInputs.step3.time;
@@ -1336,6 +1664,10 @@ class TaskEngine {
     const observedDistance = Number((observedSpeed * observedTime).toFixed(1));
     const targetDistance = this.taskConfig.targetDistance;
     const reachedTarget = Math.abs(observedDistance - targetDistance) < 0.01;
+=======
+    this.studentInputs.step4.checkResult = choice;
+    const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     document.getElementById('btn-check-yes')?.classList.toggle('selected', choice === 'yes');
     document.getElementById('btn-check-no')?.classList.toggle('selected', choice === 'no');
@@ -1343,10 +1675,14 @@ class TaskEngine {
     if (!isRepaint && window.LogEngine) {
       window.LogEngine.logEvent('PS8', 'Check result against requirements', {
         response: choice,
+<<<<<<< HEAD
         meetsRequirement: choice === 'yes',
         accurate: (choice === 'yes') === reachedTarget,
         actualDistance: observedDistance,
         targetDistance
+=======
+        meetsRequirement: choice === 'yes'
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       });
     }
 
@@ -1355,18 +1691,25 @@ class TaskEngine {
     const s4 = this.taskConfig.step4;
 
     if (choice === 'yes') {
+<<<<<<< HEAD
       const isVi = window.I18N ? window.I18N.isVietnamese() : false;
       const mathProofHtml = s4.getMathProof
         ? s4.getMathProof(this.studentInputs, isVi)
         : `<strong>s = v × t</strong> = ${this.studentInputs.step3.speed} m/s × ${this.studentInputs.step3.time} s = <strong>${this.taskConfig.targetDistance} m</strong>`;
 
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       subflow.innerHTML = `
         <div class="verified-box animate-fade-in">
           <div class="verified-icon">🏆</div>
           <div class="lookback-status-banner banner-success">${t('s4_banner_success')}</div>
           <h4>${t('s4_math_proof_title')}</h4>
           <p class="math-proof">
+<<<<<<< HEAD
             ${mathProofHtml}
+=======
+            <strong>s = v × t</strong> = ${this.studentInputs.step3.speed} m/s × ${this.studentInputs.step3.time} s = <strong>${this.taskConfig.targetDistance} m</strong>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
           </p>
           <div class="reflection-box">
             <label for="input-reflection" class="field-label">
@@ -1442,6 +1785,7 @@ class TaskEngine {
               </div>
             ` : ''}
 
+<<<<<<< HEAD
             ${s4.adjustmentQuestionEn ? `
               <div class="adjustment-prompt" style="margin-top: 1rem; margin-bottom: 0.5rem;">
                 <strong>${s4.adjustmentQuestionEn}</strong>
@@ -1456,6 +1800,14 @@ class TaskEngine {
               </label>
               <div class="input-with-unit">
                 <input type="text" inputmode="decimal" id="input-revised-time" class="input-field" placeholder="" value="${this.studentInputs.step4.revisedTime || ''}" />
+=======
+            <div class="revision-input-row">
+              <label for="input-revised-time">
+                <strong>${s4.revisionPromptEn || 'New Time value for robot:'}</strong>
+              </label>
+              <div class="input-with-unit">
+                <input type="number" step="any" id="input-revised-time" class="input-field" placeholder="" value="${this.studentInputs.step4.revisedTime || ''}" />
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
                 <span class="unit-tag">${this.taskConfig.timeUnit}</span>
               </div>
             </div>
@@ -1493,17 +1845,27 @@ class TaskEngine {
     const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
     const discId = document.querySelector('input[name="ps9-disc"]:checked')?.value;
     const diagId = document.querySelector('input[name="ps10-diag"]:checked')?.value;
+<<<<<<< HEAD
     const rawRevised = (document.getElementById('input-revised-time')?.value || '').trim();
     const revisedVal = rawRevised ? Number(rawRevised.replace(',', '.')) : NaN;
 
     if (!Number.isFinite(revisedVal) || revisedVal <= 0) {
+=======
+    const revisedTime = parseFloat(document.getElementById('input-revised-time').value);
+
+    if (isNaN(revisedTime) || revisedTime <= 0) {
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       alert(t('s4_input_error'));
       return;
     }
 
     this.studentInputs.step4.discrepancyId = discId;
     this.studentInputs.step4.diagnosisId = diagId;
+<<<<<<< HEAD
     this.studentInputs.step4.revisedTime = revisedVal;
+=======
+    this.studentInputs.step4.revisedTime = revisedTime;
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     // Log PS9 & PS10
     if (window.LogEngine) {
@@ -1512,6 +1874,7 @@ class TaskEngine {
       });
       window.LogEngine.logEvent('PS10', 'Diagnosis and parameter revision', {
         diagnosisId: diagId,
+<<<<<<< HEAD
         revisedTime: revisedVal
       });
     }
@@ -1522,6 +1885,69 @@ class TaskEngine {
     // Open dedicated track view and execute the simulation run live
     this.openTrackView('step4');
     this.executeSimulationRun();
+=======
+        revisedTime
+      });
+    }
+
+    // Now execute PS11: Re-run robot with the revised parameter!
+    this.attemptCount++;
+    const speed = this.studentInputs.step3.speed !== undefined ? this.studentInputs.step3.speed : this.taskConfig.robotSpeed;
+    const targetDist = this.taskConfig.targetDistance;
+    const newDist = speed * revisedTime;
+
+    const retryBtn = document.getElementById('btn-retry-ps11');
+    retryBtn.disabled = true;
+    retryBtn.innerText = t('s4_testing_new');
+
+    const statusBox = document.getElementById('sim-status-box');
+    statusBox.innerText = t('s4_testing_status', { speed, time: revisedTime });
+
+    // Configure simulation
+    this.sim.reset();
+    const bot = this.sim.robots[0];
+    if (bot) {
+      bot.velocity = speed;
+      bot.target = newDist;
+    }
+
+    this.sim.start();
+
+    this.sim.onFinish = () => {
+      retryBtn.disabled = false;
+      retryBtn.innerText = t('s3_btn_rerun');
+
+      const isSuccessNow = Math.abs(newDist - targetDist) < 0.01;
+
+      // Log PS11
+      if (window.LogEngine) {
+        window.LogEngine.logEvent('PS11', 'Retry and verification of adjusted plan', {
+          attempt: this.attemptCount,
+          revisedTime,
+          newDistance: newDist,
+          targetDistance: targetDist,
+          success: isSuccessNow
+        });
+      }
+
+      this.studentInputs.step3.time = revisedTime;
+
+      if (isSuccessNow) {
+        statusBox.innerHTML = t('s4_success_status', { target: targetDist });
+        if (window.SoundFX) window.SoundFX.playVictory();
+        const sparkyBubble = document.getElementById('sparky-bubble');
+        if (sparkyBubble) sparkyBubble.innerText = t('sparky_victory');
+        this.studentInputs.step4.checkResult = 'yes';
+        this.studentInputs.step3.speed = speed;
+        this.studentInputs.step3.time = revisedTime;
+        this.renderStep4(document.getElementById('step-content-card'));
+      } else {
+        if (window.SoundFX) window.SoundFX.playOops();
+        statusBox.innerHTML = `Robot stopped at <strong>${newDist} m</strong> (Target: ${targetDist} m).`;
+        alert(`Robot stopped at ${newDist}m, required target is ${targetDist}m. Please calculate again!`);
+      }
+    };
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   }
 
   showMissionCompletedModal() {
@@ -1544,6 +1970,7 @@ class TaskEngine {
     const totalEvents = session?.events?.length || 0;
     const attempts = session?.summary?.totalAttempts || 1;
     const isVi = window.I18N ? window.I18N.isVietnamese() : false;
+<<<<<<< HEAD
     const lang = window.I18N ? window.I18N.currentLang : 'vi';
     const analysis = window.FeedbackEngine?.analyzeSession(session, lang);
     const nextChallenge = analysis?.nextChallenge || {
@@ -1553,6 +1980,8 @@ class TaskEngine {
       actionText: isVi ? 'Về danh sách nhiệm vụ' : 'Return to missions'
     };
     const practiceRecommendations = (analysis?.practiceRecommendations || []).slice(0, 2);
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     modal.innerHTML = `
       <div class="modal-card completion-card animate-scale-up" style="position: relative;">
@@ -1578,6 +2007,7 @@ class TaskEngine {
           </div>
         </div>
 
+<<<<<<< HEAD
         <div class="completion-guidance">
           <section class="completion-next-card">
             <span class="completion-guidance-label">${isVi ? 'CHẶNG TIẾP THEO' : 'NEXT MISSION'}</span>
@@ -1601,16 +2031,24 @@ class TaskEngine {
           </section>
         </div>
 
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
         <div class="completion-actions">
           <button type="button" class="btn-primary btn-feedback-hero" id="btn-view-feedback">
             📋 ${isVi ? 'Xem Nhận Xét Đánh Giá (View Feedback) ➔' : 'View Process Feedback ➔'}
           </button>
+<<<<<<< HEAD
           <div class="completion-sub-actions">
             <button type="button" class="btn-secondary" id="btn-view-journal">
               📒 ${isVi ? 'Xem nhật ký' : 'View journal'}
             </button>
             <button type="button" class="btn-secondary" id="btn-next-mission">
               ${nextChallenge.actionText}
+=======
+          <div class="completion-sub-actions" style="grid-template-columns: 1fr;">
+            <button type="button" class="btn-secondary" id="btn-next-mission" style="width: 100%;">
+              ${isVi ? 'Nhiệm vụ tiếp theo →' : 'Next Mission →'}
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
             </button>
           </div>
         </div>
@@ -1640,11 +2078,14 @@ class TaskEngine {
       }
     };
 
+<<<<<<< HEAD
     document.getElementById('btn-view-journal').onclick = () => {
       closeCompletion();
       window.LogEngine?.openJournal(session?.sessionId || null);
     };
 
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     document.getElementById('btn-next-mission').onclick = () => {
       closeCompletion();
       let nextTaskId = 'task2-fix';

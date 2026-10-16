@@ -13,6 +13,7 @@ class VocabSupport {
     this.vocabData = {};
     this.isLoaded = false;
     this.activePopover = null;
+<<<<<<< HEAD
     this.activePopoverTarget = null;
     this.activeDictionaryCategory = 'all';
     this.dictionaryQuery = '';
@@ -23,12 +24,15 @@ class VocabSupport {
       robotics: new Set(['robot', 'move', 'travel', 'reach', 'destination', 'run', 'target'])
     };
     this.setupGlobalEvents();
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     this.init();
   }
 
   async init() {
     try {
       const response = await fetch('data/vocab.json');
+<<<<<<< HEAD
       if (!response.ok) throw new Error(`Vocabulary request failed (${response.status})`);
       const vocabData = await response.json();
       if (!vocabData || typeof vocabData !== 'object' || Array.isArray(vocabData)) {
@@ -36,14 +40,24 @@ class VocabSupport {
       }
       this.vocabData = vocabData;
       this.isLoaded = true;
+=======
+      if (response.ok) {
+        this.vocabData = await response.json();
+        this.isLoaded = true;
+      }
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     } catch (e) {
       console.warn('Could not load data/vocab.json, using fallback vocab:', e);
       this.vocabData = this.getFallbackVocab();
       this.isLoaded = true;
     }
 
+<<<<<<< HEAD
     const modal = document.getElementById('vocab-dict-modal');
     if (modal?.classList.contains('active')) this.renderDictList(this.dictionaryQuery);
+=======
+    this.setupGlobalEvents();
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   }
 
   getFallbackVocab() {
@@ -80,6 +94,7 @@ class VocabSupport {
    */
   decorateText(text) {
     if (!text) return '';
+<<<<<<< HEAD
     const escapeHtml = (value) => String(value).replace(/[&<>"']/g, char => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     })[char]);
@@ -88,6 +103,12 @@ class VocabSupport {
       const key = word.trim().toLowerCase();
       const label = isVi ? `Nhấn để xem nghĩa tiếng Việt của ${word}` : `View the Vietnamese meaning of ${word}`;
       return `<span class="vocab-term" data-vocab-word="${escapeHtml(key)}" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" title="${escapeHtml(label)}">${escapeHtml(word)}</span>`;
+=======
+    return text.replace(/\[([a-zA-Z\s]+)\]\*?/g, (match, word) => {
+      const key = word.trim().toLowerCase();
+      const hasDef = this.vocabData[key];
+      return `<span class="vocab-term" data-vocab-word="${key}" tabindex="0" role="button" aria-haspopup="dialog" title="Nhấn để xem nghĩa Tiếng Việt của '${word}'">${word}</span>`;
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     });
   }
 
@@ -110,12 +131,15 @@ class VocabSupport {
 
     // Close on Escape key
     document.addEventListener('keydown', (e) => {
+<<<<<<< HEAD
       const vocabTerm = e.target.closest?.('.vocab-term');
       if (vocabTerm && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault();
         this.showTooltip(vocabTerm, vocabTerm.getAttribute('data-vocab-word'));
         return;
       }
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       if (e.key === 'Escape') {
         this.closePopover();
         this.closeDictionaryModal();
@@ -132,10 +156,13 @@ class VocabSupport {
       explain: "Từ vựng chuyên môn",
       phonetic: ""
     };
+<<<<<<< HEAD
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, char => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     })[char]);
     const t = (key) => window.I18N ? window.I18N.t(key) : key;
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     // Log the lookup event
     if (window.LogEngine) {
@@ -145,6 +172,7 @@ class VocabSupport {
     const popover = document.createElement('div');
     popover.className = 'vocab-popover animate-fade-in';
     popover.setAttribute('role', 'dialog');
+<<<<<<< HEAD
     popover.setAttribute('aria-label', `${wordKey} ${data.vi || ''}`);
     popover.id = 'vocab-word-popover';
     popover.innerHTML = `
@@ -164,6 +192,23 @@ class VocabSupport {
           <strong>${escapeHtml(data.vi)}</strong>
         </div>
         <p class="vocab-explain">${escapeHtml(data.explain)}</p>
+=======
+    popover.innerHTML = `
+      <div class="vocab-popover-header">
+        <div class="vocab-popover-title-row">
+          <span class="vocab-word-en">${wordKey}</span>
+          ${data.phonetic ? `<span class="vocab-phonetic">${data.phonetic}</span>` : ''}
+          <button type="button" class="btn-audio-pronounce" title="Phát âm tiếng Anh" aria-label="Phát âm ${wordKey}">🔊</button>
+        </div>
+        <button type="button" class="vocab-popover-close" aria-label="Đóng">&times;</button>
+      </div>
+      <div class="vocab-popover-body">
+        <div class="vocab-meaning-vi">
+          <span class="vocab-vi-badge">Nghĩa:</span>
+          <strong>${data.vi}</strong>
+        </div>
+        <p class="vocab-explain">${data.explain}</p>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       </div>
     `;
 
@@ -184,9 +229,12 @@ class VocabSupport {
     if (rect.bottom + popoverRect.height + 20 > window.innerHeight) {
       top = rect.top + window.scrollY - popoverRect.height - 8;
     }
+<<<<<<< HEAD
     targetEl.setAttribute('aria-expanded', 'true');
     targetEl.setAttribute('aria-controls', popover.id);
     this.activePopoverTarget = targetEl;
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     popover.style.top = `${top}px`;
     popover.style.left = `${left}px`;
@@ -221,6 +269,7 @@ class VocabSupport {
       this.activePopover.remove();
       this.activePopover = null;
     }
+<<<<<<< HEAD
     if (this.activePopoverTarget) {
       this.activePopoverTarget.setAttribute('aria-expanded', 'false');
       this.activePopoverTarget.removeAttribute('aria-controls');
@@ -229,15 +278,27 @@ class VocabSupport {
   }
 
   /** Open the searchable bilingual dictionary. */
+=======
+  }
+
+  /**
+   * Open the full interactive Dictionary Modal
+   */
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   openDictionaryModal() {
     if (window.SoundFX) window.SoundFX.playPop();
     this.closePopover();
     let modal = document.getElementById('vocab-dict-modal');
+<<<<<<< HEAD
     const t = (key) => window.I18N ? window.I18N.t(key) : key;
+=======
+    const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'vocab-dict-modal';
+<<<<<<< HEAD
       modal.className = 'modal-backdrop vocab-dict-backdrop';
       document.body.appendChild(modal);
     }
@@ -397,15 +458,94 @@ class VocabSupport {
     listEl.querySelectorAll('[data-dict-speak]').forEach(button => {
       button.onclick = () => this.speakWord(button.dataset.dictSpeak);
     });
+=======
+      modal.className = 'modal-backdrop animate-fade-in';
+      modal.innerHTML = `
+        <div class="modal-card vocab-dict-card">
+          <div class="modal-header">
+            <div class="modal-title-wrap">
+              <span class="modal-icon">📖</span>
+              <div>
+                <h3 class="modal-title">${t('dict_title')}</h3>
+                <small class="modal-subtitle">${t('dict_subtitle')}</small>
+              </div>
+            </div>
+            <button type="button" class="btn-close-modal" id="btn-close-dict">&times;</button>
+          </div>
+          <div class="vocab-dict-search-wrap">
+            <input type="text" id="dict-search-input" class="dict-search-input" placeholder="${t('dict_search_placeholder')}" autocomplete="off" />
+          </div>
+          <div class="vocab-dict-list" id="dict-vocab-list">
+            <!-- Dynamic items -->
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      modal.querySelector('#btn-close-dict').onclick = () => this.closeDictionaryModal();
+      modal.onclick = (e) => {
+        if (e.target === modal) this.closeDictionaryModal();
+      };
+
+      const searchInput = modal.querySelector('#dict-search-input');
+      searchInput.oninput = (e) => this.renderDictList(e.target.value);
+    } else {
+      modal.querySelector('.modal-title').innerText = t('dict_title');
+      modal.querySelector('.modal-subtitle').innerText = t('dict_subtitle');
+      modal.querySelector('#dict-search-input').placeholder = t('dict_search_placeholder');
+    }
+
+    modal.classList.add('active');
+    this.renderDictList('');
+    setTimeout(() => {
+      const searchInput = modal.querySelector('#dict-search-input');
+      if (searchInput) searchInput.focus();
+    }, 100);
+  }
+
+  renderDictList(filterQuery = '') {
+    const listEl = document.getElementById('dict-vocab-list');
+    if (!listEl) return;
+
+    const q = filterQuery.toLowerCase().trim();
+    const entries = Object.entries(this.vocabData);
+    const filtered = entries.filter(([word, data]) => {
+      if (!q) return true;
+      return word.toLowerCase().includes(q) || (data.vi && data.vi.toLowerCase().includes(q));
+    });
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = `<div class="dict-empty-state">Không tìm thấy từ phù hợp với "<strong>${filterQuery}</strong>"</div>`;
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(([word, data]) => `
+      <div class="dict-item">
+        <div class="dict-item-header">
+          <span class="dict-item-word">${word}</span>
+          ${data.phonetic ? `<span class="dict-item-phonetic">${data.phonetic}</span>` : ''}
+          <button type="button" class="btn-mini-audio" onclick="window.VocabSupport.speakWord('${word}')" title="Phát âm">🔊</button>
+        </div>
+        <div class="dict-item-meaning">Tiếng Việt: <strong>${data.vi}</strong></div>
+        <div class="dict-item-explain">${data.explain}</div>
+      </div>
+    `).join('');
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   }
 
   closeDictionaryModal() {
     const modal = document.getElementById('vocab-dict-modal');
+<<<<<<< HEAD
     if (!modal?.classList.contains('active')) return;
     modal.classList.remove('active');
     document.body.style.overflow = this.previousBodyOverflow;
     if (this.previousFocus?.isConnected) this.previousFocus.focus({ preventScroll: true });
     this.previousFocus = null;
+=======
+    if (modal) {
+      modal.classList.remove('active');
+    }
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   }
 }
 

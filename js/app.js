@@ -24,14 +24,19 @@ class AppController {
     const badge = document.getElementById('header-student-name');
     if (badge) badge.innerText = this.currentStudent;
 
+<<<<<<< HEAD
     // 4. Initialize Settings Modal
     this.initSettingsModal();
 
     // 5. Listen to I18N language changes
+=======
+    // 4. Listen to I18N language changes
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     window.addEventListener('languageChanged', (e) => {
       this.handleLanguageChanged(e.detail.lang);
     });
 
+<<<<<<< HEAD
     // 6. Hash-based router
     window.addEventListener('hashchange', () => this.handleRoute());
 
@@ -39,6 +44,16 @@ class AppController {
     const currentHash = window.location.hash;
     const isTask = currentHash && currentHash.startsWith('#task/');
     if (!isTask) {
+=======
+    // 5. Hash-based router
+    window.addEventListener('hashchange', () => this.handleRoute());
+
+    // 6. Mandatory Start Screen check
+    const splashDone = localStorage.getItem('rml_splash_done') === 'true' || sessionStorage.getItem('rml_started') === 'true';
+    const currentHash = window.location.hash;
+
+    if (!splashDone || !currentHash || currentHash === '#start' || currentHash === '#welcome') {
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       window.location.hash = '#start';
       this.renderStartScreen();
     } else {
@@ -58,9 +73,13 @@ class AppController {
       this.setStudentName('Math Explorer');
     }
 
+<<<<<<< HEAD
     this.syncSettingsModalContent();
 
     const hash = window.location.hash || '#hub';
+=======
+    const hash = window.location.hash || '#start';
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     if (hash === '#start' || hash === '#welcome') {
       this.renderStartScreen();
     } else if (hash.startsWith('#task/')) {
@@ -72,6 +91,16 @@ class AppController {
 
   handleRoute() {
     const hash = window.location.hash || '#start';
+<<<<<<< HEAD
+=======
+    const splashDone = localStorage.getItem('rml_splash_done') === 'true' || sessionStorage.getItem('rml_started') === 'true';
+
+    // Guard: Must complete Start Screen before entering Mission Hub!
+    if (!splashDone && hash !== '#start' && hash !== '#welcome') {
+      window.location.hash = '#start';
+      return;
+    }
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     if (hash === '#start' || hash === '#welcome') {
       this.activeTaskId = null;
@@ -93,6 +122,7 @@ class AppController {
     localStorage.setItem('rml_student_name', this.currentStudent);
     const badge = document.getElementById('header-student-name');
     if (badge) badge.innerText = this.currentStudent;
+<<<<<<< HEAD
     const hubBadge = document.querySelector('.hub-student-badge-wrap .badge-name');
     if (hubBadge) hubBadge.innerText = `${this.currentStudent} ✏️`;
     const splashInput = document.getElementById('splash-student-name');
@@ -305,6 +335,8 @@ class AppController {
 
     const btnDone = document.getElementById('btn-settings-done');
     if (btnDone) btnDone.innerText = t('settings_done_btn');
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   }
 
   // =========================================================================
@@ -327,6 +359,7 @@ class AppController {
       };
       opt.addEventListener('click', chooseOption);
       opt.addEventListener('keydown', (e) => {
+<<<<<<< HEAD
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
           e.preventDefault();
           this.selectSplashLanguage('vi', true);
@@ -338,6 +371,9 @@ class AppController {
           const enOpt = this.splashScreen.querySelector('.lang-option[data-lang="en"]');
           if (enOpt) enOpt.focus();
         } else if (e.key === 'Enter' || e.key === ' ') {
+=======
+        if (e.key === 'Enter' || e.key === ' ') {
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
           e.preventDefault();
           chooseOption();
         }
@@ -352,6 +388,7 @@ class AppController {
       });
     }
 
+<<<<<<< HEAD
     // Interactive Robot Mascot: Welcoming Dialogue Board (Logic & Aesthetics)
     const robotEl = document.getElementById('splash-robot');
     const welcomeBoard = document.getElementById('splash-welcome-board');
@@ -430,6 +467,18 @@ class AppController {
       }
     });
 
+=======
+    // Interactive Robot Mascot click easter egg
+    const robotEl = document.getElementById('splash-robot');
+    if (robotEl) {
+      robotEl.addEventListener('click', () => {
+        if (window.SoundFX) window.SoundFX.playRetroSelect();
+        robotEl.classList.add('sparky-jump');
+        setTimeout(() => robotEl.classList.remove('sparky-jump'), 600);
+      });
+    }
+
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     // Splash Sound toggle button
     const splashSoundBtn = document.getElementById('btn-splash-sound');
     if (splashSoundBtn) {
@@ -463,7 +512,11 @@ class AppController {
       nameInput.addEventListener('change', (e) => this.setStudentName(e.target.value));
     }
 
+<<<<<<< HEAD
     // Keyboard navigation (Strictly Arrow Left/Right or A/D to switch language, Enter to start)
+=======
+    // Keyboard navigation (Arrow Up/Down or W/S to toggle 1P/2P, Enter to start)
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     document.addEventListener('keydown', (e) => {
       if (!this.splashScreen || this.splashScreen.classList.contains('hidden')) return;
 
@@ -476,6 +529,7 @@ class AppController {
         return;
       }
 
+<<<<<<< HEAD
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         e.preventDefault();
         this.selectSplashLanguage('vi', true);
@@ -486,6 +540,13 @@ class AppController {
         this.selectSplashLanguage('en', true);
         const enOpt = this.splashScreen.querySelector('.lang-option[data-lang="en"]');
         if (enOpt) enOpt.focus();
+=======
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'w' || e.key === 's') {
+        e.preventDefault();
+        const currentLang = window.I18N ? window.I18N.currentLang : (this.selectedLanguage || 'vi');
+        const nextLang = currentLang === 'vi' ? 'en' : 'vi';
+        this.selectSplashLanguage(nextLang, true);
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       } else if (e.key === 'Enter') {
         e.preventDefault();
         this.completeStartScreen();
@@ -511,6 +572,15 @@ class AppController {
         opt.setAttribute('aria-checked', isMatch ? 'true' : 'false');
       });
 
+<<<<<<< HEAD
+=======
+      // Update text labels dynamically based on selected language
+      const coinText = document.getElementById('splash-coin-text');
+      if (coinText) {
+        coinText.innerText = lang === 'vi' ? 'CHẾ ĐỘ TỰ DO: MIỄN PHÍ' : 'FREE PLAY MODE: ACTIVE';
+      }
+
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       const eyebrow = document.getElementById('splash-eyebrow');
       if (eyebrow) {
         eyebrow.innerText = lang === 'vi' ? '★ NHẬP MÔN TOÁN HỌC & ROBOTICS ★' : '★ MATH & ROBOTICS LAB ★';
@@ -518,7 +588,11 @@ class AppController {
 
       const subtitle = document.getElementById('splash-subtitle');
       if (subtitle) {
+<<<<<<< HEAD
         subtitle.innerText = lang === 'vi' ? 'NỀN TẢNG TOÁN HỌC' : 'MATH PLATFORM';
+=======
+        subtitle.innerText = lang === 'vi' ? 'NỀN TẢNG HỌC TOÁN & GIẢI QUYẾT VẤN ĐỀ POLYA' : 'VIRTUAL PROBLEM SOLVING PLATFORM';
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       }
 
       const nameLabel = document.getElementById('splash-name-label');
@@ -526,6 +600,16 @@ class AppController {
         nameLabel.innerText = lang === 'vi' ? '🧑‍🎓 TÊN BẠN:' : '🧑‍🎓 STUDENT:';
       }
 
+<<<<<<< HEAD
+=======
+      const footerHints = document.getElementById('splash-footer-hints');
+      if (footerHints) {
+        footerHints.innerHTML = lang === 'vi'
+          ? '<span class="key-hint">▲/▼ CHỌN</span><span class="sep">•</span><span class="key-hint">ENTER: BẮT ĐẦU</span><span class="sep">•</span><span class="key-hint">© 2026 TRƯỜNG ĐH SƯ PHẠM HÀ NỘI</span>'
+          : '<span class="key-hint">▲/▼ SELECT</span><span class="sep">•</span><span class="key-hint">ENTER: START</span><span class="sep">•</span><span class="key-hint">© 2026 HNUE</span>';
+      }
+
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       // Update name input placeholder and value if default
       const nameInput = document.getElementById('splash-student-name');
       if (nameInput) {
@@ -538,6 +622,7 @@ class AppController {
         }
         nameInput.value = this.currentStudent;
       }
+<<<<<<< HEAD
 
       // Update welcome board text dynamically if rendered/open
       this.updateWelcomeBoardContent(lang);
@@ -571,6 +656,11 @@ class AppController {
     if (closeBtn) closeBtn.title = isVi ? 'Đóng lời chào' : 'Close greeting';
   }
 
+=======
+    }
+  }
+
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   showSplashScreen() {
     document.body.classList.add('view-start-screen');
     if (!this.splashScreen) {
@@ -656,7 +746,10 @@ class AppController {
     if (!main) return;
 
     const t = (key) => window.I18N ? window.I18N.t(key) : key;
+<<<<<<< HEAD
     const isVi = window.I18N ? window.I18N.isVietnamese() : true;
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     main.innerHTML = `
       <div class="hub-container animate-fade-in">
@@ -672,6 +765,7 @@ class AppController {
           </div>
           
           <div class="hub-actions-card">
+<<<<<<< HEAD
             <div class="hub-student-badge-wrap" onclick="window.App && window.App.openSettingsModal()" style="cursor: pointer;" title="${t('settings_btn_title') || 'Cài đặt'}">
               <span class="badge-avatar">🧑‍🎓</span>
               <div>
@@ -682,6 +776,18 @@ class AppController {
             <button type="button" class="journal-hub-button" id="btn-open-learning-journal">
               ${t('btn_journal')}
             </button>
+=======
+            <div class="hub-student-badge-wrap">
+              <span class="badge-avatar">🧑‍🎓</span>
+              <div>
+                <div class="badge-role">${t('student_tag_title')}</div>
+                <div class="badge-name">${this.currentStudent}</div>
+              </div>
+            </div>
+            <a href="#start" class="btn-return-start" title="${t('btn_back_to_start')}">
+              ${t('btn_back_to_start')}
+            </a>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
           </div>
         </div>
 
@@ -694,12 +800,26 @@ class AppController {
 
           <div class="tasks-grid">
             
+<<<<<<< HEAD
             <!-- Task 1 Card: Hành trình đến đích / Reach the Goal -->
             <div class="task-card task-card-1" id="card-task1">
               <div class="task-card-header">
                 <span class="task-card-badge">${t('task1_badge')}</span>
               </div>
               <h3 class="task-card-title">${t('task1_title')}</h3>
+=======
+            <!-- Task 1 Card: Reach the Goal -->
+            <div class="task-card task-card-1" id="card-task1">
+              <div class="task-card-header">
+                <span class="task-card-badge">${t('task1_badge')}</span>
+                <span class="task-difficulty">${t('task1_diff')}</span>
+              </div>
+              <h3 class="task-card-title">${t('task1_title')}</h3>
+              <p class="task-card-sub">${t('task1_sub')}</p>
+              <p class="task-card-desc">
+                ${t('task1_desc')}
+              </p>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
               <div class="task-card-footer">
                 <button type="button" class="btn-start-task" onclick="window.App.navigateToTask('task1-reach')">
                   ${t('task1_btn')}
@@ -707,12 +827,26 @@ class AppController {
               </div>
             </div>
 
+<<<<<<< HEAD
             <!-- Task 2 Card: Chuyến đi bất ngờ / The Unexpected Journey -->
             <div class="task-card task-card-2" id="card-task2">
               <div class="task-card-header">
                 <span class="task-card-badge">${t('task2_badge')}</span>
               </div>
               <h3 class="task-card-title">${t('task2_title')}</h3>
+=======
+            <!-- Task 2 Card: Test the Plan -->
+            <div class="task-card task-card-2" id="card-task2">
+              <div class="task-card-header">
+                <span class="task-card-badge">${t('task2_badge')}</span>
+                <span class="task-difficulty highlight">${t('task2_diff')}</span>
+              </div>
+              <h3 class="task-card-title">${t('task2_title')}</h3>
+              <p class="task-card-sub">${t('task2_sub')}</p>
+              <p class="task-card-desc">
+                ${t('task2_desc')}
+              </p>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
               <div class="task-card-footer">
                 <button type="button" class="btn-start-task btn-start-task2" onclick="window.App.navigateToTask('task2-fix')">
                   ${t('task2_btn')}
@@ -720,12 +854,26 @@ class AppController {
               </div>
             </div>
 
+<<<<<<< HEAD
             <!-- Task 3 Card: Thử thách đúng giờ / The On-Time Challenge -->
             <div class="task-card task-card-3" id="card-task3">
               <div class="task-card-header">
                 <span class="task-card-badge">${t('task3_badge')}</span>
               </div>
               <h3 class="task-card-title">${t('task3_title')}</h3>
+=======
+            <!-- Task 3 Card: New Mission -->
+            <div class="task-card task-card-3" id="card-task3">
+              <div class="task-card-header">
+                <span class="task-card-badge">${t('task3_badge')}</span>
+                <span class="task-difficulty">${t('task3_diff')}</span>
+              </div>
+              <h3 class="task-card-title">${t('task3_title')}</h3>
+              <p class="task-card-sub">${t('task3_sub')}</p>
+              <p class="task-card-desc">
+                ${t('task3_desc')}
+              </p>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
               <div class="task-card-footer">
                 <button type="button" class="btn-start-task" onclick="window.App.navigateToTask('task3-new')">
                   ${t('task3_btn')}
@@ -739,10 +887,13 @@ class AppController {
       </div>
     `;
 
+<<<<<<< HEAD
     document.getElementById('btn-open-learning-journal')?.addEventListener('click', () => {
       window.LogEngine?.openJournal();
     });
 
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     // Synchronize Sparky floating companion bubble
     const sparkyBubble = document.getElementById('sparky-bubble');
     if (sparkyBubble) {

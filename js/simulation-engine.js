@@ -157,7 +157,11 @@ class SimulationEngine {
   }
 
   setTimeScale(scale) {
+<<<<<<< HEAD
     this.options.timeScale = Math.max(0.1, Math.min(100.0, scale));
+=======
+    this.options.timeScale = Math.max(0.1, Math.min(10.0, scale));
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
   }
 
   loop(timestamp) {
@@ -176,8 +180,13 @@ class SimulationEngine {
     // Convert real dt (ms) to simulated dt (seconds)
     const dt = (deltaRealMs / 1000) * this.options.timeScale;
     
+<<<<<<< HEAD
     // Cap dt to prevent huge jumps while allowing high timeScale
     const safeDt = Math.min(dt, 0.1 * Math.max(1, this.options.timeScale));
+=======
+    // Cap dt to prevent huge jumps
+    const safeDt = Math.min(dt, 0.2);
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
     this.updatePhysics(safeDt);
     this.render();
@@ -359,12 +368,15 @@ class SimulationEngine {
     ctx.lineTo(startX, h);
     ctx.stroke();
 
+<<<<<<< HEAD
     // Start label
     ctx.fillStyle = '#22C55E';
     ctx.font = 'bold 11px "Lexend", "Nunito", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('START (0m)', startX, h * 0.65 - 8);
 
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     // Finish Line (Checkerboard)
     const finishX = this.unitsToPixels(this.options.trackLengthUnits);
     this.drawCheckeredLine(ctx, finishX, h * 0.65, h);
@@ -398,6 +410,7 @@ class SimulationEngine {
   }
 
   drawRuler(ctx, w, h) {
+<<<<<<< HEAD
     const rulerY = h - 26;
     const totalUnits = this.options.trackLengthUnits;
     const unitLabel = this.options.unitLabel;
@@ -455,6 +468,32 @@ class SimulationEngine {
       ctx.stroke();
       ctx.fillStyle = '#F8FAFC';
       ctx.fillText(`${totalUnits}${unitLabel}`, px, rulerY + 20);
+=======
+    const rulerY = h - 25;
+    const paddingX = 60;
+    const totalUnits = this.options.trackLengthUnits;
+    const unitLabel = this.options.unitLabel;
+
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = 'bold 11px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+
+    const intervals = 5;
+    for (let i = 0; i <= intervals; i++) {
+      const val = Math.round((totalUnits / intervals) * i);
+      const px = this.unitsToPixels(val);
+
+      // Tick line
+      ctx.strokeStyle = '#64748B';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px, rulerY - 6);
+      ctx.lineTo(px, rulerY + 4);
+      ctx.stroke();
+
+      // Label
+      ctx.fillText(`${val} ${unitLabel}`, px, rulerY + 18);
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
     }
   }
 

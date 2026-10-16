@@ -46,7 +46,11 @@
       // Check specific PS milestones
       const step1Mistakes = events.filter(e => e.code === 'STEP1_MISMATCH');
       const step2Mistakes = events.filter(e => e.code === 'STEP2_MISTAKE');
+<<<<<<< HEAD
       const ps8Event = events.find(e => e.code === 'PS8' || e.code === 'PS8_RESPONSE');
+=======
+      const ps8Event = events.find(e => e.code === 'PS8');
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       const ps8FirstAttemptAccurate = ps8Event?.data?.accurate !== false;
       const ps9Event = events.find(e => e.code === 'PS9');
       const ps10Event = events.find(e => e.code === 'PS10');
@@ -112,6 +116,7 @@
           hintsCount: hintsOpened.length
         }),
 
+<<<<<<< HEAD
         // 4. NEXT STEP AND PRACTICE RECOMMENDATIONS
         nextChallenge: this.buildNextChallenge(taskId, isVi),
         practiceRecommendations: this.buildPracticeRecommendations({
@@ -123,6 +128,10 @@
           step2Errors: step2Mistakes.length,
           ps8FirstAttemptAccurate
         })
+=======
+        // 4. ADVANCED CHALLENGE RECOMMENDATION
+        nextChallenge: this.buildNextChallenge(taskId, isVi)
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       };
     },
 
@@ -165,12 +174,21 @@
       if (taskId === 'task2-fix') {
         if (ps8FirstAttemptAccurate) {
           strengths.push(isVi
+<<<<<<< HEAD
             ? 'Quan sát mô phỏng tốt: Em đã đối chiếu vị trí robot dừng với mốc đích.'
             : 'Keen Track Observation: You compared the robot’s stopping point with the destination marker.');
         }
         strengths.push(isVi
           ? 'Tư duy điều chỉnh tốt: Em đã xem lại phương án, thử điều chỉnh và kiểm tra kết quả mới.'
           : 'Adaptive Problem Solver: You reviewed the plan, tried an adjustment, and checked the new result.');
+=======
+            ? 'Quan sát thực nghiệm rất tinh mắt: Em đã nhìn thước đo và phát hiện đúng việc robot dừng ở 18m trước vạch đích 24m.'
+            : 'Keen Track Observation: You accurately observed that the robot stopped at 18m, short of the 24m goal flag.');
+        }
+        strengths.push(isVi
+          ? 'Tư duy điều chỉnh phương án tốt: Em đã tính toán lại và nâng thời gian lên 4 giây giúp robot về đích thành công.'
+          : 'Adaptive Problem Solver: You successfully recalculated and adjusted the running time to 4 seconds to reach the goal.');
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       } else if (totalAttempts === 1) {
         strengths.push(isVi
           ? 'Thực thi xuất sắc: Robot của em đã cập bến đích chuẩn xác ngay trong lần chạy thử nghiệm đầu tiên!'
@@ -185,16 +203,27 @@
       }
 
       if (maxHintLevel >= 2) {
+<<<<<<< HEAD
         const formula = taskId === 'task3-new' ? 'v = s ÷ t' : 't = s ÷ v';
         improvements.push(isVi
           ? `Củng cố công thức chuyển động: Hãy luyện cách dùng ${formula} và kiểm tra đơn vị trước khi tính.`
           : `Reinforce the motion formula: Practice using ${formula} and check the units before calculating.`);
+=======
+        improvements.push(isVi
+          ? 'Củng cố công thức chuyển động: Hãy nhớ mối quan hệ giữa Quãng đường (s), Vận tốc (v) và Thời gian (t = s ÷ v) để tự tính nhanh hơn.'
+          : 'Reinforce Core Motion Formula: Remember the relationship t = s ÷ v to solve single-variable steps with even greater speed.');
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       }
 
       if (step1Errors > 0 || step2Errors > 0) {
         improvements.push(isVi
+<<<<<<< HEAD
           ? 'Kiểm tra kỹ trước khi xác nhận: Đối chiếu số liệu và đổi đơn vị phù hợp (km ↔ m, phút ↔ giây) trước khi chuyển bước nhé.'
           : 'Double-Check Habit: Verify the values and convert units (km ↔ m, minutes ↔ seconds) before continuing.');
+=======
+          ? 'Kiểm tra kỹ trước khi xác nhận: Dành thêm vài giây đối chiếu số liệu và đơn vị đo (m, m/s, s) trước khi chuyển bước nhé.'
+          : 'Double-Check Habit: Take 5 extra seconds to verify numbers and units (m, m/s, s) before confirming your steps.');
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       }
 
       if (improvements.length === 0) {
@@ -214,15 +243,24 @@
      */
     buildTeacherFeedback({ isVi, taskId, events, totalAttempts, totalTimeSec, backwardSteps, vocabWords, hintsOpened, maxHintLevel, step1Mistakes, step2Mistakes, ps8Event, ps9Event, ps10Event }) {
       // 1. Problem Solving Indicators (PS1 - PS11)
+<<<<<<< HEAD
       const extractionSummary = taskId === 'task3-new'
         ? (isVi ? 'Trích xuất quãng đường và thời gian; đại lượng cần tìm là vận tốc.' : 'Extracted distance and time; target quantity is speed.')
         : (isVi ? 'Trích xuất vận tốc và quãng đường; đại lượng cần tìm là thời gian.' : 'Extracted speed and distance; target quantity is time.');
       const planFormula = taskId === 'task3-new' ? 'v = s ÷ t' : 't = s ÷ v';
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       const indicators = [
         {
           phase: isVi ? 'Pha 1: Tìm hiểu đề (PS1 - PS3)' : 'Phase 1: Understand (PS1 - PS3)',
           status: step1Mistakes.length === 0 ? 'Optimal' : 'Needs Reinforcement',
+<<<<<<< HEAD
           details: `${extractionSummary} ${isVi ? `Số lần thử: ${step1Mistakes.length + 1}.` : `Submissions: ${step1Mistakes.length + 1}.`}`
+=======
+          details: isVi
+            ? `Học sinh trích xuất dữ kiện vận tốc và quãng đường. Số lần thử: ${step1Mistakes.length + 1}. Khả năng định danh ẩn số: Tốt.`
+            : `Extracted speed and distance values. Submissions: ${step1Mistakes.length + 1}. Target quantity identification: Confirmed.`
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
         },
         {
           phase: isVi ? 'Pha 2: Lập kế hoạch (PS4 - PS5)' : 'Phase 2: Plan (PS4 - PS5)',
@@ -242,8 +280,13 @@
           phase: isVi ? 'Pha 4: Kiểm tra & Đánh giá (PS8 - PS11)' : 'Phase 4: Look Back & Verify (PS8 - PS11)',
           status: ps8Event?.data?.response === 'no' || totalAttempts === 1 ? 'Optimal' : 'Guided',
           details: isVi
+<<<<<<< HEAD
             ? `Đối chiếu kết quả mô phỏng với mục tiêu; ghi nhận phản hồi và điều chỉnh thông số nếu cần.`
             : `Compared the simulation with the target; recorded the response and parameter changes when needed.`
+=======
+            ? `Đối chiếu kết quả thực nghiệm với vạch đích. Nhận diện sự không tương thích và điều chỉnh tham số thời gian thành công.`
+            : `Compared simulation stop point with destination marker. Identified discrepancy and revised parameters successfully.`
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
         }
       ];
 
@@ -273,8 +316,13 @@
           ? `Nhầm lẫn trong việc chọn biểu thức toán học hoặc thao tác số học ban đầu.`
           : `Initial confusion in selecting algebraic relationship or arithmetic computation.`);
         pedagogicalInterventions.push(isVi
+<<<<<<< HEAD
           ? `Dùng sơ đồ các đại lượng để củng cố công thức ${planFormula} và mối liên hệ giữa quãng đường, vận tốc, thời gian.`
           : `Use a relationship diagram to reinforce ${planFormula} and the connection between distance, speed, and time.`);
+=======
+          ? `Sử dụng mô hình tam giác đại lượng (s trên đỉnh, v và t ở hai đáy) để học sinh hình dung trực quan phép tính t = s ÷ v.`
+          : `Use the triangle diagram (s at apex, v and t at base) to reinforce inverse relationship t = s ÷ v.`);
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       }
 
       if (totalAttempts > 1) {
@@ -282,8 +330,13 @@
           ? `Cần qua ${totalAttempts} lần chạy thử nghiệm để đưa robot về đúng đích.`
           : `Required ${totalAttempts} simulation iterations to achieve the destination target.`);
         pedagogicalInterventions.push(isVi
+<<<<<<< HEAD
           ? `Củng cố kỹ năng đọc thước đo, so sánh với mục tiêu và giải thích lựa chọn thông số tiếp theo.`
           : `Practice reading the ruler, comparing it with the target, and explaining the next parameter choice.`);
+=======
+          ? `Tập trung củng cố kỹ năng đọc thước đo canvas và tính khoảng cách thiếu trước khi điều chỉnh tham số thời gian.`
+          : `Guide student on reading canvas ruler benchmarks and computing shortfall before inputting revised time.`);
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       }
 
       if (observedErrors.length === 0) {
@@ -358,6 +411,7 @@
     },
 
     /**
+<<<<<<< HEAD
      * Recommend short exercise types using the student's recorded interactions.
      */
     buildPracticeRecommendations({ isVi, taskId, totalAttempts, maxHintLevel, step1Errors, step2Errors, ps8FirstAttemptAccurate }) {
@@ -428,6 +482,8 @@
     },
 
     /**
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
      * Build Next Advanced Challenge
      */
     buildNextChallenge(currentTaskId, isVi) {
@@ -435,11 +491,19 @@
         return {
           targetTaskId: 'task2-fix',
           badge: isVi ? 'Thử thách tiếp theo' : 'Next Mission',
+<<<<<<< HEAD
           title: isVi ? 'Nhiệm vụ 2: Chuyến đi bất ngờ' : 'Task 2: The Unexpected Journey',
           subtitle: isVi ? 'Kiểm tra, phát hiện, giải thích và điều chỉnh' : 'Check, detect, explain, and adjust',
           description: isVi
             ? 'Quan sát kết quả mô phỏng, đối chiếu với mục tiêu và tự quyết định cách kiểm tra phương án.'
             : 'Observe the simulation, compare it with the goal, and decide how to review the plan.',
+=======
+          title: isVi ? 'Nhiệm vụ 2: Kiểm tra phương án' : 'Task 2: Test the Plan',
+          subtitle: isVi ? 'Thử nghiệm phương án & đối chiếu thực nghiệm' : 'Test a proposed motion plan & verify outcome',
+          description: isVi
+            ? 'Một bạn học sinh lập phương án cho robot đi 24m với vận tốc 6 m/s trong 3 giây. Em hãy chạy thử mô phỏng, quan sát vị trí dừng và đối chiếu kết quả!'
+            : 'A classmate prepared a movement plan for 24m with speed 6 m/s and time 3s. Run the simulation, observe where the robot stops, and evaluate the result!',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
           actionText: isVi ? 'Bắt đầu Nhiệm vụ 2 ➔' : 'Start Mission 2 ➔'
         };
       }
@@ -448,15 +512,24 @@
         return {
           targetTaskId: 'task3-new',
           badge: isVi ? 'Thử thách nâng cao' : 'Advanced Mission',
+<<<<<<< HEAD
           title: isVi ? 'Nhiệm vụ 3: Thử thách đúng giờ' : 'Task 3: The On-Time Challenge',
           subtitle: isVi ? 'Thích ứng điều kiện mới, lập kế hoạch và hoàn thành' : 'Adapt to new conditions, re-plan, and succeed',
           description: isVi
             ? 'Luyện đổi đơn vị và xác định vận tốc khi đã biết quãng đường cùng thời gian.'
             : 'Practice unit conversions and find speed when distance and time are given.',
+=======
+          title: isVi ? 'Nhiệm vụ 3: Nhiệm vụ mới' : 'Task 3: New Mission',
+          subtitle: isVi ? 'Thích ứng khi quãng đường và vận tốc thay đổi' : 'Adapt to changed distance and energy-saving speed',
+          description: isVi
+            ? 'Điều kiện nhiệm vụ thay đổi: Quãng đường mới là 35m và vận tốc tiết kiệm pin là 5 m/s. Hãy lập kế hoạch tính thời gian mới để robot giao hàng an toàn!'
+            : 'Mission conditions have changed: New target is 35m and energy-saving speed is 5 m/s. Formulate a new plan to deliver the payload accurately!',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
           actionText: isVi ? 'Bắt đầu Nhiệm vụ 3 ➔' : 'Start Mission 3 ➔'
         };
       }
 
+<<<<<<< HEAD
       // The three-mission sequence is complete; send the learner back to the hub.
       return {
         targetTaskId: null,
@@ -467,6 +540,19 @@
           ? 'Dựa vào gợi ý luyện tập bên dưới hoặc quay lại danh sách nhiệm vụ để chọn bài muốn làm lại.'
           : 'Use the practice ideas below or return to the mission list to choose a task to repeat.',
         actionText: isVi ? 'Về danh sách nhiệm vụ' : 'Return to missions'
+=======
+      // Beyond Task 3: Extension Challenge
+      return {
+        targetTaskId: 'task-extra',
+        isExtension: true,
+        badge: isVi ? 'Thử thách Vượt cấp Đặc biệt' : 'Mastery Extension Challenge',
+        title: isVi ? 'Nhiệm vụ 4: Cuộc đua Hai Robot Chuyển Động' : 'Task 4: Two-Robot Synchronized Mission',
+        subtitle: isVi ? 'Bài toán chuyển động cùng chiều và phối hợp đội hình' : 'Relative uniform motion & synchronized arrival',
+        description: isVi
+          ? 'Robot A xuất phát với vận tốc 4 m/s đến đích 40m. Robot B xuất phát sau 2 giây với vận tốc 5 m/s. Liệu Robot B có đuổi kịp Robot A trước khi đến vạch đích không? Hãy cùng suy luận và kiểm chứng!'
+          : 'Robot A moves at 4 m/s toward a 40m target. Robot B starts 2 seconds later at 5 m/s. Will Robot B catch up to Robot A before the destination? Analyze and verify!',
+        actionText: isVi ? 'Thử thách ngay 🚀' : 'Take the Challenge 🚀'
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       };
     },
 
@@ -550,6 +636,7 @@
                 </ul>
               </div>
 
+<<<<<<< HEAD
               <div class="fb-practice-section">
                 <div class="fb-practice-heading">
                   <div>
@@ -571,6 +658,8 @@
                 </div>
               </div>
 
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
               <!-- Recommended Next Challenge -->
               <div class="fb-next-challenge-box">
                 <div class="challenge-header">
@@ -611,7 +700,11 @@
               <div class="fb-section-card card-indicators">
                 <div class="fb-section-title">
                   <span class="sec-icon">📐</span>
+<<<<<<< HEAD
                   <h3>${isVi ? 'Phân Tích Tiến Trình Giải Quyết Vấn Đề' : 'Problem-Solving Process Indicators'}</h3>
+=======
+                  <h3>${isVi ? 'Phân Tích Tiến Trình Giải Quyết Vấn Đề (Polya Framework)' : 'Problem-Solving Process Indicators (Polya Framework)'}</h3>
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
                 </div>
                 <div class="indicators-table-wrap">
                   <table class="fb-table">

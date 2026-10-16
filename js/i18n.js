@@ -30,6 +30,7 @@
       fullscreen_exit: 'Windowed',
       export_data: 'Export Data',
       lang_switch_title: 'Switch Interface Language',
+<<<<<<< HEAD
       settings_btn_title: 'Settings & Student Profile',
       settings_modal_title: '⚙️ Settings & Profile',
       settings_modal_subtitle: 'Customize student info and learning environment',
@@ -46,6 +47,8 @@
       settings_arcade_hint: 'Open the full 8-bit mascot console',
       settings_arcade_btn: 'Launch Arcade ▶',
       settings_done_btn: 'Done & Resume Learning ✨',
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
       // Welcome Hero & Robot Signboard
       hero_eyebrow: 'PROBLEM SOLVING & VIRTUAL ROBOTICS',
@@ -72,17 +75,39 @@
 
       // Task 1 Card
       task1_badge: '🎯 Task 1',
+<<<<<<< HEAD
       task1_title: 'Reach the Goal',
       task1_btn: 'Start Mission 1 ➔',
 
       // Task 2 Card
       task2_badge: '🔧 Task 2',
       task2_title: 'The Unexpected Journey',
+=======
+      task1_diff: 'Basic',
+      task1_title: 'Reach the Goal',
+      task1_sub: 'Single-variable movement planning',
+      task1_desc: 'Calculate the time needed for a 6 m/s robot to travel 24 m. Experience the complete 4-step problem-solving cycle.',
+      task1_btn: 'Start Mission 1 ➔',
+
+      // Task 2 Card: Neutral name, zero error spoilers, no research labels
+      task2_badge: '🔧 Task 2',
+      task2_diff: 'Level 2',
+      task2_title: 'Test the Plan',
+      task2_sub: 'Testing a proposed motion plan',
+      task2_desc: 'A classmate prepared a movement plan for 24m with speed 6 m/s and time 3s. Run the simulation, observe where the robot stops, and evaluate the result.',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       task2_btn: 'Start Mission 2 ➔',
 
       // Task 3 Card
       task3_badge: '🆕 Task 3',
+<<<<<<< HEAD
       task3_title: 'The On-Time Challenge',
+=======
+      task3_diff: 'Level 3',
+      task3_title: 'New Mission',
+      task3_sub: 'Adapting to changed distance and speed',
+      task3_desc: 'Apply problem-solving when conditions change: new distance 35 m and energy-saving speed 5 m/s.',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       task3_btn: 'Start Mission 3 ➔',
 
       // Workspace Common
@@ -90,7 +115,10 @@
       btn_hint: '💡 Hint',
       btn_dict: '📖 Dictionary',
       btn_feedback: '📋 Feedback',
+<<<<<<< HEAD
       btn_journal: '📒 Journal',
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       confirm_leave_task: 'Are you sure you want to return to Missions Hub? Your progress has been logged.',
 
       // Stepper
@@ -111,6 +139,7 @@
       sim_speed_label: 'Speed (v)',
       sim_time_label: 'Time (t)',
       sim_dist_label: 'Distance (s)',
+<<<<<<< HEAD
       sim_ready: 'Ready. Check your parameters and run the robot!',
       sim_moving: 'Robot is moving at {speed} m/s for {time} seconds...',
       sim_stopped: 'Robot stopped after traveling {dist} m.',
@@ -133,6 +162,12 @@
       track_result_match: '🎯 Target Reached! Robot traveled exactly {dist} {unit} to the destination!',
       track_result_mismatch: '⚠️ Target Missed: Robot traveled {dist} {unit} (Target is {target} {unit}).',
 
+=======
+      sim_ready: 'Ready. Configure parameters on the left and run the robot!',
+      sim_moving: 'Robot is moving at {speed} m/s for {time} seconds...',
+      sim_stopped: 'Robot stopped after traveling {dist} m.',
+
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       // Step 1: Understand
       s1_badge: 'Step 1: Understand',
       s1_title: 'Understand the Problem',
@@ -153,7 +188,10 @@
       s3_speed_label: 'Robot Speed:',
       s3_speed_locked: '🔒 Fixed by problem',
       s3_time_label: 'Running Time:',
+<<<<<<< HEAD
       s3_param_placeholder: 'Enter a value',
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       s3_time_flawed_note: 'Proposed plan time for testing',
       s3_btn_back: '← Back to Step 2',
       s3_btn_run: '🚀 Run Robot',
@@ -163,7 +201,11 @@
       s3_obs_title: '📊 Simulation Observation:',
       s3_obs_traveled: 'The robot traveled <strong>{dist} m</strong> in {time} seconds.',
       s3_obs_target: 'Target destination: <strong>{target} m</strong>.',
+<<<<<<< HEAD
       s3_val_error: 'Please enter valid parameters for the robot!',
+=======
+      s3_val_error: 'Please enter a valid positive running time for the robot!',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
       // Step 4: Look Back
       s4_badge: 'Step 4: Look Back',
@@ -180,11 +222,19 @@
       s4_testing_new: '⏳ Robot Testing New Plan...',
       s4_testing_status: 'Verifying with revised parameters: {speed} m/s × {time} s...',
       s4_success_status: '🎉 Awesome! The robot reached the exact target <strong>{target} m</strong>!',
+<<<<<<< HEAD
       s4_input_error: 'Please enter a valid revised parameter for the robot!',
       s4_obs_prompt: '👀 Look at where the robot stopped on the track, then select your answer above.',
       s4_obs_accurate: 'Accurate Observation!',
       s4_obs_shortfall: 'The robot stopped before reaching the target. Let us observe, analyze, and adjust the plan:',
       s4_obs_recheck: 'Take another close look at the track ruler! The robot stopped at {actual}m, while the target flag is at {target}m. Did the robot reach the destination marker?',
+=======
+      s4_input_error: 'Please enter a valid revised running time for the robot!',
+      s4_obs_prompt: '👀 Look at where the robot stopped on the track on the right, then select your answer above.',
+      s4_obs_accurate: 'Accurate Observation!',
+      s4_obs_shortfall: 'The robot stopped before reaching the target. Let us analyze and adjust the plan:',
+      s4_obs_recheck: 'Take another close look at the track ruler! The robot stopped at 18m, while the target flag is at 24m. Did the robot reach the destination marker?',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
       // Mascot Sparky Cheer Messages
       sparky_step_1: "Read the problem carefully! Find what numbers are given! 🧐",
@@ -197,6 +247,7 @@
       // Dictionary Modal
       dict_title: 'Math & Robotics Dictionary',
       dict_subtitle: 'English - Vietnamese terms with pronunciation audio',
+<<<<<<< HEAD
       dict_eyebrow: 'LEARN THE WORDS',
       dict_search_placeholder: 'Type word to search (e.g. speed, distance)...',
       dict_search_label: 'Search the dictionary',
@@ -211,6 +262,11 @@
       dict_no_results: 'No matching words. Try another search.',
       dict_loading: 'Loading the word list…',
       dict_close: 'Close dictionary',
+=======
+      dict_search_placeholder: 'Type word to search (e.g. speed, distance)...',
+      dict_count: 'Showing {count} words',
+      dict_listen: 'Listen',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
       // Hints Modal
       hints_title: 'Math Support Hints',
@@ -230,6 +286,7 @@
       fullscreen_enter: 'Toàn màn hình',
       fullscreen_exit: 'Thu nhỏ',
       export_data: 'Xuất dữ liệu',
+<<<<<<< HEAD
       lang_switch_title: 'ngôn ngữ ',
       settings_btn_title: 'Cài đặt',
       settings_modal_title: '⚙️ Cài đặt',
@@ -257,6 +314,19 @@
       signboard_subtitle: 'Chọn ngôn ngữ hiển thị cho các nút bấm và chức năng:',
       lang_en: ' English',
       lang_vi: ' Tiếng Việt',
+=======
+      lang_switch_title: 'Chuyển đổi ngôn ngữ giao diện',
+
+      // Welcome Hero & Robot Signboard
+      hero_eyebrow: 'TƯ DUY GIẢI QUYẾT VẤN ĐỀ & ROBOTICS ẢO',
+      hero_title: 'Robot Math Lab',
+      hero_subtitle: `Môi trường học tập Toán - Tiếng Anh qua mô phỏng Robotics dành cho học sinh tiểu học.`,
+      signboard_badge: 'BẢNG ĐIỀU KHIỂN TƯƠNG TÁC',
+      signboard_title: 'Chọn Ngôn Ngữ Giao Diện',
+      signboard_subtitle: 'Chọn ngôn ngữ hiển thị cho các nút bấm và chức năng:',
+      lang_en: '🇬🇧 English',
+      lang_vi: '🇻🇳 Tiếng Việt',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       btn_start: 'Bắt đầu 🚀',
       student_name_label: 'Tên học sinh / Mã số:',
       student_name_placeholder: 'Nhập họ và tên...',
@@ -273,17 +343,39 @@
 
       // Task 1 Card
       task1_badge: '🎯 Nhiệm vụ 1',
+<<<<<<< HEAD
       task1_title: 'Hành trình đến đích',
       task1_btn: 'Bắt đầu Nhiệm vụ 1 ➔',
 
       // Task 2 Card
       task2_badge: '🔧 Nhiệm vụ 2',
       task2_title: 'Chuyến đi bất ngờ',
+=======
+      task1_diff: 'Cơ bản',
+      task1_title: 'Reach the Goal',
+      task1_sub: 'Đạt mục tiêu chuyển động',
+      task1_desc: 'Tính toán thời gian cần thiết để robot vận tốc 6 m/s đến đích 24 m. Trải nghiệm trọn vẹn quy trình giải quyết vấn đề thực tế.',
+      task1_btn: 'Bắt đầu Nhiệm vụ 1 ➔',
+
+      // Task 2 Card: Tên trung tính tình huống, không báo trước lỗi, không nhãn nghiên cứu
+      task2_badge: '🔧 Nhiệm vụ 2',
+      task2_diff: 'Mức độ 2',
+      task2_title: 'Kiểm tra phương án',
+      task2_sub: 'Thử nghiệm phương án di chuyển',
+      task2_desc: 'Một bạn học sinh lập phương án cho robot đi 24m với vận tốc 6 m/s trong 3 giây. Hãy chạy mô phỏng, quan sát điểm dừng của robot và đánh giá kết quả.',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       task2_btn: 'Bắt đầu Nhiệm vụ 2 ➔',
 
       // Task 3 Card
       task3_badge: '🆕 Nhiệm vụ 3',
+<<<<<<< HEAD
       task3_title: 'Thử thách đúng giờ',
+=======
+      task3_diff: 'Mức độ 3',
+      task3_title: 'Nhiệm vụ mới',
+      task3_sub: 'Thử thách với quãng đường và vận tốc mới',
+      task3_desc: 'Áp dụng quy trình giải quyết vấn đề khi điều kiện bài toán thay đổi: quãng đường mới 35 m và vận tốc tiết kiệm pin 5 m/s.',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       task3_btn: 'Bắt đầu Nhiệm vụ 3 ➔',
 
       // Workspace Common
@@ -291,7 +383,10 @@
       btn_hint: '💡 Gợi ý',
       btn_dict: '📖 Từ điển',
       btn_feedback: '📋 Xem nhận xét',
+<<<<<<< HEAD
       btn_journal: '📒 Nhật ký',
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       confirm_leave_task: 'Bạn có chắc muốn quay lại danh sách nhiệm vụ? Tiến trình hiện tại đã được lưu vào nhật ký.',
 
       // Stepper
@@ -312,6 +407,7 @@
       sim_speed_label: 'Vận tốc (v)',
       sim_time_label: 'Thời gian (t)',
       sim_dist_label: 'Quãng đường (s)',
+<<<<<<< HEAD
       sim_ready: 'Sẵn sàng. Kiểm tra các thông số và cho robot chạy!',
       sim_moving: 'Robot đang di chuyển với vận tốc {speed} m/s trong {time} giây...',
       sim_stopped: 'Robot đã dừng lại sau khi đi được {dist} m.',
@@ -334,6 +430,12 @@
       track_result_match: '🎯 Đúng vạch đích! Robot đã đi chính xác {dist} {unit} đến đích!',
       track_result_mismatch: '⚠️ Chưa đúng đích: Robot đi được {dist} {unit} (Vạch đích yêu cầu là {target} {unit}).',
 
+=======
+      sim_ready: 'Sẵn sàng. Thiết lập thông số ở các bước bên trái rồi cho robot chạy!',
+      sim_moving: 'Robot đang di chuyển với vận tốc {speed} m/s trong {time} giây...',
+      sim_stopped: 'Robot đã dừng lại sau khi đi được {dist} m.',
+
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       // Step 1: Understand
       s1_badge: 'Bước 1: Tìm hiểu',
       s1_title: 'Tìm hiểu Đề bài (Understand the Problem)',
@@ -354,7 +456,10 @@
       s3_speed_label: 'Vận tốc Robot:',
       s3_speed_locked: '🔒 Cố định theo bài toán',
       s3_time_label: 'Thời gian chạy:',
+<<<<<<< HEAD
       s3_param_placeholder: 'Nhập giá trị',
+=======
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       s3_time_flawed_note: 'Thời gian theo phương án đề xuất',
       s3_btn_back: '← Quay lại Bước 2',
       s3_btn_run: '🚀 Chạy Robot',
@@ -364,20 +469,32 @@
       s3_obs_title: '📊 Kết quả quan sát mô phỏng:',
       s3_obs_traveled: 'Robot đã di chuyển được <strong>{dist} m</strong> trong {time} giây.',
       s3_obs_target: 'Vạch đích yêu cầu: <strong>{target} m</strong>.',
+<<<<<<< HEAD
       s3_val_error: 'Vui lòng nhập thông số hợp lệ cho rô-bốt!',
+=======
+      s3_val_error: 'Vui lòng nhập giá trị hợp lệ cho Thời gian chạy!',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
       // Step 4: Look Back
       s4_badge: 'Bước 4: Kiểm tra',
       s4_title: 'Kiểm tra & Đánh giá (Look Back & Verify)',
+<<<<<<< HEAD
       s4_banner_success: '🎉 Rô-bốt đã đến đúng vạch đích!',
       s4_banner_retry: '⚠️ Rô-bốt chưa đến đúng vạch đích yêu cầu!',
       s4_btn_yes: '✅ Có, đến chính xác đích {target}m',
       s4_btn_no: '❌ Chưa đạt, chưa đến đích {target}m',
+=======
+      s4_banner_success: '🎉 Robot đã đến đúng vạch đích!',
+      s4_banner_retry: '⚠️ Robot chưa đến đúng vạch đích yêu cầu!',
+      s4_btn_yes: '✅ Có, đến chính xác đích {target}m',
+      s4_btn_no: '❌ Không, chưa đến đích {target}m',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
       s4_btn_back: '← Quay lại Bước 3',
       s4_math_proof_title: 'Kiểm chứng Toán học (Mathematical Verification):',
       s4_refl_placeholder: 'Chia sẻ suy nghĩ hoặc bài học rút ra của bạn về bài toán này...',
       s4_btn_complete: '🎉 Hoàn thành Nhiệm vụ!',
       s4_btn_retry: '🔁 Thử nghiệm phương án mới ➔',
+<<<<<<< HEAD
       s4_testing_new: '⏳ Rô-bốt đang thử nghiệm phương án mới...',
       s4_testing_status: 'Đang kiểm chứng với thông số mới: {speed} m/s × {time} s...',
       s4_success_status: '🎉 Tuyệt vời! Rô-bốt đã đến đúng mốc <strong>{target} m</strong>!',
@@ -386,6 +503,16 @@
       s4_obs_accurate: 'Nhận định chính xác!',
       s4_obs_shortfall: 'Rô-bốt chưa đến vạch đích. Hãy cùng quan sát, phân tích và điều chỉnh phương án:',
       s4_obs_recheck: 'Hãy quan sát kỹ lại thước đo trên đường chạy nhé! Rô-bốt dừng lại ở vạch {actual}m, còn lá cờ đích ở vạch {target}m. Như vậy rô-bốt đã đến đúng đích chưa?',
+=======
+      s4_testing_new: '⏳ Robot đang thử nghiệm phương án mới...',
+      s4_testing_status: 'Đang kiểm chứng với thông số mới: {speed} m/s × {time} s...',
+      s4_success_status: '🎉 Tuyệt vời! Robot đã đến đúng mốc <strong>{target} m</strong>!',
+      s4_input_error: 'Vui lòng nhập giá trị thời gian đã điều chỉnh cho robot!',
+      s4_obs_prompt: '👀 Hãy quan sát vị trí dừng của robot trên đường chạy bên phải rồi chọn câu trả lời ở trên nhé!',
+      s4_obs_accurate: 'Nhận định chính xác!',
+      s4_obs_shortfall: 'Robot chưa đến vạch đích. Hãy cùng phân tích và điều chỉnh phương án:',
+      s4_obs_recheck: 'Hãy quan sát kỹ lại thước đo trên đường chạy nhé! Robot dừng lại ở vạch 18m, còn lá cờ đích ở vạch 24m. Như vậy robot đã đến đúng đích chưa?',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
       // Mascot Sparky Cheer Messages
       sparky_step_1: 'Hãy đọc kỹ đề bài và tìm xem bài toán cho những số liệu nào nhé! 🧐',
@@ -398,6 +525,7 @@
       // Dictionary Modal
       dict_title: 'Từ điển Toán - Tiếng Anh Robotics',
       dict_subtitle: 'Kho từ vựng song ngữ kèm phát âm audio giọng chuẩn bản ngữ',
+<<<<<<< HEAD
       dict_eyebrow: 'CÙNG HỌC TỪ VỰNG',
       dict_search_placeholder: 'Gõ từ tiếng Anh cần tra (ví dụ: speed, distance)...',
       dict_search_label: 'Tìm trong từ điển',
@@ -412,6 +540,11 @@
       dict_no_results: 'Chưa tìm thấy từ phù hợp. Em thử cách tìm khác nhé.',
       dict_loading: 'Đang tải danh sách từ vựng…',
       dict_close: 'Đóng từ điển',
+=======
+      dict_search_placeholder: 'Gõ từ tiếng Anh cần tra (ví dụ: speed, distance)...',
+      dict_count: 'Đang hiển thị {count} từ vựng',
+      dict_listen: 'Nghe phát âm',
+>>>>>>> dac564c8f995b828f22d5a41bd7face9fee15f2a
 
       // Hints Modal
       hints_title: 'Gợi Ý Hỗ Trợ Tư Duy Toán Học',
