@@ -2,7 +2,7 @@
  * ROBOT MATH LAB - LOG ENGINE
  * Specialized pedagogical process logger for elementary STEM & Polya problem solving.
  * Formats data according to the PS1-PS11 problem-solving process codes.
- * Stores events in localStorage for research analysis and enables JSON export.
+ * Stores events in localStorage and presents them in the learning journal.
  */
 
 class LogEngine {
@@ -313,7 +313,7 @@ class LogEngine {
       return titles[session.taskId] || session.taskTitle || (isVi ? 'Buổi học' : 'Learning session');
     };
     const eventTitles = isVi ? {
-      SESSION_STARTED: 'Bắt đầu nhiệm vụ', SESSION_COMPLETED: 'Hoàn thành nhiệm vụ', STEP_TRANSITION: 'Chuyển bước',
+      SESSION_STARTED: 'Bắt đầu nhiệm vụ', SESSION_COMPLETED: 'Hoàn thành nhiệm vụ', STEP_TRANSITION: 'Cập nhật tiến trình',
       STEP1_MISMATCH: 'Kiểm tra dữ kiện chưa khớp', STEP2_MISTAKE: 'Thử công thức hoặc phép tính khác',
       INPUT_VALIDATION_FAILED: 'Thiếu hoặc chưa hợp lệ', PS1: 'Xác định dữ kiện',
       PS2: 'Xác định đại lượng cần tìm', PS3: 'Xác nhận điều kiện bài toán',
@@ -324,7 +324,7 @@ class LogEngine {
       TASK_REFLECTION: 'Ghi lại suy ngẫm', PS8_RESPONSE: 'Trả lời kiểm tra kết quả',
       JOURNAL_VIEWED: 'Mở nhật ký học tập'
     } : {
-      SESSION_STARTED: 'Mission started', SESSION_COMPLETED: 'Mission completed', STEP_TRANSITION: 'Changed step',
+      SESSION_STARTED: 'Mission started', SESSION_COMPLETED: 'Mission completed', STEP_TRANSITION: 'Progress updated',
       STEP1_MISMATCH: 'Checked problem data', STEP2_MISTAKE: 'Tried another formula or calculation',
       INPUT_VALIDATION_FAILED: 'Missing or invalid input', PS1: 'Identified given data',
       PS2: 'Identified the unknown', PS3: 'Confirmed problem constraints',
@@ -354,8 +354,16 @@ class LogEngine {
       `;
     }).join('');
 
+    const removeStepFields = (value) => {
+      if (Array.isArray(value)) return value.map(removeStepFields);
+      if (!value || typeof value !== 'object') return value;
+      return Object.fromEntries(Object.entries(value)
+        .filter(([key]) => !key.toLowerCase().includes('step'))
+        .map(([key, nestedValue]) => [key, removeStepFields(nestedValue)]));
+    };
+
     const timeline = selected ? eventList.map(event => {
-      const data = event.data && typeof event.data === 'object' ? event.data : {};
+      const data = removeStepFields(event.data && typeof event.data === 'object' ? event.data : {});
       const hasDetails = Object.keys(data).length > 0;
       const eventDate = event.timestamp ? new Date(event.timestamp) : null;
       const eventTime = eventDate && !Number.isNaN(eventDate.getTime())
@@ -367,10 +375,8 @@ class LogEngine {
           <span class="journal-event-dot" aria-hidden="true"></span>
           <div class="journal-event-content">
             <div class="journal-event-meta">
-              <span class="journal-event-code">${escapeHtml(event.code || 'EVENT')}</span>
               <time>${escapeHtml(eventTime)}</time>
               <span>+${escapeHtml(formatElapsed(event.relativeTimeMs))}</span>
-              ${event.step ? `<span>${isVi ? 'Bước' : 'Step'} ${escapeHtml(event.step)}</span>` : ''}
             </div>
             <h4>${escapeHtml(title)}</h4>
             ${hasDetails ? `
@@ -399,7 +405,7 @@ class LogEngine {
           <div>
             <span class="journal-eyebrow">${isVi ? 'HÀNH TRÌNH HỌC TẬP' : 'LEARNING JOURNEY'}</span>
             <h2 id="learning-journal-title">📒 ${isVi ? 'Nhật ký tương tác' : 'Activity journal'}</h2>
-            <p>${isVi ? 'Xem lại các bước làm bài, lần chạy robot và gợi ý đã sử dụng.' : 'Review problem-solving steps, robot runs, and support used.'}</p>
+            <p>${isVi ? 'Xem lại hoạt động làm bài, lần chạy robot và gợi ý đã sử dụng.' : 'Review your activity, robot runs, and support used.'}</p>
           </div>
           <button type="button" class="btn-close-modal" data-journal-action="close" aria-label="${isVi ? 'Đóng nhật ký' : 'Close journal'}">✕</button>
         </header>
@@ -485,30 +491,6 @@ class LogEngine {
     this.notify({ type: 'SESSIONS_CLEARED' });
   }
 
-  /**
-   * Export all sessions or current session as formatted JSON file
-   */
-  exportJSON(onlyCurrent = false) {
-    const dataToExport = onlyCurrent && this.currentSession 
-      ? this.currentSession 
-      : {
-          exportedAt: new Date().toISOString(),
-          system: 'Robot Math Lab - Process Telemetry',
-          version: '2.0',
-          totalSessions: this.getAllSessions().length,
-          sessions: this.getAllSessions()
-        };
-
-    const jsonString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
-    const filename = `robot_math_lab_logs_${onlyCurrent ? (this.currentSession?.sessionId || 'single') : 'all'}_${Date.now()}.json`;
-    
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", jsonString);
-    downloadAnchor.setAttribute("download", filename);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-  }
 }
 
 // Global singleton instance

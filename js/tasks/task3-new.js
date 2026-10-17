@@ -34,10 +34,10 @@ window.Task3New = {
     promptEn: 'Identify the given conditions and unit conversions from the mission briefing:',
     promptVi: 'Xác định các dữ kiện và phép đổi đơn vị từ đề bài:',
     fields: [
-      { key: 'distance_km', label: 'Distance (km)', unit: 'km', expected: 1.5, placeholder: '1.5' },
-      { key: 'distance_m', label: 'Convert to meters (1,5 km = ? m)', unit: 'm', expected: 1500, placeholder: '1500' },
-      { key: 'time_min', label: 'Time in minutes', unit: 'min', expected: 5, placeholder: '5' },
-      { key: 'time_s', label: 'Convert to seconds (5 min = ? s)', unit: 's', expected: 300, placeholder: '300' }
+      { key: 'distance_km', label: 'Distance (km)', unit: 'km', expected: 1.5 },
+      { key: 'distance_m', label: 'Convert to meters (1,5 km = ? m)', unit: 'm', expected: 1500 },
+      { key: 'time_min', label: 'Time in minutes', unit: 'min', expected: 5 },
+      { key: 'time_s', label: 'Convert to seconds (5 min = ? s)', unit: 's', expected: 300 }
     ],
     targetQuestionEn: 'What is the target quantity you need to calculate for this mission?',
     targetQuestionVi: 'Đại lượng nào cần phải tính toán trong nhiệm vụ này?',
@@ -69,14 +69,14 @@ window.Task3New = {
 
   // Step 3: Execute (Student enters the calculated speed; time is given as 300s)
   step3: {
-    promptEn: 'Check the calculated speed parameter (v) for your robot (Time is fixed at 300 s):',
-    promptVi: 'Kiểm tra thông số vận tốc (v) đã tính cho rô-bốt (Thời gian đã cho là 300 s):',
+    promptEn: 'Enter the speed you calculated; the mission time is fixed. Then check it on the Virtual Robot Track:',
+    promptVi: 'Nhập vận tốc em đã tính; thời gian của nhiệm vụ được cố định. Sau đó kiểm tra trên Virtual Robot Track:',
     defaultTime: 300,
     canEditSpeed: true, // Editable speed parameter
     canEditTime: false, // Time is fixed by the problem (5 min = 300 s)
     targetParam: 'speed',
-    noteEn: 'Time is given as 5 minutes (300 s). Set speed = 5 m/s to test if the robot reaches 1500 m on schedule!',
-    noteVi: 'Thời gian đã cho là 5 phút (300 s). Hãy cài đặt vận tốc = 5 m/s để kiểm tra rô-bốt có tới đích 1500 m đúng giờ không!'
+    noteEn: 'Use your calculated speed to test whether the robot reaches the destination on time.',
+    noteVi: 'Dùng vận tốc em đã tính để kiểm tra rô-bốt có đến đích đúng giờ không.'
   },
 
   // Step 4: Look Back

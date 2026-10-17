@@ -152,7 +152,7 @@
           : 'High Autonomy: You worked through the problem independently without needing scaffolding hints.');
       } else {
         strengths.push(isVi
-          ? `Biết cách tìm kiếm hỗ trợ: Khi cần thiết, em đã chủ động mở gợi ý Mức ${maxHintLevel} để vượt qua bước khó.`
+          ? `Biết cách tìm kiếm hỗ trợ: Khi cần thiết, em đã chủ động mở gợi ý Mức ${maxHintLevel} để vượt qua phần khó.`
           : `Effective Help-Seeking: You proactively used Tier ${maxHintLevel} hints when needed to progress steadily.`);
       }
 
@@ -193,13 +193,13 @@
 
       if (step1Errors > 0 || step2Errors > 0) {
         improvements.push(isVi
-          ? 'Kiểm tra kỹ trước khi xác nhận: Đối chiếu số liệu và đổi đơn vị phù hợp (km ↔ m, phút ↔ giây) trước khi chuyển bước nhé.'
+          ? 'Kiểm tra kỹ trước khi xác nhận: Đối chiếu số liệu và đổi đơn vị phù hợp (km ↔ m, phút ↔ giây) trước khi tiếp tục nhé.'
           : 'Double-Check Habit: Verify the values and convert units (km ↔ m, minutes ↔ seconds) before continuing.');
       }
 
       if (improvements.length === 0) {
         improvements.push(isVi
-          ? 'Duy trì phong độ: Các bước giải của em rất toàn diện. Hãy sẵn sàng cho thử thách nâng cao tiếp theo!'
+          ? 'Duy trì phong độ: Cách giải của em rất toàn diện. Hãy sẵn sàng cho thử thách nâng cao tiếp theo!'
           : 'Keep Excelling: Your workflow was thorough and accurate. You are ready for the advanced challenge!');
       }
 
@@ -220,26 +220,26 @@
       const planFormula = taskId === 'task3-new' ? 'v = s ÷ t' : 't = s ÷ v';
       const indicators = [
         {
-          phase: isVi ? 'Pha 1: Tìm hiểu đề (PS1 - PS3)' : 'Phase 1: Understand (PS1 - PS3)',
+          activity: isVi ? 'Dữ kiện bài toán' : 'Problem Information',
           status: step1Mistakes.length === 0 ? 'Optimal' : 'Needs Reinforcement',
           details: `${extractionSummary} ${isVi ? `Số lần thử: ${step1Mistakes.length + 1}.` : `Submissions: ${step1Mistakes.length + 1}.`}`
         },
         {
-          phase: isVi ? 'Pha 2: Lập kế hoạch (PS4 - PS5)' : 'Phase 2: Plan (PS4 - PS5)',
+          activity: isVi ? 'Phương án tính toán' : 'Calculation Plan',
           status: step2Mistakes.length === 0 ? 'Optimal' : 'Scaffolded',
           details: isVi
             ? `Mô hình hóa toán học. Đã chọn công thức và tính toán. Số lần chỉnh sửa: ${step2Mistakes.length}.`
             : `Mathematical modeling. Formula selection and arithmetic calculation. Corrections: ${step2Mistakes.length}.`
         },
         {
-          phase: isVi ? 'Pha 3: Thực thi (PS6 - PS7)' : 'Phase 3: Execute (PS6 - PS7)',
+          activity: isVi ? 'Mô phỏng robot' : 'Robot Simulation',
           status: 'Completed',
           details: isVi
             ? `Nạp tham số và kích hoạt mô phỏng đường chạy ảo. Tổng số lần chạy robot: ${totalAttempts}.`
             : `Set robot parameters and triggered virtual simulation. Total simulation runs: ${totalAttempts}.`
         },
         {
-          phase: isVi ? 'Pha 4: Kiểm tra & Đánh giá (PS8 - PS11)' : 'Phase 4: Look Back & Verify (PS8 - PS11)',
+          activity: isVi ? 'Kiểm tra kết quả' : 'Result Check',
           status: ps8Event?.data?.response === 'no' || totalAttempts === 1 ? 'Optimal' : 'Guided',
           details: isVi
             ? `Đối chiếu kết quả mô phỏng với mục tiêu; ghi nhận phản hồi và điều chỉnh thông số nếu cần.`
@@ -553,7 +553,7 @@
               <div class="fb-practice-section">
                 <div class="fb-practice-heading">
                   <div>
-                    <span class="journal-eyebrow">${isVi ? 'BƯỚC TIẾP THEO' : 'YOUR NEXT STEPS'}</span>
+                    <span class="journal-eyebrow">${isVi ? 'GỢI Ý TIẾP THEO' : 'NEXT SUGGESTIONS'}</span>
                     <h3>${isVi ? 'Gợi ý luyện tập' : 'Practice recommendations'}</h3>
                   </div>
                   <span class="fb-practice-heading-icon">✨</span>
@@ -617,7 +617,7 @@
                   <table class="fb-table">
                     <thead>
                       <tr>
-                        <th>${isVi ? 'Giai đoạn' : 'Phase'}</th>
+                        <th>${isVi ? 'Nội dung nhiệm vụ' : 'Task Area'}</th>
                         <th>${isVi ? 'Đánh giá' : 'Status'}</th>
                         <th>${isVi ? 'Biểu hiện & Dữ liệu ghi nhận' : 'Observed Behaviors & Telemetry'}</th>
                       </tr>
@@ -625,7 +625,7 @@
                     <tbody>
                       ${analysis.teacher.indicators.map(ind => `
                         <tr>
-                          <td><strong>${ind.phase}</strong></td>
+                          <td><strong>${ind.activity}</strong></td>
                           <td><span class="badge-status ${ind.status === 'Optimal' ? 'status-opt' : 'status-guided'}">${ind.status}</span></td>
                           <td>${ind.details}</td>
                         </tr>
@@ -695,9 +695,6 @@
 
           <!-- Modal Footer Actions -->
           <div class="feedback-modal-footer">
-            <button type="button" class="btn-secondary" id="btn-export-fb-report">
-              📥 ${isVi ? 'Xuất Bản Nhận Xét (Text/JSON)' : 'Export Feedback Report'}
-            </button>
             <div class="footer-right-actions">
               <button type="button" class="btn-secondary" id="btn-fb-return-hub">
                 🏠 ${isVi ? 'Về Danh Sách Nhiệm Vụ' : 'Return to Missions Hub'}
@@ -819,38 +816,6 @@
         };
       }
 
-      // Bind Export Feedback Report
-      const exportReportBtn = document.getElementById('btn-export-fb-report');
-      if (exportReportBtn) {
-        exportReportBtn.onclick = () => {
-          this.downloadFeedbackReport(analysis, isVi);
-        };
-      }
-    },
-
-    /**
-     * Download clean text/JSON feedback report
-     */
-    downloadFeedbackReport(analysis, isVi) {
-      const report = {
-        title: isVi ? "Báo Cáo Phản Hồi Học Tập - Robot Math Lab" : "Learning Process Feedback Report - Robot Math Lab",
-        timestamp: new Date().toISOString(),
-        metrics: analysis.metrics,
-        studentFeedback: analysis.student,
-        teacherFeedback: analysis.teacher,
-        parentFeedback: analysis.parent,
-        recommendedChallenge: analysis.nextChallenge
-      };
-
-      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `RobotMathLab_Feedback_${analysis.metrics.taskId}_${Date.now()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
     }
   };
 

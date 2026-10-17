@@ -19,6 +19,66 @@ class TaskEngine {
       step3: {},
       step4: {}
     };
+
+  }
+
+  openTrackFromStep3() {
+    const t = (key, params) => window.I18N ? window.I18N.t(key, params) : key;
+    const speedEntry = document.getElementById('param-speed-entry');
+    const timeEntry = document.getElementById('param-time-entry');
+    const speedInput = document.getElementById('param-speed');
+    const timeInput = document.getElementById('param-time');
+    const parsePositiveParameter = rawValue => {
+      const raw = String(rawValue ?? '').trim().replace(',', '.');
+      if (!raw) return NaN;
+      const value = Number(raw);
+      return Number.isFinite(value) && value > 0 ? value : NaN;
+    };
+    const readParameter = (entry, internalInput, fallback) => {
+      const rawEntry = String(entry?.value ?? '').trim();
+      if (rawEntry) return parsePositiveParameter(rawEntry);
+      const internalValue = String(internalInput?.value ?? '').trim();
+      return parsePositiveParameter(internalValue || fallback);
+    };
+    const speed = readParameter(speedEntry, speedInput, this.studentInputs.step3.speed);
+    const time = readParameter(timeEntry, timeInput, this.studentInputs.step3.time);
+
+    if (!Number.isFinite(speed) || !Number.isFinite(time)) {
+      if (window.LogEngine) {
+        window.LogEngine.logEvent('INPUT_VALIDATION_FAILED', 'Simulation parameters were not valid', {
+          step: 3,
+          validSpeed: Number.isFinite(speed),
+          validTime: Number.isFinite(time)
+        });
+      }
+      alert(t('s3_val_error'));
+      return;
+    }
+
+    this.studentInputs.step3 = { speed, time };
+    this.openTrackView('step3');
+  }
+
+  continueFromTrack() {
+    const speed = this.studentInputs.step3.speed;
+    const time = this.studentInputs.step3.time;
+    if (!Number.isFinite(speed) || speed <= 0 || !Number.isFinite(time) || time <= 0) {
+      const t = (key, params) => window.I18N ? window.I18N.t(key, params) : key;
+      alert(t('s3_val_error'));
+      return;
+    }
+
+    if (this.trackReturnContext === 'step4') {
+      const isSuccess = Math.abs(speed * time - this.taskConfig.targetDistance) < 0.01;
+      if (isSuccess) this.studentInputs.step4.checkResult = 'yes';
+      this.closeTrackView();
+      this.renderStep(4);
+      return;
+    }
+
+    this.polya.markStepComplete(3);
+    this.polya.nextStep();
+    this.closeTrackView();
   }
 
   /**
@@ -269,14 +329,10 @@ class TaskEngine {
 
     // Track Screen Controls
     const trackBackBtn = document.getElementById('btn-track-back');
-    if (trackBackBtn) {
-      trackBackBtn.onclick = () => this.closeTrackView();
-    }
+    if (trackBackBtn) trackBackBtn.onclick = () => this.closeTrackView();
 
     const trackRunBtn = document.getElementById('btn-track-run-robot');
-    if (trackRunBtn) {
-      trackRunBtn.onclick = () => this.executeSimulationRun();
-    }
+    if (trackRunBtn) trackRunBtn.onclick = () => this.executeSimulationRun();
 
     const trackRerunBtn = document.getElementById('btn-track-rerun');
     if (trackRerunBtn) {
@@ -287,29 +343,8 @@ class TaskEngine {
     }
 
     const trackGoStep4Btn = document.getElementById('btn-track-go-step4');
-    if (trackGoStep4Btn) {
-      trackGoStep4Btn.onclick = () => {
-        const speed = this.studentInputs.step3.speed;
-        const time = this.studentInputs.step3.time;
-        if (!Number.isFinite(speed) || speed <= 0 || !Number.isFinite(time) || time <= 0) {
-          alert(t('s3_val_error'));
-          return;
-        }
+    if (trackGoStep4Btn) trackGoStep4Btn.onclick = () => this.continueFromTrack();
 
-        if (this.trackReturnContext === 'step4') {
-          const isSuccess = Math.abs(speed * time - this.taskConfig.targetDistance) < 0.01;
-          if (isSuccess) {
-            this.studentInputs.step4.checkResult = 'yes';
-          }
-          this.closeTrackView();
-          this.renderStep(4);
-        } else {
-          this.polya.markStepComplete(3);
-          this.polya.nextStep();
-          this.closeTrackView();
-        }
-      };
-    }
   }
 
   /**
@@ -369,10 +404,7 @@ class TaskEngine {
 
     const progressEl = document.getElementById('track-progress-pill');
     if (progressEl) {
-      const stepNum = this.polya ? this.polya.currentStep : 3;
-      progressEl.innerText = stepNum === 4
-        ? `${t('step_4_name')} (4/4)`
-        : `${t('step_3_name')} (3/4)`;
+      progressEl.innerText = t('track_progress_badge');
     }
 
     const backBtn = document.getElementById('btn-track-back');
@@ -606,11 +638,6 @@ class TaskEngine {
 
     container.innerHTML = `
       <div class="step-view animate-fade-in">
-        <div class="step-header">
-          <span class="step-badge step-1-badge">${t('s1_badge')}</span>
-          <h3 class="step-title">${t('s1_title')}</h3>
-        </div>
-
         <p class="step-instruction">
           <strong>${s1.promptEn}</strong><br/>
           <small class="text-muted">${s1.promptVi}</small>
@@ -625,7 +652,7 @@ class TaskEngine {
                 <strong>${f.label}:</strong>
               </label>
               <div class="input-with-unit">
-                <input type="text" inputmode="decimal" id="input-s1-${f.key}" class="input-field" placeholder="${f.placeholder}" value="${this.studentInputs.step1[f.key] !== undefined ? this.studentInputs.step1[f.key] : ''}" />
+                <input type="text" inputmode="decimal" id="input-s1-${f.key}" class="input-field" placeholder="" value="${this.studentInputs.step1[f.key] !== undefined ? this.studentInputs.step1[f.key] : ''}" />
                 <span class="unit-tag">${f.unit}</span>
               </div>
             </div>
@@ -758,11 +785,6 @@ class TaskEngine {
 
     container.innerHTML = `
       <div class="step-view animate-fade-in">
-        <div class="step-header">
-          <span class="step-badge step-2-badge">${t('s2_badge')}</span>
-          <h3 class="step-title">${t('s2_title')}</h3>
-        </div>
-
         ${s2.proposedNoteEn ? `
           <div class="alert-box-info">
             <strong>${s2.proposedNoteEn}</strong>
@@ -867,9 +889,8 @@ class TaskEngine {
       calcResult: calcVal
     };
 
-    // Transfer only a result the student entered and passed validation.
-    // Missions with a prescribed trial run (Task 2) have no targetParam and
-    // keep using their explicitly provided trial values.
+    // Keep a validated result for the simulation without displaying it in the
+    // next step's input field. The learner may still enter a different value.
     const targetParam = this.taskConfig.step3?.targetParam;
     if (targetParam === 'speed' && this.taskConfig.step3?.canEditSpeed) {
       this.studentInputs.step3.speed = calcVal;
@@ -908,21 +929,24 @@ class TaskEngine {
 
     // Editable parameters are either entered here or transferred from a
     // validated Step 2 calculation. Fixed parameters come from the mission.
-    const prefilledSpeed = this.studentInputs.step3.speed !== undefined
+    const prefilledSpeed = s3.canEditSpeed ? '' : (s3.defaultSpeed ?? task.robotSpeed ?? '');
+    const prefilledTime = s3.canEditTime ? '' : (s3.defaultTime ?? task.correctTime ?? '');
+    const hasPositiveParameter = value => {
+      const parsed = Number(String(value ?? '').trim().replace(',', '.'));
+      return Number.isFinite(parsed) && parsed > 0;
+    };
+    const initialSpeed = s3.canEditSpeed
       ? this.studentInputs.step3.speed
-      : (s3.canEditSpeed ? '' : (s3.defaultSpeed ?? task.robotSpeed ?? ''));
-
-    const prefilledTime = this.studentInputs.step3.time !== undefined
+      : prefilledSpeed;
+    const initialTime = s3.canEditTime
       ? this.studentInputs.step3.time
-      : (s3.canEditTime ? '' : (s3.defaultTime ?? task.correctTime ?? ''));
+      : prefilledTime;
+    const trackReadyInitially = hasPositiveParameter(initialSpeed) && hasPositiveParameter(initialTime);
+    const internalSpeed = s3.canEditSpeed ? (this.studentInputs.step3.speed ?? '') : prefilledSpeed;
+    const internalTime = s3.canEditTime ? (this.studentInputs.step3.time ?? '') : prefilledTime;
 
     container.innerHTML = `
       <div class="step-view animate-fade-in">
-        <div class="step-header">
-          <span class="step-badge step-3-badge">${t('s3_badge')}</span>
-          <h3 class="step-title">${t('s3_title')}</h3>
-        </div>
-
         <p class="step-instruction">
           <strong>${s3.promptEn}</strong><br/>
           <small class="text-muted">${s3.promptVi}</small>
@@ -937,27 +961,30 @@ class TaskEngine {
         <!-- Robot Parameter Controls (PS6) -->
         <div class="robot-params-panel">
           <div class="param-row">
-            <label class="param-label" for="param-speed">
+            <label class="param-label" for="${s3.canEditSpeed ? 'param-speed-entry' : 'param-speed-display'}">
               <span>${t('s3_speed_label')}</span>
               <span class="unit-tag">${task.speedUnit}</span>
             </label>
             ${s3.canEditSpeed ? `
-              <input type="number" step="any" id="param-speed" class="input-field" value="${prefilledSpeed}" placeholder="${t('s3_param_placeholder')}" />
+              <input type="hidden" id="param-speed" value="${internalSpeed}" />
+              <input type="number" step="any" id="param-speed-entry" class="input-field" value="" placeholder="${t('s3_param_placeholder')}" />
             ` : `
               <input type="hidden" id="param-speed" value="${prefilledSpeed}" />
-              <div class="locked-field-badge">${prefilledSpeed} ${task.speedUnit} (${t('s3_speed_locked')})</div>
+              <div class="locked-field-badge" id="param-speed-display">${prefilledSpeed} ${task.speedUnit} (${t('s3_speed_locked')})</div>
             `}
           </div>
 
           <div class="param-row">
-            <label class="param-label" for="param-time">
+            <label class="param-label" for="${s3.canEditTime ? 'param-time-entry' : 'param-time-display'}">
               <span>${t('s3_time_label')}</span>
               <span class="unit-tag">${task.timeUnit}</span>
             </label>
             ${s3.canEditTime ? `
-              <input type="number" step="any" id="param-time" class="input-field" value="${prefilledTime}" placeholder="${t('s3_param_placeholder')}" />
+              <input type="hidden" id="param-time" value="${internalTime}" />
+              <input type="number" step="any" id="param-time-entry" class="input-field" value="" placeholder="${t('s3_param_placeholder')}" />
             ` : `
-              <input type="number" step="any" id="param-time" class="input-field" value="${prefilledTime}" readonly style="background:#f1f5f9; cursor:not-allowed;" />
+              <input type="hidden" id="param-time" value="${prefilledTime}" />
+              <input type="number" step="any" id="param-time-display" class="input-field" value="" readonly aria-label="${t('s3_time_locked')}" style="background:#f1f5f9; cursor:not-allowed;" />
               <small class="text-muted">${isVi && s3.noteVi ? s3.noteVi : (s3.noteEn || t('s3_time_flawed_note'))}</small>
             `}
           </div>
@@ -965,7 +992,7 @@ class TaskEngine {
 
         <div class="step-actions">
           <button type="button" class="btn-secondary" id="btn-back-step-2">${t('s3_btn_back')}</button>
-          <button type="button" class="btn-action-run btn-open-track" id="btn-open-track" disabled>
+          <button type="button" class="btn-action-run btn-open-track ${trackReadyInitially ? '' : 'hidden'}" id="btn-open-track">
             ${t('s3_btn_open_track')}
           </button>
           ${this.polya && this.polya.stepCompleted[3] ? `
@@ -986,21 +1013,32 @@ class TaskEngine {
     };
 
     const openTrackBtn = document.getElementById('btn-open-track');
-    const parsePositiveParameter = input => {
-      if (!input) return NaN;
-      const raw = String(input.value).trim().replace(',', '.');
-      if (!raw) return NaN;
-      const value = Number(raw);
-      return Number.isFinite(value) && value > 0 ? value : NaN;
+    if (openTrackBtn) openTrackBtn.onclick = () => this.openTrackFromStep3();
+
+    const resolveParameter = (entry, internalInput, storedValue, fallbackValue) => {
+      const raw = String(entry?.value ?? '').trim();
+      const candidate = raw || String(internalInput?.value ?? '').trim() || storedValue || fallbackValue;
+      const parsed = Number(String(candidate ?? '').trim().replace(',', '.'));
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : NaN;
     };
     const syncOpenTrackButton = () => {
-      const speed = parsePositiveParameter(document.getElementById('param-speed'));
-      const time = parsePositiveParameter(document.getElementById('param-time'));
-      if (openTrackBtn) openTrackBtn.disabled = !Number.isFinite(speed) || !Number.isFinite(time);
+      const speed = resolveParameter(
+        document.getElementById('param-speed-entry'),
+        document.getElementById('param-speed'),
+        this.studentInputs.step3.speed,
+        s3.defaultSpeed ?? task.robotSpeed
+      );
+      const time = resolveParameter(
+        document.getElementById('param-time-entry'),
+        document.getElementById('param-time'),
+        this.studentInputs.step3.time,
+        s3.defaultTime ?? task.correctTime
+      );
+      if (openTrackBtn) openTrackBtn.classList.toggle('hidden', !Number.isFinite(speed) || !Number.isFinite(time));
     };
 
-    [document.getElementById('param-speed'), document.getElementById('param-time')]
-      .filter(input => input && !input.readOnly && input.type !== 'hidden')
+    [document.getElementById('param-speed-entry'), document.getElementById('param-time-entry')]
+      .filter(Boolean)
       .forEach(input => {
         if (typeof input.addEventListener === 'function') {
           input.addEventListener('input', syncOpenTrackButton);
@@ -1009,28 +1047,6 @@ class TaskEngine {
         }
       });
     syncOpenTrackButton();
-
-    if (openTrackBtn) openTrackBtn.onclick = () => {
-      const speedInput = document.getElementById('param-speed');
-      const timeInput = document.getElementById('param-time');
-      const speed = parsePositiveParameter(speedInput);
-      const time = parsePositiveParameter(timeInput);
-
-      if (!Number.isFinite(speed) || !Number.isFinite(time)) {
-        if (window.LogEngine) {
-          window.LogEngine.logEvent('INPUT_VALIDATION_FAILED', 'Simulation parameters were not valid', {
-            step: 3,
-            validSpeed: Number.isFinite(speed),
-            validTime: Number.isFinite(time)
-          });
-        }
-        alert(t('s3_val_error'));
-        return;
-      }
-
-      this.studentInputs.step3 = { speed, time };
-      this.openTrackView('step3');
-    };
 
     const nextBtn = document.getElementById('btn-go-to-step-4');
     if (nextBtn) {
@@ -1204,11 +1220,6 @@ class TaskEngine {
 
     container.innerHTML = `
       <div class="step-view animate-fade-in">
-        <div class="step-header">
-          <span class="step-badge step-4-badge">${t('s4_badge')}</span>
-          <h3 class="step-title">${t('s4_title')}</h3>
-        </div>
-
         <!-- Question PS8: Check Result without spoiler banner -->
         <div class="lookback-q-box">
           <label class="field-label">
@@ -1243,8 +1254,8 @@ class TaskEngine {
       this.studentInputs.step4 = {};
       this.polya.prevStep();
     };
-    document.getElementById('btn-view-track-s4').onclick = () => this.openTrackView('step4');
-
+    const viewTrackBtn = document.getElementById('btn-view-track-s4');
+    if (viewTrackBtn) viewTrackBtn.onclick = () => this.openTrackView('step4');
     document.getElementById('btn-check-yes').onclick = () => {
       if (isSuccess) {
         this.handlePS8Choice('yes');
@@ -1560,7 +1571,7 @@ class TaskEngine {
         <div class="completion-header">
           <div class="completion-trophy">🏆</div>
           <h2 class="completion-title">${isVi ? 'Hoàn Thành Xuất Sắc!' : 'Mission Accomplished!'}</h2>
-          <p class="completion-sub">${isVi ? 'Bạn đã giải quyết vấn đề thành công và kiểm chứng chính xác trên robot!' : 'You mastered the 4-step problem solving cycle and verified it on the robot!'}</p>
+          <p class="completion-sub">${isVi ? 'Bạn đã giải quyết vấn đề thành công và kiểm chứng chính xác trên robot!' : 'You solved the problem and verified the result with the robot!'}</p>
         </div>
 
         <div class="completion-stats-grid">
@@ -1570,11 +1581,11 @@ class TaskEngine {
           </div>
           <div class="stat-card">
             <span class="stat-num">${totalEvents}</span>
-            <span class="stat-lbl">${isVi ? 'Hành động học tập' : 'Learning Steps Logged'}</span>
+            <span class="stat-lbl">${isVi ? 'Hành động học tập' : 'Learning Activities'}</span>
           </div>
           <div class="stat-card">
-            <span class="stat-num">4/4</span>
-            <span class="stat-lbl">${isVi ? 'Bước hoàn tất' : 'Steps Completed'}</span>
+            <span class="stat-num">✓</span>
+            <span class="stat-lbl">${isVi ? 'Nhiệm vụ hoàn thành' : 'Mission Complete'}</span>
           </div>
         </div>
 

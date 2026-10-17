@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Robot Math Lab - Kids Fun Math & Robotics Simulation</title>
   <meta name="description"
     content="Virtual Robotics simulation platform helping elementary students master problem-solving in Math and STEM English." />
@@ -20,9 +20,6 @@
 
   <!-- Retro Pixel Art Splash Screen Stylesheet -->
   <link rel="stylesheet" href="css/splash.css" />
-
-  <!-- Mobile viewport and layout corrections -->
-  <link rel="stylesheet" href="css/mobile.css" />
 
   <!-- Cute Tab Favicon -->
   <link rel="icon"
@@ -101,60 +98,22 @@
       <!-- Main Arcade Center Stage (Grand 2X Scaled Size) -->
       <div class="splash-center-stage grand-stage">
 
-        <!-- Top Status Bar: Sound/Fullscreen Tools -->
+        <!-- Top Status Bar: Free Play message & Sound Tool -->
         <div class="splash-top-bar">
+          <div class="arcade-coin-pill" id="splash-coin-pill">
+            <span class="coin-icon">🪙</span> <span id="splash-coin-text">Math</span>
+          </div>
           <div class="splash-top-tools">
             <button type="button" class="btn-splash-tool" id="btn-splash-sound" title="Âm thanh / Sound">
               <span id="splash-sound-icon">🔊</span>
-            </button>
-            <button type="button" class="btn-splash-tool" id="btn-splash-fs" title="Toàn màn hình / Fullscreen">
-              <span id="splash-fs-icon">⛶</span>
             </button>
           </div>
         </div>
 
         <!-- Robot Mascot Sparky Peaking Behind the Signboard (Enlarged with Waving Hand & Battery Meter) -->
         <div class="splash-robot-wrapper">
-
-          <!-- Welcoming Speech Board from Robot Sparky -->
-          <div class="splash-welcome-board hidden" id="splash-welcome-board" role="dialog" aria-modal="false"
-            aria-labelledby="welcome-board-title">
-            <div class="welcome-board-header">
-              <div class="welcome-board-badge">
-                <span class="welcome-badge-icon">👋</span>
-                <span class="welcome-badge-text" id="welcome-badge-text">LỜI CHÀO TỪ SPARKY</span>
-              </div>
-              <button type="button" class="btn-close-welcome" id="btn-close-splash-welcome" title="Đóng lời chào" aria-label="Đóng bảng chào mừng">✕</button>
-            </div>
-
-            <div class="welcome-board-body">
-              <h3 class="welcome-board-title" id="welcome-board-title">
-                CHÀO MỪNG BẠN ĐẾN VỚI ROBOT MATH LAB! 🚀✨
-              </h3>
-              <p class="welcome-board-desc" id="welcome-board-desc">
-                Xin chào nhà thám hiểm nhí! Hãy cùng <strong>Sparky</strong> khám phá thế giới Toán học và Lập trình chuyển động rô-bốt đầy kỳ thú. Hãy chọn ngôn ngữ, nhập tên và sẵn sàng chinh phục các nhiệm vụ nhé!
-              </p>
-
-              <div class="welcome-board-features">
-                <span class="feature-chip chip-math" id="chip-math-text">📐 Toán chuyển động</span>
-                <span class="feature-chip chip-sim" id="chip-sim-text">🤖 Đường chạy thực tế</span>
-                <span class="feature-chip chip-stem" id="chip-stem-text">🏆 Chiến binh STEM</span>
-              </div>
-            </div>
-
-            <div class="welcome-board-footer">
-              <span class="welcome-tip-text" id="welcome-tip-text">💡 Nhấn <strong>START</strong> để bắt đầu ngay!</span>
-              <button type="button" class="btn-welcome-action" id="btn-welcome-explore">
-                <span id="welcome-action-text">Khám phá ngay</span> ➔
-              </button>
-            </div>
-
-            <!-- Speech bubble arrow pointing to Sparky -->
-            <div class="welcome-board-tail" aria-hidden="true"></div>
-          </div>
-
           <div class="splash-robot grand-robot" id="splash-robot"
-            title="Robot Sparky! Bấm để xem lời chào mừng 🚀" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false">
+            title="Robot Sparky! Bấm để xem vũ điệu chiến thắng 🚀">
             <div class="pixel-robot-antenna">
               <span class="antenna-bulb animate-pixel-glow">💡</span>
               <span class="antenna-wave wave-1"></span>
@@ -214,7 +173,7 @@
                 <span class="title-word-2">MATH</span>
                 <span class="title-word-3">LAB</span>
               </h1>
-              <div class="arcade-sub grand-sub" id="splash-subtitle">NỀN TẢNG TOÁN HỌC</div>
+              <div class="arcade-sub grand-sub" id="splash-subtitle">NỀN TẢNG HỌC TOÁN</div>
             </div>
 
             <!-- Big Tactile 3D START Action Button (Extra Grand Size) -->
@@ -231,12 +190,12 @@
             <div class="splash-lang-select grand-lang-select" role="radiogroup" aria-label="Chọn ngôn ngữ giao diện">
               <div class="lang-option active" data-lang="vi" role="radio" aria-checked="true" tabindex="0">
                 <span class="lang-arrow">▶</span>
-                <span class="lang-flag">VIE</span>
+                <span class="lang-flag"></span>
                 <span class="lang-text">TIẾNG VIỆT</span>
               </div>
               <div class="lang-option" data-lang="en" role="radio" aria-checked="false" tabindex="0">
                 <span class="lang-arrow">▶</span>
-                <span class="lang-flag">EN</span>
+                <span class="lang-flag"></span>
                 <span class="lang-text">ENGLISH</span>
               </div>
             </div>
@@ -248,6 +207,14 @@
                 placeholder="Nhập tên của bé..." value="Bé Yêu Toán" />
             </div>
 
+            <!-- Arcade Footer Instructions & Credits -->
+            <div class="splash-arcade-footer grand-footer" id="splash-footer-hints">
+              <span class="key-hint">▲/▼ CHỌN</span>
+              <span class="sep">•</span>
+              <span class="key-hint">BẮT ĐẦU</span>
+              <span class="sep">•</span>
+              <span class="key-hint"> 2026 TRƯỜNG ĐH SƯ PHẠM HÀ NỘI</span>
+            </div>
 
           </div>
         </div>
@@ -260,7 +227,7 @@
   <header class="app-header" id="app-header">
     <div class="header-container">
       <!-- Brand Logo -->
-      <a href="#start" class="brand-link" id="brand-home-link" title="Start Screen / Màn hình bắt đầu" aria-label="Robot Math Lab — Start Screen / Màn hình bắt đầu">
+      <a href="#hub" class="brand-link" id="brand-home-link" title="Missions Hub / Trang chủ chọn bài">
         <div class="brand-icon-cute animate-bounce-gentle">🤖</div>
         <div>
           <div class="brand-name">Robot Math Lab ✨</div>
@@ -268,12 +235,14 @@
         </div>
       </a>
 
-      <!-- Header Tools: Language Switcher, Student Tag, Sound, Fullscreen, Settings (Compact icon-only) -->
+      <!-- Header Tools: Language Switcher, Student Tag, Sound, Settings -->
       <div class="header-tools header-tools--compact" role="toolbar" aria-label="Quick tools">
         <!-- Language Switcher Pill -->
-        <div class="header-lang-pill" id="header-lang-pill" title="Interface Language / Ngôn ngữ giao diện">
-          <button type="button" class="btn-lang-tab active" id="btn-lang-en" title="English Interface" aria-label="Switch to English">EN</button>
-          <button type="button" class="btn-lang-tab" id="btn-lang-vi" title="Giao diện Tiếng Việt" aria-label="Chuyển sang Tiếng Việt">VIE</button>
+        <div class="header-lang-pill" id="header-lang-pill" title="Language / Ngôn ngữ ">
+          <button type="button" class="btn-lang-tab active" id="btn-lang-en" title="English"
+            aria-label="Switch to English">EN</button>
+          <button type="button" class="btn-lang-tab" id="btn-lang-vi" title=" Tiếng Việt"
+            aria-label="Chuyển sang Tiếng Việt">VIE</button>
         </div>
 
         <!-- Compact Student Badge (Clickable to open profile/settings) -->
@@ -287,19 +256,15 @@
         <span class="header-tools-divider" aria-hidden="true"></span>
 
         <!-- Sound Toggle (Icon-only) -->
-        <button type="button" class="btn-header-icon" id="btn-toggle-sound" title="Sound / Âm thanh" aria-label="Toggle Sound">
+        <button type="button" class="btn-header-icon" id="btn-toggle-sound" title="Sound / Âm thanh"
+          aria-label="Toggle Sound">
           <span id="sound-icon">🔊</span>
-        </button>
-
-        <!-- Fullscreen Toggle (Icon-only) -->
-        <button type="button" class="btn-header-icon btn-icon-fullscreen" id="btn-toggle-fullscreen"
-          title="Fullscreen / Toàn màn hình" aria-label="Toggle Fullscreen">
-          <span id="fullscreen-icon">⛶</span>
         </button>
 
         <!-- Settings Icon Button (Thu gọn "Màn hình & Cài đặt" lên đầu trang) -->
         <button type="button" class="btn-header-icon btn-icon-settings" id="btn-toggle-settings"
-          title="Cài đặt & Thông tin / Settings" aria-label="Cài đặt & Thông tin" aria-haspopup="dialog" aria-expanded="false">
+          title="Cài đặt & Thông tin / Settings" aria-label="Cài đặt & Thông tin" aria-haspopup="dialog"
+          aria-expanded="false">
           <span id="settings-icon">⚙️</span>
         </button>
       </div>
@@ -335,8 +300,8 @@
     <div class="modal-card settings-modal-card">
       <div class="modal-header settings-modal-header">
         <div>
-          <div class="modal-title" id="settings-modal-title">⚙️ Cài đặt & Thông tin</div>
-          <div class="modal-subtitle" id="settings-modal-subtitle">Tùy chỉnh thông tin và môi trường học tập</div>
+          <div class="modal-title" id="settings-modal-title">⚙️ Cài đặt</div>
+          <div class="modal-subtitle" id="settings-modal-subtitle">Tùy chỉnh </div>
         </div>
         <button type="button" class="btn-modal-close" id="btn-close-settings" aria-label="Đóng cài đặt">✕</button>
       </div>
@@ -363,8 +328,8 @@
           <div class="settings-label-wrap">
             <span class="settings-icon-bubble">🌐</span>
             <div>
-              <span class="settings-label" id="lbl-settings-lang">Ngôn ngữ hiển thị:</span>
-              <div class="settings-hint" id="hint-settings-lang">Chuyển đổi Tiếng Việt hoặc English</div>
+              <span class="settings-label" id="lbl-settings-lang">Ngôn ngữ </span>
+              <div class="settings-hint" id="hint-settings-lang">Tiếng Việt hoặc English</div>
             </div>
           </div>
           <div class="header-lang-pill settings-lang-pill">
@@ -393,8 +358,8 @@
           <div class="settings-label-wrap">
             <span class="settings-icon-bubble">⛶</span>
             <div>
-              <span class="settings-label" id="lbl-settings-fs">Chế độ toàn màn hình:</span>
-              <div class="settings-hint" id="hint-settings-fs">Mở rộng không gian học tập tối đa</div>
+              <span class="settings-label" id="lbl-settings-fs"> Toàn màn hình:</span>
+              <div class="settings-hint" id="hint-settings-fs">Mở rộng </div>
             </div>
           </div>
           <button type="button" class="btn-settings-action-pill btn-settings-fs-pill" id="btn-settings-fs-toggle">
@@ -403,6 +368,19 @@
           </button>
         </div>
 
+        <!-- Retro Arcade Screen Option -->
+        <div class="settings-row settings-row-arcade">
+          <div class="settings-label-wrap">
+            <span class="settings-icon-bubble">🎮</span>
+            <div>
+              <span class="settings-label" id="lbl-settings-arcade">Màn hình </span>
+              <div class="settings-hint" id="hint-settings-arcade">Xem</div>
+            </div>
+          </div>
+          <button type="button" class="btn-arcade-jump" id="btn-settings-open-arcade">
+            Mở ▶
+          </button>
+        </div>
       </div>
 
       <div class="modal-footer settings-modal-footer">
@@ -441,42 +419,6 @@
   <script src="js/app.js"></script>
 
   <script>
-    // Fullscreen toggle logic & sync
-    const fsBtn = document.getElementById('btn-toggle-fullscreen');
-    const fsIcon = document.getElementById('fullscreen-icon');
-
-    function syncFullscreenUI() {
-      const isFs = !!document.fullscreenElement;
-      if (fsIcon) fsIcon.innerText = isFs ? '⤢' : '⛶';
-      // Icon-only mode: update tooltip instead of text
-      if (fsBtn) {
-        const isVi = window.I18N ? window.I18N.isVietnamese() : false;
-        fsBtn.title = isFs
-          ? (isVi ? 'Thu nhỏ' : 'Exit Fullscreen')
-          : (isVi ? 'Toàn màn hình' : 'Fullscreen');
-      }
-
-      const startFsIcon = document.getElementById('start-fs-icon');
-      const startFsText = document.getElementById('start-fs-text');
-      const isViFull = window.I18N ? window.I18N.isVietnamese() : false;
-      if (startFsIcon) startFsIcon.innerText = isFs ? '⤢' : '⛶';
-      if (startFsText) startFsText.innerText = isFs
-        ? (isViFull ? 'Thu nhỏ' : 'Windowed')
-        : (isViFull ? 'Toàn màn hình' : 'Fullscreen');
-    }
-
-    if (fsBtn) {
-      fsBtn.onclick = function () {
-        if (window.SoundFX) window.SoundFX.playPop();
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => { });
-        } else {
-          if (document.exitFullscreen) document.exitFullscreen();
-        }
-      };
-    }
-    document.addEventListener('fullscreenchange', syncFullscreenUI);
-
     // Sound toggle logic
     const soundBtn = document.getElementById('btn-toggle-sound');
 
@@ -491,8 +433,6 @@
           : (isVi ? 'Bật âm thanh' : 'Sound On');
       }
     }
-    window.syncFullscreenUI = syncFullscreenUI;
-    window.syncSoundUI = syncSoundUI;
 
     if (soundBtn) {
       soundBtn.onclick = function () {
@@ -528,11 +468,9 @@
 
       const isMuted = window.SoundFX ? window.SoundFX.isMuted : false;
       syncSoundUI(isMuted);
-      syncFullscreenUI();
 
       // Update titles
       if (soundBtn) soundBtn.title = isVi ? 'Bật/Tắt âm thanh' : 'Toggle Sound FX';
-      if (fsBtn) fsBtn.title = isVi ? 'Toàn màn hình' : 'Toggle Fullscreen';
       const settingsBtn = document.getElementById('btn-toggle-settings');
       if (settingsBtn) settingsBtn.title = isVi ? 'Cài đặt & Thông tin học sinh' : 'Settings & Student Profile';
       const studentTag = document.getElementById('header-student-tag');

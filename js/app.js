@@ -427,19 +427,6 @@ class AppController {
       });
     }
 
-    // Splash Fullscreen toggle button
-    const splashFsBtn = document.getElementById('btn-splash-fs');
-    if (splashFsBtn) {
-      splashFsBtn.addEventListener('click', () => {
-        if (window.SoundFX) window.SoundFX.playPop();
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => {});
-        } else {
-          if (document.exitFullscreen) document.exitFullscreen();
-        }
-      });
-    }
-
     // Student Name Input
     const nameInput = document.getElementById('splash-student-name');
     if (nameInput) {
@@ -568,9 +555,6 @@ class AppController {
 
       const nameInput = document.getElementById('splash-student-name');
       if (nameInput) nameInput.value = this.currentStudent;
-
-      const fsIcon = document.getElementById('splash-fs-icon');
-      if (fsIcon) fsIcon.innerText = document.fullscreenElement ? '⤢' : '⛶';
 
       const soundIcon = document.getElementById('splash-sound-icon');
       if (soundIcon && window.SoundFX) {

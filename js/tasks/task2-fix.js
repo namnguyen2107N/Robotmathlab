@@ -38,9 +38,9 @@ window.Task2Fix = {
     promptEn: 'Identify the given quantities and unit conversions from the problem:',
     promptVi: 'Xác định các dữ kiện và phép đổi đơn vị từ đề bài:',
     fields: [
-      { key: 'distance_km', label: 'Given Distance (km)', unit: 'km', expected: 1.2, placeholder: '1.2' },
-      { key: 'distance_m', label: 'Convert to meters (1,2 km = ? m)', unit: 'm', expected: 1200, placeholder: '1200' },
-      { key: 'speed', label: 'Speed (v)', unit: 'm/s', expected: 4, placeholder: '4' }
+      { key: 'distance_km', label: 'Given Distance (km)', unit: 'km', expected: 1.2 },
+      { key: 'distance_m', label: 'Convert to meters (1,2 km = ? m)', unit: 'm', expected: 1200 },
+      { key: 'speed', label: 'Speed (v)', unit: 'm/s', expected: 4 }
     ],
     targetQuestionEn: 'What is the required target quantity and unit to find?',
     targetQuestionVi: 'Đại lượng và đơn vị cần tìm trong đề bài là gì?',
@@ -58,14 +58,14 @@ window.Task2Fix = {
     proposedNoteEn: '📋 Unit conversion: 1.2 km = 1200 m.',
     proposedNoteVi: '📋 Phép đổi đơn vị: 1,2 km = 1200 m.',
     formulaOptions: [
-      { id: 'f1', text: 'Time = 1200 ÷ 4 = 300 s = 5 minutes  (t = s ÷ v)', formula: 't = s ÷ v', correct: true },
+      { id: 'f1', text: 'Time = 1200 ÷ 4  (t = s ÷ v)', formula: 't = s ÷ v', correct: true },
       { id: 'f2', text: 'Time = 1200 × 4 = 4800 s  (t = s × v)', formula: 't = s × v', correct: false },
       { id: 'f3', text: 'Time = 1200 - 4 = 1196 s  (t = s - v)', formula: 't = s - v', correct: false }
     ],
     calcPromptEn: 'Enter the calculated time in seconds (1200 ÷ 4):',
     calcPromptVi: 'Nhập thời gian tính bằng giây (1200 ÷ 4):',
     expectedResult: 300,
-    resultUnit: 's (300 s = 5 phút)',
+    resultUnit: 's',
     projectedParamsEn: 'Theoretical time needed for 1200m:',
     projectedParamsVi: 'Thời gian lý thuyết cần để tới mốc 1200m:'
   },

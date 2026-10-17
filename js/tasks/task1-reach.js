@@ -31,8 +31,8 @@ window.Task1Reach = {
     promptEn: 'Identify the information given in the problem:',
     promptVi: 'Xác định các dữ kiện đã cho trong đề bài:',
     fields: [
-      { key: 'speed', label: 'Speed (v)', unit: 'm/s', expected: 7, placeholder: '' },
-      { key: 'distance', label: 'Distance (s)', unit: 'm', expected: 42, placeholder: '' }
+      { key: 'speed', label: 'Speed (v)', unit: 'm/s', expected: 7 },
+      { key: 'distance', label: 'Distance (s)', unit: 'm', expected: 42 }
     ],
     targetQuestionEn: 'What quantity do you need to find?',
     targetQuestionVi: 'Đại lượng nào cần phải tìm?',
