@@ -196,15 +196,6 @@ class AppController {
       });
     }
 
-    // Open arcade splash screen from settings
-    const btnOpenArcade = document.getElementById('btn-settings-open-arcade');
-    if (btnOpenArcade) {
-      btnOpenArcade.addEventListener('click', () => {
-        this.closeSettingsModal();
-        window.location.hash = '#start';
-        this.renderStartScreen();
-      });
-    }
 
     // Escape key listener to close modal
     document.addEventListener('keydown', (e) => {
@@ -296,12 +287,6 @@ class AppController {
     const fsText = document.getElementById('settings-fs-status-text');
     if (fsText) fsText.innerText = isFs ? (isVi ? 'Thu nhỏ' : 'Windowed') : (isVi ? 'Toàn màn hình' : 'Fullscreen');
 
-    const lblArcade = document.getElementById('lbl-settings-arcade');
-    if (lblArcade) lblArcade.innerText = t('settings_arcade_label');
-    const hintArcade = document.getElementById('hint-settings-arcade');
-    if (hintArcade) hintArcade.innerText = t('settings_arcade_hint');
-    const btnArcade = document.getElementById('btn-settings-open-arcade');
-    if (btnArcade) btnArcade.innerText = t('settings_arcade_btn');
 
     const btnDone = document.getElementById('btn-settings-done');
     if (btnDone) btnDone.innerText = t('settings_done_btn');

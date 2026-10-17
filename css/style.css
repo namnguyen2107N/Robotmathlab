@@ -5207,6 +5207,8 @@ body.view-start-screen #main-view {
   color: #64748b;
   font-size: 0.78rem;
   font-weight: 700;
+  justify-content: center;
+  text-align: center;
 }
 
 .journal-export-btn {

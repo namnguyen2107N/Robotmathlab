@@ -1,0 +1,271 @@
+/* Mobile layout corrections. Keep these overrides separate from the main theme. */
+
+@media (max-width: 768px) {
+  :root {
+    font-size: clamp(14px, 3.75vw, 16px);
+  }
+
+  body.kid-theme {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .header-container {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .brand-link {
+    flex: 1 1 100%;
+    min-width: 0;
+    gap: 0.5rem;
+  }
+
+  .brand-icon-cute {
+    flex: 0 0 auto;
+    font-size: 1.5rem;
+  }
+
+  .brand-name {
+    font-size: 1.1rem;
+  }
+
+  .brand-sub {
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+  }
+
+  .header-tools--compact {
+    width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+
+  .header-tools-divider {
+    display: none;
+  }
+
+  .header-student-tag--compact {
+    max-width: min(42vw, 10rem);
+    min-height: 44px;
+    padding-inline: 0.55rem;
+  }
+
+  .btn-header-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .header-lang-pill .btn-lang-tab {
+    min-height: 40px;
+  }
+
+  main#main-view {
+    min-width: 0;
+    padding: 0.75rem;
+  }
+
+  .tasks-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .task-card,
+  .workspace-main-grid > *,
+  .hub-container,
+  .hub-hero-content {
+    min-width: 0;
+  }
+
+  .workspace-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-left-col {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-tools--compact {
+    justify-content: flex-start;
+  }
+
+  .header-student-tag--compact {
+    max-width: 8rem;
+  }
+
+  #header-student-name {
+    max-width: 5rem;
+  }
+
+  .section-title-wrap .section-title {
+    font-size: clamp(1.7rem, 7vw, 2.2rem);
+  }
+
+  .section-desc {
+    font-size: 1rem;
+  }
+}
+
+/* Phones: let the welcome screen grow and scroll instead of clipping its controls. */
+@media (max-width: 768px) {
+  .splash-screen {
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .splash-content {
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+    justify-content: flex-start;
+  }
+
+  .splash-center-stage.grand-stage {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    padding: 4.5rem 0.65rem 1.25rem;
+  }
+
+  .splash-top-bar {
+    top: max(12px, env(safe-area-inset-top));
+    right: 12px;
+    left: auto;
+  }
+
+  .splash-signboard.grand-signboard {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .signboard-inner.grand-inner {
+    gap: 1rem;
+    padding: 1.25rem 0.8rem 1rem;
+    border-radius: 18px;
+  }
+
+  .arcade-eyebrow {
+    max-width: 100%;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+  }
+
+  .arcade-title.grand-title {
+    gap: 0.4rem;
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
+    letter-spacing: 0.02em;
+  }
+
+  .arcade-sub.grand-sub {
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+  }
+
+  .btn-start.grand-start-btn {
+    width: min(100%, 22rem);
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.8rem;
+    font-size: 1.45rem;
+    letter-spacing: 0.06em;
+    border-radius: 18px;
+  }
+
+  .start-arrow-l,
+  .start-arrow-r {
+    font-size: 1rem;
+  }
+
+  .splash-lang-select.grand-lang-select {
+    gap: 0.6rem;
+    padding: 0.65rem;
+  }
+
+  .lang-option {
+    width: 100%;
+    min-width: 0;
+    gap: 0.5rem;
+    padding: 0.65rem 0.7rem;
+  }
+
+  .lang-flag {
+    padding: 0.3rem 0.6rem;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+  }
+
+  .lang-text {
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+  }
+
+  .splash-robot-wrapper {
+    margin-bottom: -0.5rem;
+  }
+
+  .splash-robot.grand-robot {
+    width: min(160px, 48vw);
+    padding: 0.5rem;
+  }
+
+  .pixel-robot-head-wrap {
+    gap: 4px;
+  }
+
+  .robot-waving-arm {
+    font-size: 1.5rem;
+  }
+
+  .robot-waving-arm.arm-right {
+    font-size: 1.25rem;
+  }
+
+  .splash-welcome-board {
+    max-height: calc(100dvh - 1.5rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 360px) {
+  .splash-center-stage.grand-stage {
+    padding-inline: 0.4rem;
+  }
+
+  .signboard-inner.grand-inner {
+    padding-inline: 0.55rem;
+  }
+
+  .lang-option {
+    gap: 0.35rem;
+    padding-inline: 0.45rem;
+  }
+
+  .lang-arrow {
+    width: 0.8rem;
+  }
+
+  .lang-text {
+    font-size: 0.92rem;
+  }
+}

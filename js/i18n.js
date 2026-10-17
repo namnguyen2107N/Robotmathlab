@@ -42,9 +42,6 @@
       settings_sound_hint: 'Cheerful feedback audio on actions and success',
       settings_fs_label: 'Fullscreen Mode:',
       settings_fs_hint: 'Maximize screen space for calculations',
-      settings_arcade_label: 'Retro Arcade Screen:',
-      settings_arcade_hint: 'Open the full 8-bit mascot console',
-      settings_arcade_btn: 'Launch Arcade ▶',
       settings_done_btn: 'Done & Resume Learning ✨',
 
       // Welcome Hero & Robot Signboard
@@ -243,9 +240,6 @@
       settings_sound_hint: 'Âm thanh vui nhộn khi thao tác và hoàn thành bài',
       settings_fs_label: 'Toàn màn hình:',
       settings_fs_hint: 'Mở rộng tối đa không gian học tập',
-      settings_arcade_label: 'Màn hình',
-      settings_arcade_hint: 'Mở ',
-      settings_arcade_btn: 'Mở Arcade ',
       settings_done_btn: 'Xong & Tiếp tục học ✨',
 
       // Welcome Hero & Robot Signboard

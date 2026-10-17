@@ -447,15 +447,11 @@ class LogEngine {
         </div>
         <footer class="learning-journal-footer">
           <span>🔒 ${isVi ? 'Nhật ký được lưu trên thiết bị này.' : 'Journal is stored on this device.'}</span>
-          <button type="button" class="btn-secondary journal-export-btn" data-journal-action="export" ${sessions.length ? '' : 'disabled'}>
-            📥 ${isVi ? 'Xuất nhật ký JSON' : 'Export JSON'}
-          </button>
         </footer>
       </section>
     `;
 
     modal.querySelector('[data-journal-action="close"]')?.addEventListener('click', () => this.closeJournal());
-    modal.querySelector('[data-journal-action="export"]')?.addEventListener('click', () => this.exportJSON(false));
     modal.querySelectorAll('[data-session-id]').forEach(button => {
       button.addEventListener('click', () => {
         this.selectedJournalSessionId = button.getAttribute('data-session-id');

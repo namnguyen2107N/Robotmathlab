@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Robot Math Lab - Kids Fun Math & Robotics Simulation</title>
   <meta name="description"
     content="Virtual Robotics simulation platform helping elementary students master problem-solving in Math and STEM English." />
@@ -20,6 +20,9 @@
 
   <!-- Retro Pixel Art Splash Screen Stylesheet -->
   <link rel="stylesheet" href="css/splash.css" />
+
+  <!-- Mobile viewport and layout corrections -->
+  <link rel="stylesheet" href="css/mobile.css" />
 
   <!-- Cute Tab Favicon -->
   <link rel="icon"
@@ -400,19 +403,6 @@
           </button>
         </div>
 
-        <!-- Retro Arcade Screen Option -->
-        <div class="settings-row settings-row-arcade">
-          <div class="settings-label-wrap">
-            <span class="settings-icon-bubble">🎮</span>
-            <div>
-              <span class="settings-label" id="lbl-settings-arcade">Màn hình Arcade cổ điển:</span>
-              <div class="settings-hint" id="hint-settings-arcade">Xem lại robot nhảy múa và máy chơi game 8-bit</div>
-            </div>
-          </div>
-          <button type="button" class="btn-arcade-jump" id="btn-settings-open-arcade">
-            Mở Arcade ▶
-          </button>
-        </div>
       </div>
 
       <div class="modal-footer settings-modal-footer">
