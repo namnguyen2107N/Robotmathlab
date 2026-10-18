@@ -22,6 +22,13 @@ class TaskEngine {
 
   }
 
+  getEnglishChoiceLabel(label) {
+    const vietnameseChars = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+    return String(label || '')
+      .replace(/\s*\(([^)]*)\)/g, (match, text) => vietnameseChars.test(text) ? '' : match)
+      .trim();
+  }
+
   openTrackFromStep3() {
     const t = (key, params) => window.I18N ? window.I18N.t(key, params) : key;
     const speedEntry = document.getElementById('param-speed-entry');
@@ -140,7 +147,6 @@ class TaskEngine {
               ${t('btn_back_hub')}
             </button>
             <div class="workspace-task-header">
-              <span class="task-badge">${task.badge}</span>
               <h2 class="workspace-task-title">${currentTitle}</h2>
             </div>
             <div class="workspace-top-tools">
@@ -169,7 +175,7 @@ class TaskEngine {
                   <span class="problem-card-title">${t('problem_card_title')}</span>
                 </div>
                 <!-- Mode to show Vietnamese translation if needed -->
-                <button type="button" class="btn-toggle-translation" id="btn-toggle-trans" title="Tiếng Việt">
+                <button type="button" class="btn-toggle-translation ${isVi ? '' : 'hidden'}" id="btn-toggle-trans" title="Tiếng Việt">
                   ${t('btn_trans_show')}
                 </button>
               </div>
@@ -207,7 +213,6 @@ class TaskEngine {
               ${t('track_btn_back_params')}
             </button>
             <div class="track-mission-header">
-              <span class="task-badge" id="track-task-badge">${task.badge}</span>
               <span class="track-mission-title" id="track-mission-title">${currentTitle}</span>
               <span class="track-progress-pill" id="track-progress-pill">${t('track_progress_badge')}</span>
             </div>
@@ -396,9 +401,6 @@ class TaskEngine {
     const currentTitle = isVi ? (task.titleVi || task.title) : task.title;
 
     // Mission Title & Badges
-    const badgeEl = document.getElementById('track-task-badge');
-    if (badgeEl) badgeEl.innerText = task.badge;
-
     const titleEl = document.getElementById('track-mission-title');
     if (titleEl) titleEl.innerText = currentTitle;
 
@@ -515,6 +517,11 @@ class TaskEngine {
     const toggleTransBtn = document.getElementById('btn-toggle-trans');
     const viText = document.getElementById('problem-text-vi');
     if (toggleTransBtn && viText) {
+      toggleTransBtn.classList.toggle('hidden', !isVi);
+      if (!isVi) {
+        viText.classList.add('hidden');
+        toggleTransBtn.classList.remove('active');
+      }
       const isShowing = !viText.classList.contains('hidden');
       toggleTransBtn.innerHTML = isShowing ? t('btn_trans_hide') : t('btn_trans_show');
     }
@@ -640,12 +647,11 @@ class TaskEngine {
       <div class="step-view animate-fade-in">
         <p class="step-instruction">
           <strong>${s1.promptEn}</strong><br/>
-          <small class="text-muted">${s1.promptVi}</small>
+          ${isVi ? `<small class="text-muted">${s1.promptVi}</small>` : ''}
         </p>
 
         <!-- Given Data Inputs (PS1) -->
         <div class="given-fields-box">
-          <div class="given-fields-heading">${t('s1_given_heading')}</div>
           ${s1.fields.map(f => `
             <div class="input-group-row">
               <label for="input-s1-${f.key}" class="field-label">
@@ -663,13 +669,13 @@ class TaskEngine {
         <div class="target-qty-box">
           <label class="field-label">
             <strong>${s1.targetQuestionEn}</strong>
-            <div class="text-muted small">${s1.targetQuestionVi}</div>
+            ${isVi ? `<div class="text-muted small">${s1.targetQuestionVi}</div>` : ''}
           </label>
           <div class="options-radio-group">
             ${s1.targetOptions.map(opt => `
               <label class="radio-card ${this.studentInputs.step1.targetQty === opt.id ? 'selected' : ''}">
                 <input type="radio" name="s1-target-qty" value="${opt.id}" ${this.studentInputs.step1.targetQty === opt.id ? 'checked' : ''} />
-                <span>${opt.label}</span>
+                <span>${isVi ? opt.label : this.getEnglishChoiceLabel(opt.label)}</span>
               </label>
             `).join('')}
           </div>
@@ -782,19 +788,20 @@ class TaskEngine {
   renderStep2(container) {
     const s2 = this.taskConfig.step2;
     const t = (k) => window.I18N ? window.I18N.t(k) : k;
+    const isVi = window.I18N ? window.I18N.isVietnamese() : false;
 
     container.innerHTML = `
       <div class="step-view animate-fade-in">
         ${s2.proposedNoteEn ? `
           <div class="alert-box-info">
             <strong>${s2.proposedNoteEn}</strong>
-            <div>${s2.proposedNoteVi}</div>
+            ${isVi && s2.proposedNoteVi ? `<div>${s2.proposedNoteVi}</div>` : ''}
           </div>
         ` : ''}
 
         <p class="step-instruction">
           <strong>${s2.promptEn}</strong><br/>
-          <small class="text-muted">${s2.promptVi}</small>
+          ${isVi ? `<small class="text-muted">${s2.promptVi}</small>` : ''}
         </p>
 
         <!-- Formula Options -->
@@ -811,7 +818,7 @@ class TaskEngine {
         <div class="calc-box">
           <label class="field-label" for="input-s2-calc">
             <strong>${s2.calcPromptEn}</strong>
-            <div class="text-muted small">${s2.calcPromptVi}</div>
+            ${isVi ? `<div class="text-muted small">${s2.calcPromptVi}</div>` : ''}
           </label>
           <div class="input-with-unit">
             <input type="text" inputmode="decimal" id="input-s2-calc" class="input-field" placeholder="" value="${this.studentInputs.step2.calcResult !== undefined ? this.studentInputs.step2.calcResult : ''}" />
@@ -949,7 +956,7 @@ class TaskEngine {
       <div class="step-view animate-fade-in">
         <p class="step-instruction">
           <strong>${s3.promptEn}</strong><br/>
-          <small class="text-muted">${s3.promptVi}</small>
+          ${isVi ? `<small class="text-muted">${s3.promptVi}</small>` : ''}
         </p>
 
         ${s3.noteEn ? `
@@ -1211,6 +1218,7 @@ class TaskEngine {
     const s4 = this.taskConfig.step4;
     const task = this.taskConfig;
     const t = (k, p) => window.I18N ? window.I18N.t(k, p) : k;
+    const isVi = window.I18N ? window.I18N.isVietnamese() : false;
 
     const speed = this.studentInputs.step3.speed;
     const time = this.studentInputs.step3.time;
@@ -1224,7 +1232,7 @@ class TaskEngine {
         <div class="lookback-q-box">
           <label class="field-label">
             <strong>${s4.checkQuestionEn}</strong>
-            <div class="text-muted small">${s4.checkQuestionVi}</div>
+            ${isVi ? `<div class="text-muted small">${s4.checkQuestionVi}</div>` : ''}
           </label>
           <div class="binary-choice-group">
             <button type="button" class="btn-choice ${this.studentInputs.step4.checkResult === 'yes' ? 'selected' : ''}" id="btn-check-yes" ${hasValidParameters ? '' : 'disabled'}>
@@ -1382,7 +1390,7 @@ class TaskEngine {
           <div class="reflection-box">
             <label for="input-reflection" class="field-label">
               <strong>${s4.reflectionPromptEn}</strong>
-              <div class="text-muted small">${s4.reflectionPromptVi}</div>
+              ${isVi ? `<div class="text-muted small">${s4.reflectionPromptVi}</div>` : ''}
             </label>
             <textarea id="input-reflection" class="input-textarea" rows="2" placeholder="${t('s4_refl_placeholder')}">${this.studentInputs.step4.reflection || ''}</textarea>
           </div>
@@ -1410,6 +1418,7 @@ class TaskEngine {
 
     } else {
       // Diagnostic & Parameter Adjustment (PS9, PS10, PS11)
+      const isVi = window.I18N ? window.I18N.isVietnamese() : false;
       subflow.innerHTML = `
         <div class="debug-cycle-card animate-fade-in">
           <div class="observation-confirm-box">
@@ -1424,7 +1433,7 @@ class TaskEngine {
             <span class="step-sub-badge">🔍</span>
             <label class="field-label">
               <strong>${s4.discrepancyQuestionEn}</strong>
-              <div class="text-muted small">${s4.discrepancyQuestionVi}</div>
+              ${isVi ? `<div class="text-muted small">${s4.discrepancyQuestionVi}</div>` : ''}
             </label>
             <div class="options-radio-group">
               ${(s4.discrepancyOptions || []).map(opt => `
@@ -1440,7 +1449,7 @@ class TaskEngine {
             <span class="step-sub-badge">⚙️</span>
             <label class="field-label">
               <strong>${s4.diagnosisQuestionEn || 'Plan Adjustment'}</strong>
-              <div class="text-muted small">${s4.diagnosisQuestionVi || 'Điều chỉnh phương án:'}</div>
+              ${isVi ? `<div class="text-muted small">${s4.diagnosisQuestionVi || 'Điều chỉnh phương án:'}</div>` : ''}
             </label>
             ${s4.diagnosisOptions ? `
               <div class="options-radio-group">
@@ -1456,14 +1465,14 @@ class TaskEngine {
             ${s4.adjustmentQuestionEn ? `
               <div class="adjustment-prompt" style="margin-top: 1rem; margin-bottom: 0.5rem;">
                 <strong>${s4.adjustmentQuestionEn}</strong>
-                <div class="text-muted small">${s4.adjustmentQuestionVi}</div>
+                ${isVi ? `<div class="text-muted small">${s4.adjustmentQuestionVi}</div>` : ''}
               </div>
             ` : ''}
 
             <div class="revision-input-row">
               <label for="input-revised-time">
                 <strong>${s4.revisionPromptEn || 'New Time value for robot:'}</strong>
-                ${s4.revisionPromptVi ? `<div class="text-muted small">${s4.revisionPromptVi}</div>` : ''}
+                ${isVi && s4.revisionPromptVi ? `<div class="text-muted small">${s4.revisionPromptVi}</div>` : ''}
               </label>
               <div class="input-with-unit">
                 <input type="text" inputmode="decimal" id="input-revised-time" class="input-field" placeholder="" value="${this.studentInputs.step4.revisedTime || ''}" />
