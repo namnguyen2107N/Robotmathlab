@@ -4,12 +4,17 @@
   "private": true,
   "description": "Robot Math Lab - frontend + Vercel Functions auth/access tracking",
   "scripts": {
+    "start": "node serve.js",
+    "serve": "node serve.js",
     "dev": "vercel dev",
+    "test": "node --test tests/unit/kinematics.test.mjs tests/unit/password.test.mjs tests/unit/validate.test.mjs",
+    "test:unit": "node --test tests/unit/kinematics.test.mjs tests/unit/password.test.mjs tests/unit/validate.test.mjs",
+    "test:integration": "node tests/integration/test-splash-welcome.js && node tests/integration/test-track-flow.js && node tests/integration/test-firebase-service.js",
+    "test:all": "npm run test:unit && npm run test:integration",
+    "build:3d": "esbuild js/simulation-3d.js --bundle --format=esm --minify --target=es2020 --outfile=js/simulation-3d.bundle.js",
     "db:migrate": "node scripts/migrate.mjs",
     "db:seed": "node scripts/seed.mjs",
-    "user:reset-password": "node scripts/reset-password.mjs",
-    "build:3d": "esbuild js/simulation-3d.js --bundle --format=esm --minify --target=es2020 --outfile=js/simulation-3d.bundle.js",
-    "test": "node --test tests/password.test.mjs tests/validate.test.mjs tests/kinematics.test.mjs"
+    "user:reset-password": "node scripts/reset-password.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

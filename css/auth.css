@@ -320,6 +320,84 @@ body.rml-auth-locked {
   margin-top: -4px;
 }
 
+/* Firebase Realtime DB Status Badge */
+.rml-db-badge-wrap {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.rml-db-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.rml-db-badge.status-online {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.rml-db-badge.status-local {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+/* Divider & Guest Mode Button */
+.rml-auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 14px 0;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.rml-auth-divider::before,
+.rml-auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.rml-auth-divider span {
+  padding: 0 10px;
+}
+
+.rml-auth-guest-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 2px dashed #6366f1;
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+  text-align: center;
+}
+
+.rml-auth-guest-btn:hover {
+  background: #e0e7ff;
+  border-color: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.rml-center-note {
+  text-align: center;
+  margin-top: 6px;
+}
+
 .rml-auth-privacy {
   margin-top: 18px;
   padding-top: 14px;

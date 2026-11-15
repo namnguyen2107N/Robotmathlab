@@ -230,7 +230,7 @@ function selectRadio(name, value) {
 }
 
 // Load code files
-const projectDir = __dirname;
+const projectDir = path.resolve(__dirname, '../../');
 function loadScript(relPath) {
   const fullPath = path.join(projectDir, relPath);
   const code = fs.readFileSync(fullPath, 'utf8');

@@ -3,6 +3,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const ROOT_DIR = path.resolve(__dirname, '../../');
 
 // Minimal DOM simulation for Node.js
 class MockClassList {
@@ -150,7 +151,7 @@ global.document.getElementById = function(id) {
 };
 
 // Load HTML structure
-const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+const html = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
 
 // Build minimal DOM tree from HTML for splash
 const splashScreen = new MockElement('div', 'splash-screen');
@@ -234,7 +235,7 @@ splashScreen.appendChild(startBtn);
 // Load App dependencies
 const vm = require('vm');
 function loadScript(rel) {
-  const code = fs.readFileSync(path.join(__dirname, rel), 'utf8');
+  const code = fs.readFileSync(path.join(ROOT_DIR, rel), 'utf8');
   vm.runInThisContext(code);
 }
 
