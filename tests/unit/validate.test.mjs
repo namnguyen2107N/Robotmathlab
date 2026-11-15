@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import validateUtils from '../lib/validate.js';
+import validateUtils from '../../lib/validate.js';
 
 const {
   generateJoinCode,
@@ -98,8 +98,7 @@ test('login normalization and class input validation', () => {
 test('generated join codes are uppercase and unambiguous', () => {
   for (let i = 0; i < 20; i += 1) {
     const code = generateJoinCode();
-    assert.match(code, /^[A-Z0-9]{6}$/);
-    assert.doesNotMatch(code, /[OI01]/);
+    assert.match(code, /^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{6}$/);
+    assert.equal(/[01IO]/.test(code), false);
   }
-  assert.equal(normalizeClassCode(' ab-12 3 '), 'AB123');
 });

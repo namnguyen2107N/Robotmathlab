@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const KinematicsModel = require('../js/kinematics-model.js');
+const KinematicsModel = require('../../js/kinematics-model.js');
 
 test('uniform motion reaches the target and clamps overshoot', () => {
   const model = new KinematicsModel({ trackLengthUnits: 50, mode: 'single' });

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import passwordUtils from '../lib/password.js';
+import passwordUtils from '../../lib/password.js';
 
 const { hashPassword, verifyPassword } = passwordUtils;
 

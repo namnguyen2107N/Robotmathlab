@@ -33,9 +33,11 @@ class LogEngine {
    */
   startSession(studentName = 'Student', taskId = 'task1', taskTitle = 'Task') {
     const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    const accountId = window.RMLAuth?.account?.id || window.RMLAuth?.account?.uid || null;
     this.currentSession = {
       sessionId,
-      accountId: window.RMLAuth?.account?.id || null,
+      accountId,
+      uid: accountId,
       studentName: studentName.trim() || 'Anonymous Student',
       taskId,
       taskTitle,
@@ -67,6 +69,12 @@ class LogEngine {
       studentName: this.currentSession.studentName
     });
     this.notify({ type: 'SESSION_STARTED', sessionId });
+
+    // Sync to Firebase Realtime Database
+    if (window.FirebaseService) {
+      window.FirebaseService.saveSession(this.currentSession);
+    }
+
     return this.currentSession;
   }
 
@@ -195,6 +203,18 @@ class LogEngine {
       totalTimeSeconds: this.currentSession.summary.totalTimeSeconds
     });
     this.notify({ type: 'SESSION_COMPLETED', session: this.currentSession });
+
+    // Sync to Firebase Realtime Database
+    if (window.FirebaseService) {
+      window.FirebaseService.saveSession(this.currentSession);
+      window.FirebaseService.saveTaskProgress(this.currentSession.taskId, {
+        completed: true,
+        finalSuccess,
+        totalAttempts: this.currentSession.summary.totalAttempts,
+        totalTimeSeconds: this.currentSession.summary.totalTimeSeconds
+      });
+    }
+
     return this.currentSession;
   }
 
@@ -213,6 +233,11 @@ class LogEngine {
       }
       const boundedSessions = allSessions.length > 30 ? allSessions.slice(-30) : allSessions;
       localStorage.setItem(this.storageKey, JSON.stringify(boundedSessions));
+
+      // Asynchronous Realtime Database sync
+      if (window.FirebaseService) {
+        window.FirebaseService.saveSession(this.currentSession);
+      }
     } catch (e) {
       console.error('Failed to save log session to localStorage:', e);
     }
@@ -239,9 +264,9 @@ class LogEngine {
    */
   getVisibleSessions() {
     const all = this.getAllSessions();
-    const accountId = window.RMLAuth?.account?.id;
+    const accountId = window.RMLAuth?.account?.id || window.RMLAuth?.account?.uid;
     if (!accountId) return all;
-    return all.filter(session => session && session.accountId === accountId);
+    return all.filter(session => session && (session.accountId === accountId || session.uid === accountId));
   }
 
   /**

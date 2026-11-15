@@ -1,24 +1,20 @@
 /**
- * ROBOT MATH LAB - AUTH GATE
- * Username/password login + self-registration (no class code required).
- * The gate is intentionally client-side; real access control lives in /api.
+ * ROBOT MATH LAB - AUTH & FIREBASE GATE
+ * Quản lý xác thực người dùng qua Firebase Authentication & Realtime Database.
+ * Hỗ trợ tạo tài khoản, đăng nhập, chế độ học sinh khách (Guest Mode) và dự phòng Offline.
  */
 (function () {
   'use strict';
 
-  const AUTH_BASE = '/api/auth';
   const overlayId = 'rml-auth-overlay';
   const langKey = 'rml_language';
   const langKeyAlt = 'rml_ui_language';
 
   const state = {
     account: null,
-    csrf: null,
     authenticated: false,
     overlay: null,
     mode: 'login',
-    heartbeatTimer: null,
-    heartbeatHooked: false,
     readyResolved: false,
     booting: false,
   };
@@ -39,101 +35,92 @@
 
   const TEXT = {
     vi: {
-      loading: 'Đang kiểm tra đăng nhập...',
+      loading: 'Đang kết nối phòng thí nghiệm...',
       kicker: 'TOÁN CHUYỂN ĐỘNG & ROBOT',
-      title: 'Chào mừng em đến với phòng thí nghiệm!',
-      subtitle: 'Đăng nhập để lưu tiến độ và bảo vệ dữ liệu học tập của em.',
+      title: 'Chào mừng em đến với Robot Math Lab!',
+      subtitle: 'Đăng nhập để lưu tiến độ và đồng bộ dữ liệu bài học trên Firebase Realtime Database.',
       loginTab: 'Đăng nhập',
       registerTab: 'Tạo tài khoản',
-      username: 'Tên đăng nhập',
-      usernameHint: '3-24 ký tự: chữ thường, số, dấu gạch dưới',
+      username: 'Tên đăng nhập hoặc Email',
+      usernameHint: 'Ví dụ: minhanh01 hoặc em@gmail.com',
       password: 'Mật khẩu',
-      passwordHint: 'Ít nhất 8 ký tự',
+      passwordHint: 'Ít nhất 6 ký tự',
       confirm: 'Nhập lại mật khẩu',
-      displayName: 'Tên hiển thị',
-      displayNameHint: 'Tên em muốn hiện trong bài học',
-      consent: 'Em đồng ý để hệ thống ghi nhận dữ liệu học tập (không gồm email, số điện thoại) cho mục đích nghiên cứu.',
+      displayName: 'Tên hiển thị của em',
+      displayNameHint: 'Tên em muốn robot Sparky gọi trong bài học',
+      consent: 'Em đồng ý để hệ thống lưu tiến độ và dữ liệu học tập trên nền tảng Firebase.',
       loginBtn: 'Vào phòng học',
       registerBtn: 'Tạo tài khoản và vào học',
-      forgot: 'Quên mật khẩu? Hãy liên hệ giáo viên để được cấp lại.',
-      privacy: 'Dữ liệu được dùng để nghiên cứu quá trình học tập. Em có thể yêu cầu giáo viên xoá dữ liệu.',
+      guestBtn: '🚀 Trải nghiệm ngay (Chế độ Khách)',
+      guestNote: 'Thử nghiệm nhanh mà không cần tạo tài khoản',
+      orDivider: 'hoặc',
+      forgot: 'Quên mật khẩu? Hãy nhờ thầy cô hoặc phụ huynh hỗ trợ đặt lại.',
+      privacy: 'Dữ liệu học tập được lưu trữ an toàn trên Google Firebase Cloud Database.',
       logout: 'Đăng xuất',
       retry: 'Thử lại',
       maintenance: 'Hệ thống đang bảo trì hoặc chưa kết nối được máy chủ. Vui lòng thử lại.',
       network: 'Không kết nối được máy chủ. Kiểm tra mạng và thử lại.',
       required: 'Vui lòng điền đầy đủ thông tin.',
       passwordMismatch: 'Mật khẩu nhập lại không khớp.',
-      usernameInvalid: 'Tên đăng nhập phải có 3-24 ký tự, chỉ gồm chữ thường, số và dấu gạch dưới.',
-      passwordShort: 'Mật khẩu phải có ít nhất 8 ký tự.',
-      displayNameMissing: 'Vui lòng nhập tên hiển thị.',
-      consentMissing: 'Em cần đồng ý với việc ghi nhận dữ liệu học tập.',
-      accountPanel: 'Tài khoản',
+      usernameInvalid: 'Tên đăng nhập từ 3-24 ký tự hoặc email hợp lệ.',
+      passwordShort: 'Mật khẩu phải có ít nhất 6 ký tự.',
+      displayNameMissing: 'Vui lòng nhập tên hiển thị của em.',
+      consentMissing: 'Em cần đồng ý lưu dữ liệu học tập.',
+      accountPanel: 'Tài khoản học sinh',
       noClass: 'Chưa có lớp',
-      logoutConfirm: 'Đăng xuất khỏi tài khoản này?',
+      logoutConfirm: 'Em có chắc muốn đăng xuất khỏi tài khoản này?',
       logoutFailed: 'Không đăng xuất được. Vui lòng thử lại.',
       langButton: 'EN',
+      firebaseConnected: '🔥 Firebase Realtime: Đã kết nối',
+      firebaseOffline: '⚡ Chế độ Cục bộ (Local Demo)',
     },
     en: {
-      loading: 'Checking your session...',
+      loading: 'Connecting to Robot Math Lab...',
       kicker: 'MATH & ROBOTICS LEARNING LAB',
-      title: 'Welcome to the lab!',
-      subtitle: 'Sign in to save your progress and protect your learning data.',
+      title: 'Welcome to Robot Math Lab!',
+      subtitle: 'Sign in to save your progress and sync learning logs on Firebase Realtime Database.',
       loginTab: 'Sign in',
       registerTab: 'Create account',
-      username: 'Username',
-      usernameHint: '3-24 chars: lowercase letters, numbers, underscore',
+      username: 'Username or Email',
+      usernameHint: 'e.g. alex2026 or you@example.com',
       password: 'Password',
-      passwordHint: 'At least 8 characters',
+      passwordHint: 'At least 6 characters',
       confirm: 'Confirm password',
-      displayName: 'Display name',
-      displayNameHint: 'The name shown during lessons',
-      consent: 'I agree that my learning data (no email or phone number) may be recorded for research purposes.',
+      displayName: 'Your display name',
+      displayNameHint: 'The nickname Sparky calls you during missions',
+      consent: 'I agree to have my learning progress safely recorded on Firebase Cloud.',
       loginBtn: 'Enter the lab',
       registerBtn: 'Create account and start',
-      forgot: 'Forgot your password? Ask your teacher to reset it.',
-      privacy: 'Data is used to study the learning process. You can ask your teacher to delete it.',
+      guestBtn: '🚀 Quick Explore (Guest Mode)',
+      guestNote: 'Try the lab immediately without creating an account',
+      orDivider: 'or',
+      forgot: 'Forgot your password? Ask your teacher or parent to help reset it.',
+      privacy: 'Your learning process is protected on Google Firebase Cloud Database.',
       logout: 'Sign out',
       retry: 'Retry',
-      maintenance: 'The system is under maintenance or cannot reach the server. Please try again.',
+      maintenance: 'The system is under maintenance. Please try again.',
       network: 'Cannot reach the server. Check your connection and try again.',
       required: 'Please fill in all fields.',
       passwordMismatch: 'The passwords do not match.',
-      usernameInvalid: 'Username must be 3-24 chars: lowercase letters, numbers, underscore.',
-      passwordShort: 'Password must be at least 8 characters.',
-      displayNameMissing: 'Please enter a display name.',
+      usernameInvalid: 'Username must be 3-24 characters or a valid email.',
+      passwordShort: 'Password must be at least 6 characters.',
+      displayNameMissing: 'Please enter your display name.',
       consentMissing: 'Please agree to the learning data notice.',
-      accountPanel: 'Account',
+      accountPanel: 'Student Account',
       noClass: 'No class',
-      logoutConfirm: 'Sign out of this account?',
+      logoutConfirm: 'Are you sure you want to sign out?',
       logoutFailed: 'Could not sign out. Please try again.',
       langButton: 'VIE',
+      firebaseConnected: '🔥 Firebase Realtime: Connected',
+      firebaseOffline: '⚡ Local Demo Mode',
     },
   };
 
   const t = TEXT[lang] || TEXT.vi;
 
-  function api(path, options = {}) {
-    const headers = { ...(options.headers || {}) };
-    if (options.body && !headers['Content-Type']) {
-      headers['Content-Type'] = 'application/json';
-    }
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 20_000);
-    return fetch(path, {
-      ...options,
-      headers,
-      credentials: 'same-origin',
-      signal: options.signal || controller.signal,
-    }).then(async (response) => {
-      let data = null;
-      const type = response.headers.get('content-type') || '';
-      if (type.includes('application/json')) {
-        try { data = await response.json(); } catch { data = null; }
-      }
-      return { response, data };
-    }).finally(() => {
-      clearTimeout(timer);
-    });
+  function activeText() {
+    const active = (window.I18N && window.I18N.currentLang) || lang;
+    return TEXT[active] || t;
   }
 
   function escapeHtml(value) {
@@ -193,20 +180,6 @@
     `;
   }
 
-  function renderFatal(message) {
-    const overlay = ensureOverlay();
-    overlay.innerHTML = `
-      <div class="rml-auth-card rml-auth-fatal" role="alert">
-        <div class="rml-auth-robot" aria-hidden="true">🤖</div>
-        <h1>Robot Math Lab</h1>
-        <p class="rml-auth-error-text">${escapeHtml(message || t.maintenance)}</p>
-        <button type="button" class="rml-auth-submit" id="rml-auth-retry">${escapeHtml(t.retry)}</button>
-      </div>
-    `;
-    const retry = overlay.querySelector('#rml-auth-retry');
-    if (retry) retry.addEventListener('click', () => bootstrap());
-  }
-
   function field(id, name, label, hint, type = 'text', autocomplete = '') {
     return `
       <div class="rml-auth-field">
@@ -219,6 +192,10 @@
 
   function renderGate() {
     const overlay = ensureOverlay();
+    const isOnline = window.FirebaseService?.isOnline;
+    const statusClass = isOnline ? 'status-online' : 'status-local';
+    const statusText = isOnline ? t.firebaseConnected : t.firebaseOffline;
+
     overlay.innerHTML = `
       <div class="rml-auth-card" role="dialog" aria-modal="true" aria-labelledby="rml-auth-title">
         <div class="rml-auth-top">
@@ -232,6 +209,10 @@
           <button type="button" class="rml-auth-lang" id="rml-auth-lang">${escapeHtml(t.langButton)}</button>
         </div>
 
+        <div class="rml-db-badge-wrap">
+          <span class="rml-db-badge ${statusClass}">${escapeHtml(statusText)}</span>
+        </div>
+
         <h1 id="rml-auth-title">${escapeHtml(t.title)}</h1>
         <p class="rml-auth-subtitle">${escapeHtml(t.subtitle)}</p>
 
@@ -240,21 +221,31 @@
           <button type="button" class="rml-auth-tab" data-tab="register" role="tab" aria-selected="false">${escapeHtml(t.registerTab)}</button>
         </div>
 
+        <!-- FORM ĐĂNG NHẬP -->
         <form id="rml-login-form" class="rml-auth-form" novalidate>
           ${field('rml-login-username', 'username', t.username, t.usernameHint, 'text', 'username')}
           ${field('rml-login-password', 'password', t.password, '', 'password', 'current-password')}
           <div id="rml-login-error" class="rml-auth-error" role="alert" hidden></div>
           <button type="submit" class="rml-auth-submit">${escapeHtml(t.loginBtn)}</button>
-          <p class="rml-auth-note">${escapeHtml(t.forgot)}</p>
+
+          <div class="rml-auth-divider">
+            <span>${escapeHtml(t.orDivider)}</span>
+          </div>
+
+          <button type="button" class="rml-auth-guest-btn" id="rml-auth-guest-btn">
+            ${escapeHtml(t.guestBtn)}
+          </button>
+          <p class="rml-auth-note rml-center-note">${escapeHtml(t.guestNote)}</p>
         </form>
 
+        <!-- FORM ĐĂNG KÝ TÀI KHOẢN -->
         <form id="rml-register-form" class="rml-auth-form" hidden novalidate>
           ${field('rml-register-name', 'display_name', t.displayName, t.displayNameHint, 'text', 'nickname')}
           ${field('rml-register-username', 'username', t.username, t.usernameHint, 'text', 'username')}
           ${field('rml-register-password', 'password', t.password, t.passwordHint, 'password', 'new-password')}
           ${field('rml-register-confirm', 'password_confirm', t.confirm, '', 'password', 'new-password')}
           <label class="rml-auth-consent">
-            <input type="checkbox" name="consent" />
+            <input type="checkbox" name="consent" checked />
             <span>${escapeHtml(t.consent)}</span>
           </label>
           <div id="rml-register-error" class="rml-auth-error" role="alert" hidden></div>
@@ -265,6 +256,7 @@
       </div>
     `;
 
+    // Nút chuyển ngôn ngữ
     const languageButton = overlay.querySelector('#rml-auth-lang');
     if (languageButton) {
       languageButton.addEventListener('click', () => {
@@ -275,27 +267,19 @@
       });
     }
 
+    // Chuyển Tab Đăng nhập / Đăng ký
     overlay.querySelectorAll('[data-tab]').forEach((button) => {
       button.addEventListener('click', () => showTab(button.dataset.tab));
     });
 
     const loginForm = overlay.querySelector('#rml-login-form');
     const registerForm = overlay.querySelector('#rml-register-form');
+    const guestBtn = overlay.querySelector('#rml-auth-guest-btn');
     const loginUsername = overlay.querySelector('#rml-login-username');
-    const registerUsername = overlay.querySelector('#rml-register-username');
 
-    if (loginUsername) {
-      loginUsername.addEventListener('input', () => {
-        loginUsername.value = loginUsername.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24);
-      });
-    }
-    if (registerUsername) {
-      registerUsername.addEventListener('input', () => {
-        registerUsername.value = registerUsername.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24);
-      });
-    }
     if (loginForm) loginForm.addEventListener('submit', onLoginSubmit);
     if (registerForm) registerForm.addEventListener('submit', onRegisterSubmit);
+    if (guestBtn) guestBtn.addEventListener('click', onGuestSubmit);
 
     showTab('login');
     if (loginUsername) loginUsername.focus();
@@ -354,47 +338,9 @@
     el.hidden = false;
   }
 
-  function activeText() {
-    const active = (window.I18N && window.I18N.currentLang) || lang;
-    return TEXT[active] || t;
-  }
-
-  function errorMessage(data, response) {
-    const error = data && data.error;
-    const code = error && error.code;
-    const isVi = ((window.I18N && window.I18N.currentLang) || lang) === 'vi';
-    if (code === 'VALIDATION_ERROR' && error.details) {
-      const details = Object.values(error.details).filter(Boolean);
-      if (details.length) return details.slice(0, 3).join(' ');
-    }
-    if (code === 'INVALID_CREDENTIALS') return isVi
-      ? 'Sai tên đăng nhập hoặc mật khẩu.'
-      : 'Incorrect username or password.';
-    if (code === 'CLASS_NOT_FOUND') return isVi
-      ? 'Mã lớp không đúng. Vui lòng kiểm tra lại.'
-      : 'Class code not found. Please check it again.';
-    if (code === 'USERNAME_TAKEN') return isVi
-      ? 'Tên đăng nhập này đã được sử dụng.'
-      : 'This username is already taken.';
-    if (code === 'ACCOUNT_DISABLED') return isVi
-      ? 'Tài khoản đã bị khoá. Vui lòng liên hệ giáo viên.'
-      : 'This account is disabled. Please contact your teacher.';
-    if (code === 'ACCOUNT_LOCKED') return isVi
-      ? 'Tài khoản tạm thời bị khoá. Vui lòng thử lại sau.'
-      : 'This account is temporarily locked. Please try again later.';
-    if (code === 'RATE_LIMITED') {
-      const retry = response && response.headers.get('Retry-After');
-      const suffix = retry ? ` (${retry}s)` : '';
-      return (isVi
-        ? 'Bạn thao tác quá nhanh. Vui lòng thử lại sau.'
-        : 'Too many attempts. Please try again later.') + suffix;
-    }
-    if (code === 'DB_NOT_CONFIGURED' || (response && response.status >= 500)) {
-      return activeText().maintenance;
-    }
-    if (error && error.message) return error.message;
-    return activeText().maintenance;
-  }
+  // =========================================================================
+  // XỬ LÝ SUBMIT AUTH VỚI FIREBASE
+  // =========================================================================
 
   async function onLoginSubmit(event) {
     event.preventDefault();
@@ -411,17 +357,16 @@
 
     setBusy(form, true);
     try {
-      const { response, data: payload } = await api(`${AUTH_BASE}/login`, {
-        method: 'POST',
-        body: JSON.stringify({ username, password }),
-      });
-      if (response.ok && payload?.data?.account) {
-        finish(payload.data.account, payload.data.csrf_token);
-        return;
+      if (window.FirebaseService) {
+        const account = await window.FirebaseService.login({ username, password });
+        if (account) {
+          finish(account);
+          return;
+        }
       }
-      showError('login', errorMessage(payload, response));
-    } catch {
       showError('login', t.network);
+    } catch (err) {
+      showError('login', err.message || t.network);
     } finally {
       setBusy(form, false);
     }
@@ -439,51 +384,67 @@
     const consent = data.get('consent') === 'on';
 
     if (!displayName) return showError('register', t.displayNameMissing);
-    if (!/^[a-z0-9][a-z0-9_]{2,23}$/.test(username)) return showError('register', t.usernameInvalid);
-    if (password.length < 8) return showError('register', t.passwordShort);
+    if (!username || username.length < 3) return showError('register', t.usernameInvalid);
+    if (password.length < 6) return showError('register', t.passwordShort);
     if (password !== confirm) return showError('register', t.passwordMismatch);
     if (!consent) return showError('register', t.consentMissing);
 
     setBusy(form, true);
     try {
-      const { response, data: payload } = await api(`${AUTH_BASE}/register`, {
-        method: 'POST',
-        body: JSON.stringify({
-          display_name: displayName,
+      if (window.FirebaseService) {
+        const account = await window.FirebaseService.register({
+          displayName,
           username,
-          password,
-          consent: true,
-        }),
-      });
-      if (response.ok && payload?.data?.account) {
-        finish(payload.data.account, payload.data.csrf_token);
-        return;
+          password
+        });
+        if (account) {
+          finish(account);
+          return;
+        }
       }
-      showError('register', errorMessage(payload, response));
-    } catch {
       showError('register', t.network);
+    } catch (err) {
+      showError('register', err.message || t.network);
     } finally {
       setBusy(form, false);
     }
   }
 
-  function finish(account, csrf) {
+  async function onGuestSubmit(event) {
+    event.preventDefault();
+    const button = event.currentTarget;
+    button.disabled = true;
+    button.textContent = '...';
+
+    try {
+      if (window.FirebaseService) {
+        const account = await window.FirebaseService.loginAsGuest();
+        if (account) {
+          finish(account);
+          return;
+        }
+      }
+    } catch (err) {
+      showError('login', err.message || t.network);
+      button.disabled = false;
+      button.textContent = activeText().guestBtn;
+    }
+  }
+
+  function finish(account) {
     state.account = account;
-    state.csrf = csrf;
     state.authenticated = true;
 
     localStorage.setItem('rml_student_name', account.display_name);
-    localStorage.setItem('rml_account_id', String(account.id));
-    // Remove legacy role storage left by the old admin build.
-    localStorage.removeItem('rml_account_role');
+    localStorage.setItem('rml_account_id', String(account.id || account.uid));
 
     removeOverlay();
+
     if (!state.readyResolved) {
       state.readyResolved = true;
       resolveReady();
     }
 
-    startHeartbeat();
     installAccountUI();
 
     if (window.App && typeof window.App.setStudentName === 'function') {
@@ -551,100 +512,42 @@
     if (logoutButton) logoutButton.textContent = text.logout;
 
     const meta = panel.querySelector('#rml-account-meta');
-    if (meta) {
-      meta.textContent = `${state.account.username} · ${state.account.class_name || text.noClass}`;
+    if (meta && state.account) {
+      const modeIndicator = window.FirebaseService?.isOnline ? '🔥 Cloud' : '⚡ Local';
+      meta.textContent = `${state.account.username || 'student'} · ${state.account.display_name} (${modeIndicator})`;
     }
 
-    // The display name is saved to the account through /api/auth/profile.
+    // Name input synchronization
     const nameInput = document.getElementById('settings-input-name');
     if (nameInput) {
       nameInput.readOnly = false;
-      nameInput.title = '';
+      nameInput.value = state.account?.display_name || '';
     }
-    const saveName = document.getElementById('btn-save-settings-name');
-    if (saveName) saveName.hidden = false;
-
-    const splashInput = document.getElementById('splash-student-name');
-    if (splashInput) {
-      splashInput.readOnly = true;
-      splashInput.title = activeText() === TEXT.vi ? 'Tên lấy từ tài khoản' : 'Name comes from your account';
-    }
-  }
-
-  function showAccountError(message) {
-    const error = document.getElementById('rml-account-error');
-    if (!error) return;
-    error.textContent = message;
-    error.hidden = false;
   }
 
   async function onLogoutClick(event) {
-    const button = event.currentTarget;
     const text = activeText();
     if (!window.confirm(text.logoutConfirm)) return;
-    const error = document.getElementById('rml-account-error');
-    if (error) error.hidden = true;
-    button.disabled = true;
-    try {
-      const { response } = await api(`${AUTH_BASE}/logout`, {
-        method: 'POST',
-        headers: { 'X-CSRF-Token': state.csrf || '' },
-      });
-      if (!response.ok && response.status !== 401) {
-        showAccountError(activeText().logoutFailed);
-        button.disabled = false;
-        return;
-      }
-    } catch {
-      showAccountError(activeText().logoutFailed);
-      button.disabled = false;
-      return;
+
+    if (window.FirebaseService) {
+      await window.FirebaseService.logout();
     }
 
+    state.account = null;
+    state.authenticated = false;
     localStorage.removeItem('rml_student_name');
     localStorage.removeItem('rml_account_id');
-    state.authenticated = false;
-    location.href = '/';
+    location.reload();
   }
 
-  function startHeartbeat() {
-    if (state.heartbeatTimer) return;
-    state.heartbeatTimer = setInterval(sendHeartbeat, 60_000);
-
-    if (!state.heartbeatHooked) {
-      state.heartbeatHooked = true;
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') sendHeartbeat();
-      });
-      window.addEventListener('online', sendHeartbeat);
+  async function updateDisplayName(displayName) {
+    if (window.FirebaseService) {
+      const updated = await window.FirebaseService.updateDisplayName(displayName);
+      state.account = updated;
+      localStorage.setItem('rml_student_name', updated.display_name);
+      return updated;
     }
-
-    setTimeout(sendHeartbeat, 4_000);
-  }
-
-  async function sendHeartbeat() {
-    if (!state.authenticated || !state.csrf) return;
-    try {
-      const { response } = await api(`${AUTH_BASE}/heartbeat`, {
-        method: 'POST',
-        headers: { 'X-CSRF-Token': state.csrf },
-      });
-      if (response.status === 401 || response.status === 403) {
-        state.authenticated = false;
-        location.reload();
-      }
-    } catch {
-      // Offline: keep using the app; the next beat will retry.
-    }
-  }
-
-  function localOfflineAllowed() {
-    try {
-      const host = location.hostname;
-      return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
-    } catch {
-      return false;
-    }
+    return state.account;
   }
 
   async function bootstrap() {
@@ -653,106 +556,35 @@
     renderLoading();
 
     try {
-      const { response, data } = await api(`${AUTH_BASE}/me`);
-      if (response.ok && data?.data?.account) {
-        finish(data.data.account, data.data.csrf_token);
-        return;
-      }
-      if (response.status === 401) {
-        renderGate();
-        return;
-      }
-      if (response.status === 404) {
-        if (localOfflineAllowed()) {
-          // Static preview without Vercel Functions: keep local development
-          // usable, but never bypass the gate on a deployed host.
-          console.warn('[RMLAuth] Auth API returned 404 – local offline mode.');
-          finishOffline();
+      // 1. Chờ khởi tạo Firebase Service
+      if (window.FirebaseService) {
+        await window.FirebaseService.init();
+
+        // 2. Nếu đã có tài khoản đang đăng nhập
+        if (window.FirebaseService.account) {
+          finish(window.FirebaseService.account);
           return;
         }
-        renderFatal(lang === 'vi'
-          ? 'Máy chủ đăng nhập chưa được triển khai. Vui lòng liên hệ quản trị viên.'
-          : 'The login API is not deployed yet. Please contact the administrator.');
-        return;
       }
-      renderFatal(errorMessage(data, response));
-    } catch {
-      if (localOfflineAllowed()) {
-        console.warn('[RMLAuth] Cannot reach auth API – local offline mode.');
-        finishOffline();
-        return;
-      }
-      renderFatal(activeText().network);
+
+      // 3. Nếu chưa đăng nhập, hiển thị màn hình cổng vào (Login/Register)
+      renderGate();
+    } catch (err) {
+      console.warn('[RMLAuth] Bootstrap warning:', err);
+      renderGate();
     } finally {
       state.booting = false;
     }
   }
 
-  /**
-   * Allow the app to run without a backend.  Uses the locally-stored student
-   * name (or a sensible default) and skips heartbeat / CSRF.
-   */
-  function finishOffline() {
-    const savedName = localStorage.getItem('rml_student_name')
-      || (lang === 'vi' ? 'Bé Yêu Toán' : 'Math Explorer');
-    const offlineAccount = {
-      id: 0,
-      username: 'offline',
-      display_name: savedName,
-      class_name: null,
-    };
-
-    state.account = offlineAccount;
-    state.csrf = null;
-    state.authenticated = false;          // not truly authenticated
-
-    removeOverlay();
-    if (!state.readyResolved) {
-      state.readyResolved = true;
-      resolveReady();
-    }
-
-    if (window.App && typeof window.App.setStudentName === 'function') {
-      window.App.setStudentName(offlineAccount.display_name);
-    }
-  }
-
-  async function apiFetch(path, options = {}) {
-    const headers = { ...(options.headers || {}) };
-    if (state.csrf) headers['X-CSRF-Token'] = state.csrf;
-    if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    const response = await fetch(path, {
-      ...options,
-      headers,
-      credentials: 'same-origin',
-    });
-    if (response.status === 401) location.reload();
-    return response;
-  }
-
-  async function updateDisplayName(displayName) {
-    const response = await apiFetch(`${AUTH_BASE}/profile`, {
-      method: 'PATCH',
-      body: JSON.stringify({ display_name: displayName }),
-    });
-    let payload = null;
-    try { payload = await response.json(); } catch { payload = null; }
-    if (!response.ok) throw new Error(errorMessage(payload, response));
-    const account = payload?.data?.account;
-    if (!account) throw new Error(activeText().network);
-    state.account = account;
-    localStorage.setItem('rml_student_name', account.display_name);
-    return account;
-  }
-
   window.RMLAuth = {
     ready,
     get account() { return state.account; },
-    get csrf() { return state.csrf; },
     get authenticated() { return state.authenticated; },
-    apiFetch,
     updateDisplayName,
+    logout: onLogoutClick,
     refresh: bootstrap,
+    get firebaseService() { return window.FirebaseService; }
   };
 
   function onReady(fn) {
@@ -763,12 +595,11 @@
     }
   }
 
-  // Keep the account row in sync when the interface language changes.
   window.addEventListener('languageChanged', () => {
     if (state.authenticated && state.account) installAccountUI();
   });
 
-  // Cover the app immediately so the static splash is not usable before auth.
+  // Che phủ ngay khi tải trang để bảo vệ trạng thái học tập
   if (document.body) {
     ensureOverlay();
     renderLoading();

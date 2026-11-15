@@ -1,0 +1,39 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "profile": {
+          ".validate": "newData.hasChildren(['displayName'])"
+        },
+        "progress": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "sessions": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "sessions": {
+      "$sessionId": {
+        ".read": "auth != null && (data.child('uid').val() === auth.uid || !data.exists())",
+        ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid)"
+      }
+    },
+    "usernames": {
+      ".read": true,
+      "$username": {
+        ".write": "auth != null && (!data.exists() || data.val() === auth.uid)"
+      }
+    },
+    "system": {
+      ".read": true,
+      ".write": false
+    }
+  }
+}
