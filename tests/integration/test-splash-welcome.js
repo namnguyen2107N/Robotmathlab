@@ -232,6 +232,9 @@ enOpt.appendChild(enText);
 const startBtn = new MockElement('button', 'btn-splash-start');
 splashScreen.appendChild(startBtn);
 
+const logoutBtn = new MockElement('button', 'btn-splash-logout');
+splashScreen.appendChild(logoutBtn);
+
 // Load App dependencies
 const vm = require('vm');
 function loadScript(rel) {

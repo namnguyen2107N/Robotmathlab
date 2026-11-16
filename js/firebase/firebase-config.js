@@ -17,13 +17,13 @@
 
   // Cấu hình mẫu / Mặc định cho Firebase Web App
   const defaultFirebaseConfig = {
-    apiKey: "AIzaSy_YOUR_API_KEY_HERE",
-    authDomain: "robot-math-lab.firebaseapp.com",
-    databaseURL: "https://robot-math-lab-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "robot-math-lab",
-    storageBucket: "robot-math-lab.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef123456"
+    apiKey: "AIzaSyCEJAVdhofGxrZYns7io6igIO-4Aieb7JI",
+    authDomain: "robotmathlab.firebaseapp.com",
+    databaseURL: "https://robotmathlab-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "robotmathlab",
+    storageBucket: "robotmathlab.firebasestorage.app",
+    messagingSenderId: "59077093864",
+    appId: "1:59077093864:web:4c9843a858cdf845de5c5d"
   };
 
   // Đọc cấu hình tuỳ chỉnh nếu người dùng đã lưu trong localStorage

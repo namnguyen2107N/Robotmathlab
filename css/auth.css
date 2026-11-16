@@ -468,3 +468,336 @@ body.rml-auth-locked {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   ROLE SELECTOR (STUDENT VS TEACHER) - 3D PILL BUTTONS
+   ========================================================================== */
+.rml-role-selector {
+  margin-bottom: 16px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+}
+
+.rml-role-title {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.rml-role-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.rml-role-btn {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #94a3b8;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.rml-role-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #94a3b8;
+  border-color: #94a3b8;
+}
+
+.rml-role-btn.active {
+  background: #4f46e5;
+  border-color: #3730a3;
+  color: #ffffff;
+  box-shadow: 0 4px 0 #312e81;
+}
+
+.rml-role-btn.active:hover {
+  box-shadow: 0 6px 0 #312e81;
+}
+
+.rml-role-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #312e81;
+}
+
+.rml-auth-field.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   SOCIAL AUTH BUTTONS (GOOGLE & GITHUB)
+   ========================================================================== */
+.rml-social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+.rml-social-btn {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #cbd5e1;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.rml-social-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #94a3b8;
+}
+
+.rml-social-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #94a3b8;
+}
+
+.rml-social-google:hover {
+  border-color: #4285f4;
+}
+
+.rml-social-github {
+  color: #0f172a;
+}
+
+.rml-social-github:hover {
+  border-color: #0f172a;
+}
+
+.rml-social-svg {
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   START SCREEN INTEGRATED AUTH & PROFILE MOUNT
+   ========================================================================== */
+.splash-auth-mount {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 15;
+}
+
+.splash-auth-mount .rml-auth-card {
+  width: 100%;
+  max-width: 600px;
+  padding: 24px 28px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 2.5px solid #c7d2fe;
+  box-shadow: 0 12px 36px rgba(79, 70, 229, 0.12), inset 0 2px 0 #ffffff;
+  box-sizing: border-box;
+}
+
+.rml-auth-title {
+  margin: 0 0 6px;
+  font-family: 'Baloo 2', 'Be Vietnam Pro', sans-serif;
+  font-size: clamp(1.3rem, 3.5vw, 1.65rem);
+  line-height: 1.25;
+  color: #0f172a;
+}
+
+.rml-auth-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .rml-auth-row-2 {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* AUTHENTICATED WELCOME PROFILE CARD */
+.splash-welcome-card {
+  width: 100%;
+  max-width: 620px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+  border: 3px solid #818cf8;
+  border-radius: 26px;
+  padding: 22px 26px;
+  box-shadow: 0 16px 36px rgba(99, 102, 241, 0.14), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-sizing: border-box;
+  animation: rml-auth-in 250ms ease-out both;
+}
+
+.splash-welcome-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  border-bottom: 2px dashed #e2e8f0;
+  padding-bottom: 14px;
+}
+
+.splash-welcome-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: #eef2ff;
+  border: 2px solid #c7d2fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  flex-shrink: 0;
+  box-shadow: inset 0 -3px 0 rgba(99, 102, 241, 0.15);
+}
+
+.splash-welcome-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.splash-welcome-greeting {
+  display: flex;
+  flex-direction: column;
+}
+
+.splash-greeting-sub {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.splash-greeting-name {
+  font-family: 'Baloo 2', 'Be Vietnam Pro', sans-serif;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.splash-profile-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.splash-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+}
+
+.splash-pill.pill-role {
+  background: #fdf2f8;
+  color: #db2777;
+  border-color: #fbcfe8;
+}
+
+.splash-pill.pill-school {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.splash-pill.pill-class {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.splash-pill.pill-code {
+  background: #fefce8;
+  color: #ca8a04;
+  border-color: #fef08a;
+}
+
+.splash-pill.status-online {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.splash-pill.status-local {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.splash-account-footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.btn-splash-switch-account {
+  background: #f8fafc;
+  color: #475569;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 8px 20px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 3px 0 #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-splash-switch-account:hover {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #94a3b8;
+}
+
+.btn-splash-switch-account:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #94a3b8;
+}

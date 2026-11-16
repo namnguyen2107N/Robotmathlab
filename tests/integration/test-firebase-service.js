@@ -134,13 +134,37 @@ async function runTests() {
   assert.strictEqual(progress['task1-reach'].completed, true);
   console.log('✓ Task progress saved and retrieved successfully');
 
-  // Test 10: Guest Mode (Instant exploration without credentials)
+  // Test 10: Guest Mode (Instant exploration without credentials & NO data saving)
   const guestResult = await service.loginAsGuest();
   assert.ok(guestResult, 'Guest login should succeed');
   assert.strictEqual(guestResult.isAnonymous, true);
   console.log('✓ Guest mode login succeeded:', guestResult.display_name);
 
-  // Test 11: Logout
+  // Test 11: Verify guest mode DOES NOT save session or score
+  const guestSession = {
+    sessionId: 'sess_guest_temp',
+    taskId: 'task1-reach',
+    studentName: 'Khách Trải Nghiệm',
+    summary: { finalSuccess: true }
+  };
+  await service.saveSession(guestSession);
+  const guestScore = await service.saveScore('task1-reach', { score: 900 });
+  assert.strictEqual(guestScore, null, 'Score should NOT be saved in guest mode');
+  console.log('✓ Verified: Guest mode does NOT save scores or sessions');
+
+  // Test 12: OAuth Login (Google & GitHub)
+  const googleAccount = await service.loginWithGoogle('student');
+  assert.ok(googleAccount, 'Google login should succeed');
+  assert.ok(googleAccount.username.startsWith('google_'), 'Google account should have google prefix');
+  console.log('✓ Google login succeeded:', googleAccount.display_name);
+
+  const githubAccount = await service.loginWithGithub('teacher');
+  assert.ok(githubAccount, 'GitHub login should succeed');
+  assert.strictEqual(githubAccount.role, 'teacher');
+  assert.ok(githubAccount.classroomId.startsWith('CLASS-'));
+  console.log('✓ GitHub login (Teacher) succeeded with classroom:', githubAccount.classroomId);
+
+  // Test 13: Logout
   await service.logout();
   assert.strictEqual(service.account, null, 'Account should be null after logout');
   console.log('✓ Logout completed cleanly');

@@ -1,0 +1,414 @@
+/* ==========================================================================
+   ROBOT MATH LAB - TEACHER DASHBOARD STYLESHEET
+   100% Strict compliance with current UI/UX tokens:
+   - Duolingo-style 3D tactile buttons
+   - 4-card statistics grid with distinct step colors
+   - Live real-time student activity feed & score inspection
+   ========================================================================== */
+
+.teacher-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  animation: rml-teacher-fade-in 0.3s ease-out;
+}
+
+@keyframes rml-teacher-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Teacher Hero Banner */
+.teacher-hero {
+  background: radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.55), transparent 55%), #3730a3;
+  color: #ffffff;
+  border-radius: var(--radius-xl);
+  padding: 2.2rem 2.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.8rem;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 16px 36px rgba(55, 48, 163, 0.25);
+  border: 3px solid rgba(255, 255, 255, 0.35);
+}
+
+.teacher-hero-content {
+  flex: 1 1 500px;
+}
+
+.teacher-eyebrow {
+  display: inline-block;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 0.35rem 1rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.8rem;
+}
+
+.teacher-title {
+  font-family: 'Lexend', 'Baloo 2', system-ui, sans-serif;
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 0.6rem;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.teacher-subtitle {
+  font-size: 1.25rem;
+  line-height: 1.45;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.teacher-hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.teacher-code-badge {
+  background: rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  padding: 0.7rem 1.4rem;
+  border-radius: var(--radius-lg);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.teacher-code-val {
+  font-family: 'Lexend', monospace;
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  background: #ffffff;
+  color: #3730a3;
+  padding: 0.2rem 0.8rem;
+  border-radius: 8px;
+}
+
+.btn-copy-code {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  color: #1e1b4b;
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #94a3b8;
+  transition: all 0.15s ease;
+}
+
+.btn-copy-code:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #94a3b8;
+}
+
+/* 4-Card Quick Stats Grid */
+.teacher-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.teacher-stat-card {
+  border-radius: 24px;
+  padding: 1.8rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  border-width: 4px;
+  border-style: solid;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.teacher-stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.stat-card-online {
+  border-color: #86efac;
+  box-shadow: 0 8px 0 #4ade80;
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 50%);
+}
+
+.stat-card-total {
+  border-color: #93c5fd;
+  box-shadow: 0 8px 0 #60a5fa;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 50%);
+}
+
+.stat-card-score {
+  border-color: #fde047;
+  box-shadow: 0 8px 0 #eab308;
+  background: linear-gradient(180deg, #fefce8 0%, #ffffff 50%);
+}
+
+.stat-card-completed {
+  border-color: #c4b5fd;
+  box-shadow: 0 8px 0 #a78bfa;
+  background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 50%);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.stat-icon {
+  font-size: 2rem;
+}
+
+.stat-label {
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.stat-value {
+  font-family: 'Lexend', 'Baloo 2', system-ui, sans-serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1.1;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   STUDENT ROSTER & LIVE ACTIVITY MONITOR
+   ========================================================================== */
+.teacher-section-card {
+  background: #ffffff;
+  border-radius: 28px;
+  border: 4px solid var(--border-thick);
+  box-shadow: 0 10px 0 var(--border-thick);
+  padding: 2rem 2.4rem;
+  width: 100%;
+}
+
+.teacher-section-title-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.6rem;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.teacher-section-title {
+  font-family: 'Lexend', 'Baloo 2', system-ui, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.teacher-student-table-wrap {
+  overflow-x: auto;
+}
+
+.teacher-student-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.teacher-student-table th {
+  text-align: left;
+  padding: 10px 16px;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.teacher-student-row {
+  background: #f8fafc;
+  border-radius: 16px;
+  transition: all 0.15s ease;
+}
+
+.teacher-student-row:hover {
+  background: #f1f5f9;
+}
+
+.teacher-student-row td {
+  padding: 16px;
+  vertical-align: middle;
+}
+
+.teacher-student-row td:first-child {
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.teacher-student-row td:last-child {
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.student-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-avatar-badge {
+  font-size: 1.8rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-name-text {
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #0f172a;
+}
+
+.student-user-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* Online/Offline Pills */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.status-pill-online {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.status-pill-offline {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-view-student-detail {
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  padding: 0.55rem 1.2rem;
+  border-radius: var(--radius-full);
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #312e81;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-view-student-detail:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #312e81;
+}
+
+.btn-view-student-detail:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #312e81;
+}
+
+/* ==========================================================================
+   STUDENT DETAIL MODAL / DRAWER
+   ========================================================================== */
+.student-detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.student-detail-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+  text-align: center;
+}
+
+.detail-metric-val {
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #4f46e5;
+}
+
+.detail-metric-lbl {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.session-history-item {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.session-task-title {
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.session-task-meta {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .teacher-hero {
+    padding: 1.6rem 1.4rem;
+  }
+  .teacher-title {
+    font-size: 2rem;
+  }
+  .teacher-hero-actions {
+    align-items: flex-start;
+    width: 100%;
+  }
+  .teacher-code-badge {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

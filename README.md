@@ -1,4 +1,4 @@
-# 🤖 ROBOT MATH LAB — PHÒNG THÍ NGHIỆM TOÁN HỌC & ROBOT ẢO
+# 🤖 ROBOT MATH LAB — PHÒNG THÍ NGHIỆM TOÁN HỌC & ROBOT ẢO - RML-TEACHER-2026
 
 > **Nền tảng mô phỏng toán chuyển động và điều khiển robot ảo dành cho học sinh tiểu học, tích hợp phương pháp giải quyết vấn đề Polya 4 bước, xác thực Firebase Authentication và lưu trữ đồng bộ dữ liệu thời gian thực trên Firebase Realtime Database.**
 
@@ -122,9 +122,19 @@ Robotmathlab/
 
 ## 🚀 HAI TÍNH NĂNG CẬP NHẬT CHÍNH
 
-### 4.1. Hệ thống Đăng ký, Đăng nhập & Quản lý tài khoản
+### 4.1. Hệ thống Đăng ký, Đăng nhập & Quản lý tài khoản Tích hợp trên Màn hình Start
+- **Tích hợp trực tiếp trên Màn hình Start (Direct Start Screen Integration):**
+  - Loại bỏ hoàn toàn modal overlay tối màu che khuất giao diện. Khung đăng nhập, đăng ký và hồ sơ người dùng được gắn kết tự nhiên ngay bên trong Bảng điều khiển Arcade Signboard của màn hình Start (`#splash-screen`).
+  - Khi chưa đăng nhập: Hiển thị ngay 2 tab `[ 🔑 Đăng nhập ]` và `[ ✨ Tạo tài khoản ]` với đầy đủ nút Đăng nhập nhanh Google, GitHub và Chế độ Khách.
+  - Khi đã đăng nhập: Hiển thị Thẻ Chào mừng Hồ sơ Học tập với avatar robot, họ tên, trường học, lớp học, vai trò, huy hiệu đồng bộ dữ liệu và nút bấm 3D **START ▶** cỡ lớn để vào học ngay, cùng nút `🚪 Đổi tài khoản khác` tiện lợi.
+- **Bổ sung trường thông tin Trường học & Lớp học khi Đăng ký (Bắt buộc):**
+  - **Trường học (`school_name`):** Bắt buộc đối với cả Học sinh và Giáo viên (Ví dụ: `Tiểu học Chu Văn An`, `TH Dịch Vọng A`).
+  - **Lớp học (`class_name`):**
+    - Học sinh: Nhập lớp đang học (Ví dụ: `Lớp 4A1`, `Lớp 5B`).
+    - Giáo viên: Nhập lớp hoặc khối phụ trách (Ví dụ: `Khối 4`, `Lớp 5A`).
+  - Dữ liệu được lưu trữ và đồng bộ an toàn tại `/users/{uid}/profile/schoolName` và `/users/{uid}/profile/className`.
 - **Đăng ký tài khoản (Sign Up):**
-  - Học sinh nhập **Tên hiển thị** (tên thường gọi để robot Sparky chào), **Tên đăng nhập** hoặc **Email**, và **Mật khẩu** (tối thiểu 6 ký tự).
+  - Học sinh nhập **Tên hiển thị**, **Trường học**, **Lớp của em**, **Tên đăng nhập** hoặc **Email**, và **Mật khẩu** (tối thiểu 6 ký tự).
   - Thân thiện với học sinh tiểu học: nếu các em chưa có email cá nhân, chỉ cần nhập tên đăng nhập đơn giản (ví dụ: `minhanh01`), hệ thống sẽ tự động liên kết tài khoản an toàn.
   - Tích hợp kiểm tra tính hợp lệ dữ liệu và hộp chọn cam kết bảo mật học tập.
 - **Đăng nhập (Sign In):**
@@ -133,6 +143,12 @@ Robotmathlab/
 - **Chế độ Học sinh khách (Guest Mode - Quick Explore):**
   - Cung cấp nút bấm tiện lợi **"🚀 Trải nghiệm ngay (Chế độ Khách)"**.
   - Cho phép học sinh, giáo viên thử nghiệm ngay lập tức các bài học với 1 cú click mà không bắt buộc tạo tài khoản.
+  - **Chính sách dữ liệu khách:** Hệ thống **hoàn toàn không lưu dữ liệu** của phiên khách lên Cloud hay Bảng xếp hạng để tránh rác dữ liệu.
+- **Đăng nhập một chạm qua Google & GitHub (OAuth Social Sign-In):**
+  - Hỗ trợ đăng nhập / tạo tài khoản nhanh qua Google và GitHub trên cả form Đăng nhập và Đăng ký.
+  - Tự động đồng bộ thông tin hồ sơ và tạo mã lớp học cho giáo viên khi đăng nhập lần đầu.
+- **Nút Đăng xuất ở màn hình Start:**
+  - Bổ sung nút **🚪 Đăng xuất** trực tiếp trên thanh công cụ của màn hình Arcade Start Screen để người dùng có thể đổi tài khoản ngay khi vào web.
 - **Quản lý hồ sơ học sinh (Profile Management):**
   - Hiển thị thông tin tài khoản đang đăng nhập trong phần Cài đặt (Settings).
   - Cho phép học sinh đổi tên hiển thị bất kỳ lúc nào; tên mới được đồng bộ ngay lên Firebase Realtime Database.
@@ -158,6 +174,91 @@ Robotmathlab/
 
 ---
 
+### 4.3. Phân quyền vai trò: Giáo Viên (Teacher) & Học Sinh (Student)
+- **Tài khoản Học Sinh (Student):**
+  - Mặc định khi đăng ký, có thể nhập **Mã Lớp** (Classroom Code, VD: `CLASS-A7X3`) do thầy cô cung cấp.
+  - Được lưu điểm số, huy hiệu sao (1-3 sao), lịch sử giải toán và tham gia Bảng Xếp Hạng.
+- **Tài khoản Giáo Viên (Teacher):**
+  - Đăng ký bằng cách chọn tab "👨‍🏫 Giáo Viên" và nhập Mã xác thực giáo viên của trường học (mặc định: `RML-TEACHER-2026`).
+  - Hệ thống tự động cấp phát cho giáo viên một **Mã Lớp Học duy nhất** (VD: `CLASS-A7X3`) để chia sẻ cho các em học sinh.
+  - Tự động chuyển hướng vào **Bảng Điều Khiển Giáo Viên (Teacher Dashboard)** sau khi đăng nhập.
+
+---
+
+### 4.4. Bảng Điều Khiển Giáo Viên (Teacher Pedagogical Dashboard)
+- **Giám sát trực tuyến thời gian thực (Live Presence):**
+  - Theo dõi chính xác bao nhiêu học sinh đang online trong giờ học (🟢 Online) và học sinh đã rời phòng (⚪ Offline kèm thời gian).
+  - Biết ngay học sinh đang làm bài nào hoặc đang nghỉ ngơi.
+- **Thống kê tổng quan 4 chỉ số lớp học:**
+  - 🟢 Số học sinh đang hoạt động.
+  - 👥 Tổng số học sinh trong lớp.
+  - ⭐ Điểm trung bình của cả lớp.
+  - 📝 Tổng số bài toán đã được học sinh chinh phục.
+- **Bảng danh sách học sinh & Nhật ký chi tiết:**
+  - Xem danh sách toàn bộ học sinh trong lớp kèm điểm số và tiến độ.
+  - Bấm **"🔍 Xem bài làm"** để mở modal chi tiết: xem lại từng phiên giải toán (thời gian làm bài, số lần thử nghiệm, thành công hay chưa, các bước tư duy Polya).
+- **Sao chép mã lớp 1-click:** Nút tiện lợi giúp giáo viên sao chép mã lớp gửi cho học sinh hoặc phụ huynh.
+
+---
+
+### 4.5. Hệ Thống Chấm Điểm 1000 Điểm Dựa Trên Thời Gian Bắt Đầu Tới Hoàn Thành
+- **Bộ máy tính điểm Polya (`ScoringEngine`):**
+  - Thang điểm tối đa chuẩn hóa: **1000 điểm / bài học**.
+  - **Thời gian thực hiện ($T$ giây):** Được đo đạc tự động từ thời điểm học sinh bấm bắt đầu bài học (`startedAt`) tới khi hoàn thành kiểm chứng Bước 4 (`completedAt`).
+  - **Mốc thời gian chuẩn (Benchmark Target Time $T_{\text{target}}$):**
+    - Bài 1 (Reach the Goal): $T_{\text{target}} = 45$ giây (bài toán cơ bản $s = v \times t$).
+    - Bài 2 (The Unexpected Journey): $T_{\text{target}} = 90$ giây (bài toán có bước dừng sớm và gỡ lỗi).
+    - Bài 3 (The On-Time Challenge): $T_{\text{target}} = 60$ giây (bài toán đổi đơn vị và tìm vận tốc).
+  - **Bốn thành phần cấu thành điểm số:**
+    1. **Điểm hoàn thành cốt lõi (Base Completion):** **500 điểm** khi hoàn thành đúng 4 bước Polya (`finalSuccess === true`).
+    2. **Điểm tốc độ thời gian (Duration / Speed Score):** **Tối đa 300 điểm**.
+       - Nếu $T \le T_{\text{target}}$: Đạt tối đa **300 điểm**.
+       - Nếu $T > T_{\text{target}}$: Cứ mỗi 10 giây trễ hơn trừ 15 điểm: $\text{timeBonus} = 300 - \lfloor(T - T_{\text{target}}) / 10\rfloor \times 15$.
+       - **Sàn bảo hiểm thời gian:** Tối thiểu **50 điểm** (đảm bảo khích lệ học sinh giải cẩn thận).
+    3. **Điểm độ chính xác & số lần thử nghiệm (Accuracy Score):** **Tối đa 150 điểm**.
+       - Thành công ngay lần 1: **150 điểm**.
+       - Lần 2: **110 điểm**, Lần 3: **70 điểm**, Từ lần 4 trở lên: **30 điểm**.
+    4. **Điểm độc lập tự lực (Self-Reliance Score):** **Tối đa 50 điểm**.
+       - Khởi điểm: **50 điểm**.
+       - Mỗi gợi ý (Hint) sử dụng: trừ 15 điểm.
+       - Mỗi lần quay lại bước trước: trừ 10 điểm (Sàn tối thiểu: 0 điểm).
+  - **Hệ thống Xếp Hạng Sao (Star Rating):**
+    - ⭐⭐⭐ **3 Sao (Xuất Sắc):** $\ge 850$ điểm.
+    - ⭐⭐ **2 Sao (Khá Giỏi):** $650 - 849$ điểm.
+    - ⭐ **1 Sao (Hoàn Thành):** $< 650$ điểm.
+  - **Hiển thị trực quan trên Modal Hoàn Thành Nhiệm Vụ:**
+    - Cúp chiến thắng & Banner sao động.
+    - Điểm số to rõ ràng: `⭐ 955 pts`.
+    - Thời gian giải bài thực tế và mốc chuẩn: `⏱️ 75s (Chuẩn: 45s)`.
+    - Bảng chi tiết 4 thành phần điểm (Hoàn thành, Tốc độ, Độ chính xác, Tự lực).
+    - Lời khen ngợi sư phạm song ngữ (Anh - Việt).
+
+---
+
+### 4.6. Rà Soát & Khắc Phục Triệt Để Toàn Bộ Lỗi Điều Hướng (Navigation & Routing Engine)
+- **Khắc phục lỗi kẹt màn hình `#start`:** Router hỗ trợ tải trực tiếp mọi hash URL hợp lệ (`#hub`, `#ranking`, `#teacher`, `#task/...`) mà không bị cưỡng ép viết đè về `#start`.
+- **Phân luồng nút START thông minh theo vai trò:**
+  - Nếu là tài khoản **Giáo Viên**: Nút START trên màn hình khởi động đưa thẳng vào **Teacher Dashboard (`#teacher`)**.
+  - Nếu là tài khoản **Học Sinh**: Nút START đưa vào **Mission Hub (`#hub`)**.
+- **Điều hướng Logo Thương Hiệu (`#brand-home-link`):** Bấm vào logo Robot Math Lab trên header sẽ đưa Giáo Viên về `#teacher` và đưa Học Sinh về `#hub`, luôn phản hồi ngay cả khi đang cùng route.
+- **Tự động dọn dẹp Modal & Khôi phục thanh cuộn:** Mỗi khi chuyển trang giữa `#hub`, `#ranking`, `#teacher`, `#start`, hệ thống tự động:
+  - Dừng và giải phóng mô phỏng đang chạy ngầm (`sim.destroy()`).
+  - Đóng toàn bộ các backdrop modal đang mở (`settings-modal`, `teacher-student-modal`, `learning-journal`, `feedback-modal`).
+  - Gỡ bỏ thuộc tính khóa cuộn `overflow: hidden`, đảm bảo trang luôn cuộn mượt mà.
+- **Đóng modal thân thiện:** Hỗ trợ click ra ngoài backdrop hoặc nhấn phím `Escape` để đóng các modal chi tiết.
+- **Nút Arcade từ Cài đặt:** Kích hoạt nút **"Mở ▶"** trong Settings Modal để quay lại màn hình Arcade 8-bit bất kỳ lúc nào.
+
+---
+
+### 4.7. Bảng Xếp Hạng Arcade (Ranking)
+- **Bục vinh quang 3D (Podium Top 3):** Vinh danh 3 bạn dẫn đầu với hiệu ứng 🥇 Vàng, 🥈 Bạc, 🥉 Đồng.
+- **Bảng danh sách chi tiết:** Hiển thị thứ hạng các bạn tiếp theo, tự động làm nổi bật (highlight) vị trí của học sinh đang đăng nhập.
+- **Bộ lọc linh hoạt:** Xem Xếp hạng tổng (Overall) hoặc Xếp hạng theo từng bài (Task 1, Task 2, Task 3).
+- **Huy hiệu điểm trên thẻ bài học:** Hiển thị điểm cao nhất (Best Score) của học sinh trực tiếp trên từng thẻ nhiệm vụ ở trang chủ.
+- **Tuân thủ 100% UX/UI:** Giữ nguyên vẹn bảng màu, font chữ Baloo 2/Lexend, nút 3D Duolingo bouncy và không làm thay đổi trải nghiệm thân thiện với trẻ em.
+
+---
+
 ## 🗄️ CẤU TRÚC DỮ LIỆU TRÊN FIREBASE REALTIME DATABASE
 
 Dữ liệu được tổ chức theo cấu trúc JSON phân cấp khoa học và bảo mật:
@@ -172,8 +273,17 @@ Dữ liệu được tổ chức theo cấu trúc JSON phân cấp khoa học v�
         "username": "lan2026",
         "email": "lan2026@robotmathlab.edu",
         "role": "student",
+        "classroomId": "CLASS-A7X3",
         "createdAt": "2026-11-15T07:45:00.000Z",
         "lastLoginAt": "2026-11-15T08:00:00.000Z"
+      },
+      "scores": {
+        "task1-reach": {
+          "bestScore": 960,
+          "bestTime": 45,
+          "attempts": 1,
+          "lastAttemptAt": "2026-11-15T08:05:00.000Z"
+        }
       },
       "progress": {
         "task1-reach": {
@@ -245,6 +355,39 @@ Dữ liệu được tổ chức theo cấu trúc JSON phân cấp khoa học v�
       "studentName": "Bé Lan",
       "summary": { "finalSuccess": true, "totalAttempts": 1 },
       "syncedAt": "2026-11-15T08:05:00.000Z"
+    }
+  },
+  "classrooms": {
+    "CLASS-A7X3": {
+      "teacherUid": "<TEACHER_UID>",
+      "teacherName": "Cô Thu Hà",
+      "className": "Lớp 5A Sư Phạm",
+      "students": {
+        "<STUDENT_UID_1>": true,
+        "<STUDENT_UID_2>": true
+      }
+    }
+  },
+  "presence": {
+    "<UID>": {
+      "online": true,
+      "displayName": "Bé Lan",
+      "currentTask": "Nhiệm vụ 1: Hành trình đến đích",
+      "lastSeen": "2026-11-15T08:05:00.000Z"
+    }
+  },
+  "leaderboard": {
+    "global": {
+      "<UID>": {
+        "displayName": "Bé Lan",
+        "totalScore": 2850,
+        "completedTasksCount": 3
+      }
+    },
+    "byTask": {
+      "task1-reach": {
+        "<UID>": { "displayName": "Bé Lan", "score": 960, "timeSeconds": 45 }
+      }
     }
   },
   "usernames": {

@@ -42,17 +42,33 @@ class AppController {
       this.handleLanguageChanged(e.detail.lang);
     });
 
-    // 6. Hash-based router
+    // 6. Brand Home Link click handler
+    const brandLink = document.getElementById('brand-home-link');
+    if (brandLink) {
+      brandLink.addEventListener('click', (e) => {
+        const account = window.FirebaseService?.account || window.RMLAuth?.account;
+        const targetHash = account?.role === 'teacher' ? '#teacher' : '#hub';
+        if (window.location.hash === targetHash) {
+          e.preventDefault();
+          this.handleRoute();
+        } else {
+          brandLink.setAttribute('href', targetHash);
+        }
+      });
+    }
+
+    // 7. Hash-based router
     window.addEventListener('hashchange', () => this.handleRoute());
 
-    // 7. Initial access: ALWAYS show Start Screen first when accessing the website!
+    // 8. Initial access routing
     const currentHash = window.location.hash;
     const isTask = currentHash && currentHash.startsWith('#task/');
-    if (!isTask) {
+    const isKnownRoute = ['#hub', '#ranking', '#leaderboard', '#teacher', '#teacher-dashboard'].includes(currentHash);
+    if (isTask || isKnownRoute) {
+      this.handleRoute();
+    } else {
       window.location.hash = '#start';
       this.renderStartScreen();
-    } else {
-      this.handleRoute();
     }
   }
 
@@ -75,6 +91,10 @@ class AppController {
       this.renderStartScreen();
     } else if (hash.startsWith('#task/')) {
       if (this.taskEngine) this.taskEngine.updateLanguage();
+    } else if (hash === '#teacher' || hash === '#teacher-dashboard') {
+      if (window.TeacherDashboardController) window.TeacherDashboardController.render();
+    } else if (hash === '#ranking' || hash === '#leaderboard') {
+      if (window.RankingController) window.RankingController.render();
     } else {
       this.renderTaskHub();
     }
@@ -83,9 +103,49 @@ class AppController {
   handleRoute() {
     const hash = window.location.hash || '#start';
 
+    // 1. Dọn dẹp mô phỏng đang chạy nếu rời khỏi màn hình task
+    if (!hash.startsWith('#task/') && this.taskEngine?.sim) {
+      this.taskEngine.sim.destroy();
+      this.taskEngine.sim = null;
+    }
+
+    // 2. Dọn dẹp tất cả modal backdrop đang mở để tránh kẹt giao diện hoặc khóa cuộn trang
+    document.querySelectorAll('.modal-backdrop').forEach(m => {
+      m.classList.remove('active');
+      m.style.display = 'none';
+    });
+    document.body.style.overflow = '';
+
+    // 3. Cuộn lên đầu trang
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
+    // 4. Cập nhật nút Teacher Dashboard và tên trên header
+    const account = window.FirebaseService?.account || window.RMLAuth?.account;
+    const btnTeacher = document.getElementById('btn-header-teacher');
+    if (btnTeacher) {
+      btnTeacher.style.display = account?.role === 'teacher' ? 'inline-flex' : 'none';
+    }
+    const badge = document.getElementById('header-student-name');
+    if (badge && account?.display_name) {
+      badge.innerText = account.display_name;
+    }
+
+    // 5. Điều hướng theo hash
     if (hash === '#start' || hash === '#welcome') {
       this.activeTaskId = null;
       this.renderStartScreen();
+    } else if (hash === '#teacher' || hash === '#teacher-dashboard') {
+      this.hideSplashScreen();
+      this.activeTaskId = null;
+      if (window.TeacherDashboardController) {
+        window.TeacherDashboardController.render();
+      }
+    } else if (hash === '#ranking' || hash === '#leaderboard') {
+      this.hideSplashScreen();
+      this.activeTaskId = null;
+      if (window.RankingController) {
+        window.RankingController.render();
+      }
     } else if (hash.startsWith('#task/')) {
       this.hideSplashScreen();
       const taskId = hash.replace('#task/', '');
@@ -229,6 +289,16 @@ class AppController {
           if (document.exitFullscreen) document.exitFullscreen();
         }
         setTimeout(() => this.syncSettingsModalContent(), 120);
+      });
+    }
+
+    // Mở màn hình Arcade Splash từ Settings Modal
+    const modalArcadeBtn = document.getElementById('btn-settings-open-arcade');
+    if (modalArcadeBtn) {
+      modalArcadeBtn.addEventListener('click', () => {
+        if (window.SoundFX) window.SoundFX.playPop();
+        this.closeSettingsModal();
+        window.location.hash = '#start';
       });
     }
 
@@ -467,6 +537,20 @@ class AppController {
       });
     }
 
+    // Splash Logout button (YÊU CẦU: Thêm nút đăng xuất ở màn hình start)
+    const splashLogoutBtn = document.getElementById('btn-splash-logout');
+    if (splashLogoutBtn) {
+      splashLogoutBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.SoundFX) window.SoundFX.playPop();
+        if (window.RMLAuth && typeof window.RMLAuth.logout === 'function') {
+          window.RMLAuth.logout();
+        } else if (window.FirebaseService) {
+          window.FirebaseService.logout().then(() => location.reload());
+        }
+      });
+    }
+
     // Student Name Input
     const nameInput = document.getElementById('splash-student-name');
     if (nameInput) {
@@ -641,7 +725,12 @@ class AppController {
 
     setTimeout(() => {
       this.hideSplashScreen();
-      this.renderTaskSelection();
+      const account = window.FirebaseService?.account || window.RMLAuth?.account;
+      if (account?.role === 'teacher') {
+        window.location.hash = '#teacher';
+      } else {
+        this.renderTaskSelection();
+      }
     }, 450);
   }
 
@@ -666,6 +755,19 @@ class AppController {
 
     const t = (key) => window.I18N ? window.I18N.t(key) : key;
     const isVi = window.I18N ? window.I18N.isVietnamese() : true;
+    const account = window.FirebaseService?.account || window.RMLAuth?.account;
+    const isTeacher = account?.role === 'teacher';
+
+    // Đọc điểm số tốt nhất của từng bài
+    const scores = window.FirebaseService?.getLocalScores() || {};
+    const score1 = scores['task1-reach']?.bestScore;
+    const score2 = scores['task2-fix']?.bestScore;
+    const score3 = scores['task3-new']?.bestScore;
+
+    const renderScoreBadge = (sc) => {
+      if (!sc) return '';
+      return `<span class="task-card-badge" style="background: #fef08a; color: #854d0e; border-color: #facc15; margin-left: auto; font-size: 1rem; padding: 0.35rem 0.9rem;">⭐ ${sc} pts</span>`;
+    };
 
     main.innerHTML = `
       <div class="hub-container animate-fade-in">
@@ -682,15 +784,28 @@ class AppController {
           
           <div class="hub-actions-card">
             <div class="hub-student-badge-wrap" onclick="window.App && window.App.openSettingsModal()" style="cursor: pointer;" title="${t('settings_btn_title') || 'Cài đặt'}">
-              <span class="badge-avatar">🧑‍🎓</span>
+              <span class="badge-avatar">${isTeacher ? '👨‍🏫' : '🧑‍🎓'}</span>
               <div>
-                <div class="badge-role">${t('student_tag_title')}</div>
+                <div class="badge-role">${isTeacher ? (isVi ? 'Thầy Cô Giáo' : 'Teacher') : t('student_tag_title')}</div>
                 <div class="badge-name">${this.escapeHtml(this.currentStudent)} ✏️</div>
               </div>
             </div>
-            <button type="button" class="journal-hub-button" id="btn-open-learning-journal">
-              ${t('btn_journal')}
-            </button>
+            
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+              <a href="#ranking" class="journal-hub-button" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                🏆 ${isVi ? 'Bảng Xếp Hạng' : 'Leaderboard'}
+              </a>
+
+              ${isTeacher ? `
+                <a href="#teacher" class="journal-hub-button" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; background: #3730a3; border-color: #312e81;">
+                  👨‍🏫 ${isVi ? 'Dashboard Giáo Viên' : 'Teacher Dashboard'}
+                </a>
+              ` : ''}
+
+              <button type="button" class="journal-hub-button" id="btn-open-learning-journal">
+                ${t('btn_journal')}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -707,6 +822,7 @@ class AppController {
             <div class="task-card task-card-1" id="card-task1">
               <div class="task-card-header">
                 <span class="task-card-badge">${t('task1_badge')}</span>
+                ${renderScoreBadge(score1)}
               </div>
               <h3 class="task-card-title">${t('task1_title')}</h3>
               <div class="task-card-footer">
@@ -720,6 +836,7 @@ class AppController {
             <div class="task-card task-card-2" id="card-task2">
               <div class="task-card-header">
                 <span class="task-card-badge">${t('task2_badge')}</span>
+                ${renderScoreBadge(score2)}
               </div>
               <h3 class="task-card-title">${t('task2_title')}</h3>
               <div class="task-card-footer">
@@ -733,6 +850,7 @@ class AppController {
             <div class="task-card task-card-3" id="card-task3">
               <div class="task-card-header">
                 <span class="task-card-badge">${t('task3_badge')}</span>
+                ${renderScoreBadge(score3)}
               </div>
               <h3 class="task-card-title">${t('task3_title')}</h3>
               <div class="task-card-footer">

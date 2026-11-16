@@ -22,7 +22,16 @@ class TaskEngine {
       step3: {},
       step4: {}
     };
+  }
 
+  escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char]));
   }
 
   getEnglishChoiceLabel(label) {
@@ -425,8 +434,14 @@ class TaskEngine {
       if (confirm(confirmMsg)) {
         if (this.sim) {
           this.sim.destroy();
+          this.sim = null;
         }
-        window.App.renderTaskSelection();
+        const account = window.FirebaseService?.account || window.RMLAuth?.account;
+        if (account?.role === 'teacher') {
+          window.location.hash = '#teacher';
+        } else {
+          window.location.hash = '#hub';
+        }
       }
     };
 
@@ -1947,6 +1962,35 @@ class TaskEngine {
     const attempts = session?.summary?.totalAttempts || 1;
     const isVi = window.I18N ? window.I18N.isVietnamese() : false;
     const lang = window.I18N ? window.I18N.currentLang : 'vi';
+
+    // Đọc điểm số tính theo thời gian thực từ ScoringEngine
+    const scoreResult = session?.score || (window.ScoringEngine ? window.ScoringEngine.calculateScore({
+      taskId: session?.taskId || this.taskConfig?.id,
+      finalSuccess: true,
+      totalAttempts: attempts,
+      totalTimeSeconds: session?.summary?.totalTimeSeconds || 45,
+      backwardStepsCount: session?.summary?.backwardStepsCount || 0,
+      hintsCount: session?.supportUsage?.mathHints?.length || 0
+    }) : {
+      totalScore: 1000,
+      completionScore: 500,
+      timeBonus: 300,
+      accuracyBonus: 150,
+      selfRelianceBonus: 50,
+      stars: 3,
+      totalTimeSeconds: 45,
+      targetTimeSeconds: 45,
+      feedbackVi: 'Xuất sắc! Em là một nhà toán học nhí tài ba!',
+      feedbackEn: 'Outstanding! You are a brilliant young mathematician!'
+    });
+
+    const totalScore = scoreResult.totalScore || 0;
+    const starsCount = scoreResult.stars || 1;
+    const starString = '⭐'.repeat(starsCount);
+    const timeSec = scoreResult.totalTimeSeconds || session?.summary?.totalTimeSeconds || 0;
+    const targetSec = scoreResult.targetTimeSeconds || (window.ScoringEngine?.getTargetTime(this.taskConfig?.id) || 60);
+    const feedbackMsg = isVi ? (scoreResult.feedbackVi || scoreResult.feedback) : (scoreResult.feedbackEn || scoreResult.feedback);
+
     const analysis = window.FeedbackEngine?.analyzeSession(session, lang);
     const nextChallenge = analysis?.nextChallenge || {
       title: isVi ? 'Chọn nhiệm vụ tiếp theo' : 'Choose your next mission',
@@ -1965,7 +2009,34 @@ class TaskEngine {
           <p class="completion-sub">${isVi ? 'Bạn đã giải quyết vấn đề thành công và kiểm chứng chính xác trên robot!' : 'You solved the problem and verified the result with the robot!'}</p>
         </div>
 
+        <!-- Bảng hiển thị điểm số & đánh giá sao -->
+        <div class="completion-score-hero">
+          <div class="completion-stars-banner" title="${starsCount} ${isVi ? 'Sao' : 'Stars'}">${starString}</div>
+          <div class="completion-score-number">${totalScore} <span class="pts-unit">pts</span></div>
+          <div class="completion-feedback-text">${this.escapeHtml(feedbackMsg)}</div>
+        </div>
+
+        <!-- Chi tiết các mốc điểm Polya -->
+        <div class="completion-score-breakdown">
+          <div class="score-chip chip-completion" title="${isVi ? 'Điểm hoàn thành 4 bước Polya' : 'Polya Completion Score'}">
+            🏁 ${isVi ? 'Hoàn thành:' : 'Completion:'} <strong>+500</strong>
+          </div>
+          <div class="score-chip chip-time" title="${isVi ? 'Điểm tốc độ từ lúc bắt đầu tới hoàn thành' : 'Start-to-finish Speed Score'}">
+            ⏱️ ${isVi ? 'Thời gian:' : 'Speed Bonus:'} <strong>+${scoreResult.timeBonus || 0}/300</strong>
+          </div>
+          <div class="score-chip chip-accuracy" title="${isVi ? 'Điểm độ chính xác và số lần thử nghiệm' : 'Accuracy and Attempts Score'}">
+            🎯 ${isVi ? 'Chính xác:' : 'Accuracy:'} <strong>+${scoreResult.accuracyBonus || 0}/150</strong>
+          </div>
+          <div class="score-chip chip-reliance" title="${isVi ? 'Điểm tính độc lập tự lực' : 'Self-reliance Score'}">
+            💡 ${isVi ? 'Tự lực:' : 'Self-reliance:'} <strong>+${scoreResult.selfRelianceBonus || 0}/50</strong>
+          </div>
+        </div>
+
         <div class="completion-stats-grid">
+          <div class="stat-card">
+            <span class="stat-num">⏱️ ${timeSec}s</span>
+            <span class="stat-lbl">${isVi ? `Thời gian (Chuẩn: ${targetSec}s)` : `Duration (Goal: ${targetSec}s)`}</span>
+          </div>
           <div class="stat-card">
             <span class="stat-num">${attempts}</span>
             <span class="stat-lbl">${isVi ? 'Lần thử nghiệm' : 'Total Attempts'}</span>
@@ -1973,10 +2044,6 @@ class TaskEngine {
           <div class="stat-card">
             <span class="stat-num">${totalEvents}</span>
             <span class="stat-lbl">${isVi ? 'Hành động học tập' : 'Learning Activities'}</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num">✓</span>
-            <span class="stat-lbl">${isVi ? 'Nhiệm vụ hoàn thành' : 'Mission Complete'}</span>
           </div>
         </div>
 
@@ -2055,12 +2122,22 @@ class TaskEngine {
       else nextTaskId = 'hub';
 
       if (nextTaskId === 'hub') {
-        window.App.renderTaskSelection();
+        const account = window.FirebaseService?.account || window.RMLAuth?.account;
+        if (account?.role === 'teacher') {
+          window.location.hash = '#teacher';
+        } else {
+          window.location.hash = '#hub';
+        }
       } else {
-        window.App.navigateToTask(nextTaskId);
+        window.App?.navigateToTask(nextTaskId);
       }
     };
   }
 }
 
-window.TaskEngine = TaskEngine;
+if (typeof window !== 'undefined') {
+  window.TaskEngine = TaskEngine;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = TaskEngine;
+}

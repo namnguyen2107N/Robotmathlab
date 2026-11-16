@@ -197,12 +197,30 @@ class LogEngine {
       (now - new Date(this.currentSession.startedAt).getTime()) / 1000
     );
 
+    // Tính toán điểm số Polya dựa trên thời gian từ lúc bắt đầu tới hoàn thành và hiệu suất học sinh
+    let scoreResult = null;
+    if (window.ScoringEngine) {
+      scoreResult = window.ScoringEngine.calculateScore({
+        taskId: this.currentSession.taskId,
+        finalSuccess,
+        totalAttempts: this.currentSession.summary.totalAttempts,
+        totalTimeSeconds: this.currentSession.summary.totalTimeSeconds,
+        backwardStepsCount: this.currentSession.summary.backwardStepsCount,
+        hintsCount: this.currentSession.supportUsage.mathHints?.length || 0
+      });
+      this.currentSession.score = scoreResult;
+      this.currentSession.summary.score = scoreResult.totalScore;
+      this.currentSession.summary.stars = scoreResult.stars;
+    }
+
     this.logEvent('SESSION_COMPLETED', 'Completed the learning session', {
       finalSuccess,
       totalAttempts: this.currentSession.summary.totalAttempts,
-      totalTimeSeconds: this.currentSession.summary.totalTimeSeconds
+      totalTimeSeconds: this.currentSession.summary.totalTimeSeconds,
+      score: scoreResult?.totalScore || 0,
+      stars: scoreResult?.stars || 0
     });
-    this.notify({ type: 'SESSION_COMPLETED', session: this.currentSession });
+    this.notify({ type: 'SESSION_COMPLETED', session: this.currentSession, score: scoreResult });
 
     // Sync to Firebase Realtime Database
     if (window.FirebaseService) {
@@ -210,9 +228,20 @@ class LogEngine {
       window.FirebaseService.saveTaskProgress(this.currentSession.taskId, {
         completed: true,
         finalSuccess,
+        score: scoreResult?.totalScore || 0,
+        stars: scoreResult?.stars || 0,
         totalAttempts: this.currentSession.summary.totalAttempts,
         totalTimeSeconds: this.currentSession.summary.totalTimeSeconds
       });
+
+      if (scoreResult && finalSuccess) {
+        window.FirebaseService.saveScore(this.currentSession.taskId, {
+          score: scoreResult.totalScore,
+          stars: scoreResult.stars,
+          timeSeconds: this.currentSession.summary.totalTimeSeconds,
+          attempts: this.currentSession.summary.totalAttempts
+        });
+      }
     }
 
     return this.currentSession;
