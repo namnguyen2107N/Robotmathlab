@@ -25,14 +25,18 @@
     resolveReady = resolve;
   });
 
-  const lang = (() => {
-    const stored = localStorage.getItem(langKey) || localStorage.getItem(langKeyAlt);
-    if (stored === 'vi' || stored === 'en') return stored;
-    if (window.I18N && (window.I18N.currentLang === 'vi' || window.I18N.currentLang === 'en')) {
+  function getCurrentLang() {
+    if (typeof window !== 'undefined' && window.I18N && (window.I18N.currentLang === 'vi' || window.I18N.currentLang === 'en')) {
       return window.I18N.currentLang;
     }
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem(langKey) || localStorage.getItem(langKeyAlt);
+        if (stored === 'vi' || stored === 'en') return stored;
+      }
+    } catch (_) {}
     return 'vi';
-  })();
+  }
 
   const TEXT = {
     vi: {
@@ -77,6 +81,10 @@
       consent: 'Em đồng ý để hệ thống lưu tiến độ và dữ liệu học tập trên nền tảng Firebase.',
       loginBtn: 'Vào phòng học',
       registerBtn: 'Tạo tài khoản và vào học',
+      noAccountYet: 'Chưa có tài khoản?',
+      switchToRegister: 'Tạo tài khoản ngay',
+      alreadyHaveAccount: 'Đã có tài khoản?',
+      switchToLogin: 'Đăng nhập ngay',
       guestBtn: '🚀 Trải nghiệm ngay (Chế độ Khách)',
       guestNote: 'Thử nghiệm nhanh dành cho học sinh mà không cần tạo tài khoản',
       orDivider: 'hoặc',
@@ -145,6 +153,10 @@
       consent: 'I agree to have my learning progress safely recorded on Firebase Cloud.',
       loginBtn: 'Enter the lab',
       registerBtn: 'Create account and start',
+      noAccountYet: "Don't have an account?",
+      switchToRegister: 'Create one now',
+      alreadyHaveAccount: 'Already have an account?',
+      switchToLogin: 'Sign in now',
       guestBtn: '🚀 Quick Explore (Guest Mode)',
       guestNote: 'Try the lab immediately without creating an account',
       orDivider: 'or',
@@ -173,12 +185,16 @@
     },
   };
 
-  const t = TEXT[lang] || TEXT.vi;
-
   function activeText() {
-    const active = (window.I18N && window.I18N.currentLang) || lang;
-    return TEXT[active] || t;
+    const active = getCurrentLang();
+    return TEXT[active] || TEXT.vi;
   }
+
+  const t = new Proxy({}, {
+    get(_target, prop) {
+      return activeText()[prop];
+    }
+  });
 
   function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -265,6 +281,7 @@
   }
 
   function socialAuthBlock() {
+    const t = activeText();
     return `
       <div class="rml-auth-divider">
         <span>${escapeHtml(t.orSocial)}</span>
@@ -283,35 +300,110 @@
     `;
   }
 
-  function renderGate() {
-    const mount = getMount();
+  function showToast(message, icon = '✨') {
+    if (typeof document === 'undefined') return;
+    const toast = document.getElementById('rml-toast');
+    if (!toast) return;
+    const iconEl = document.getElementById('rml-toast-icon');
+    const textEl = document.getElementById('rml-toast-text');
+    if (iconEl) iconEl.textContent = icon;
+    if (textEl) textEl.textContent = message;
+    toast.style.display = 'flex';
+    requestAnimationFrame(() => toast.classList.add('active'));
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => {
+      toast.classList.remove('active');
+      setTimeout(() => { toast.style.display = 'none'; }, 250);
+    }, 3200);
+  }
+
+  function showInAppConfirm({
+    icon = '🚪',
+    title = 'Xác nhận',
+    message = '',
+    acceptLabel = 'Đồng ý',
+    cancelLabel = 'Hủy',
+    danger = false
+  } = {}) {
+    return new Promise((resolve) => {
+      if (typeof document === 'undefined') {
+        if (typeof window !== 'undefined' && typeof window.confirm === 'function') {
+          return resolve(window.confirm(message));
+        }
+        return resolve(true);
+      }
+      const modal = document.getElementById('rml-confirm-modal');
+      if (!modal) {
+        if (typeof window !== 'undefined' && typeof window.confirm === 'function') {
+          return resolve(window.confirm(message));
+        }
+        return resolve(true);
+      }
+
+      const iconEl = document.getElementById('rml-confirm-icon');
+      const titleEl = document.getElementById('rml-confirm-title');
+      const msgEl = document.getElementById('rml-confirm-message');
+      const acceptBtn = document.getElementById('btn-rml-confirm-accept');
+      const cancelBtn = document.getElementById('btn-rml-confirm-cancel');
+
+      if (iconEl) iconEl.textContent = icon;
+      if (titleEl) titleEl.textContent = title;
+      if (msgEl) msgEl.textContent = message;
+      if (acceptBtn) {
+        acceptBtn.textContent = acceptLabel;
+        acceptBtn.className = danger ? 'rml-confirm-btn rml-confirm-btn-danger' : 'rml-confirm-btn rml-confirm-btn-accept';
+      }
+      if (cancelBtn) cancelBtn.textContent = cancelLabel;
+
+      const cleanup = () => {
+        modal.classList.remove('active');
+        setTimeout(() => {
+          modal.style.display = 'none';
+          document.body.style.overflow = '';
+        }, 200);
+        acceptBtn?.removeEventListener('click', onAccept);
+        cancelBtn?.removeEventListener('click', onCancel);
+      };
+
+      const onAccept = () => {
+        cleanup();
+        resolve(true);
+      };
+
+      const onCancel = () => {
+        cleanup();
+        resolve(false);
+      };
+
+      acceptBtn?.addEventListener('click', onAccept);
+      cancelBtn?.addEventListener('click', onCancel);
+
+      modal.style.display = 'flex';
+      requestAnimationFrame(() => modal.classList.add('active'));
+      document.body.style.overflow = 'hidden';
+    });
+  }
+
+  function renderGate(customMount = null, isModal = false) {
+    const mount = customMount || getMount();
     const container = mount || ensureOverlay();
-    if (mount) {
+    if (!customMount && mount) {
       removeOverlay();
     }
     const isOnline = window.FirebaseService?.isOnline;
-    const statusClass = isOnline ? 'status-online' : 'status-local';
-    const statusText = isOnline ? t.firebaseConnected : t.firebaseOffline;
+    // Yêu cầu: Ẩn ⚡ Chế độ Cục bộ (Local Demo)
+    const statusBadgeHtml = isOnline
+      ? `<div class="rml-db-badge-wrap"><span class="rml-db-badge status-online">${escapeHtml(t.firebaseConnected)}</span></div>`
+      : '';
 
     container.innerHTML = `
       <div class="splash-auth-card rml-auth-card" role="region" aria-label="Đăng nhập hoặc tạo tài khoản Robot Math Lab">
-        <div class="rml-auth-top">
-          <div class="rml-auth-brand">
-            <span class="rml-auth-robot" aria-hidden="true">🤖</span>
-            <div>
-              <span class="rml-auth-kicker">${escapeHtml(t.kicker)}</span>
-              <strong>Robot Math Lab</strong>
-            </div>
-          </div>
-          <button type="button" class="rml-auth-lang" id="rml-auth-lang">${escapeHtml(t.langButton)}</button>
+        <div class="rml-auth-top rml-compact-top">
+          ${statusBadgeHtml}
+          <button type="button" class="rml-auth-lang" id="rml-auth-lang" title="Chuyển ngôn ngữ / Switch language">${escapeHtml(t.langButton)}</button>
         </div>
 
-        <div class="rml-db-badge-wrap">
-          <span class="rml-db-badge ${statusClass}">${escapeHtml(statusText)}</span>
-        </div>
-
-        <h2 id="rml-auth-title" class="rml-auth-title">${escapeHtml(t.title)}</h2>
-        <p class="rml-auth-subtitle">${escapeHtml(t.subtitle)}</p>
+        <h2 id="rml-auth-title" class="rml-auth-title sr-only">${escapeHtml(t.title)}</h2>
 
         <div class="rml-auth-tabs" role="tablist" aria-label="Login or register">
           <button type="button" class="rml-auth-tab ${state.mode === 'login' ? 'active' : ''}" data-tab="login" role="tab" aria-selected="${state.mode === 'login'}">${escapeHtml(t.loginTab)}</button>
@@ -319,7 +411,7 @@
         </div>
 
         <!-- FORM ĐĂNG NHẬP -->
-        <form id="rml-login-form" class="rml-auth-form" ${state.mode !== 'login' ? 'hidden' : ''} novalidate>
+        <form id="rml-login-form" class="rml-auth-form" ${state.mode !== 'login' ? 'hidden style="display:none !important;"' : 'style="display:grid !important;"'} novalidate>
           ${field('rml-login-username', 'username', t.username, t.usernameHint, 'text', 'username')}
           ${field('rml-login-password', 'password', t.password, '', 'password', 'current-password')}
           <div id="rml-login-error" class="rml-auth-error" role="alert" hidden></div>
@@ -328,14 +420,14 @@
           <!-- ĐĂNG NHẬP GOOGLE -->
           ${socialAuthBlock()}
 
-          <button type="button" class="rml-auth-guest-btn" id="rml-auth-guest-btn">
-            ${escapeHtml(t.guestBtn)}
-          </button>
-          <p class="rml-auth-note rml-center-note">${escapeHtml(t.guestNote)}</p>
+          <div class="rml-auth-switch-tab">
+            <span>${escapeHtml(t.noAccountYet)}</span>
+            <button type="button" class="rml-tab-switch-btn" data-switch-to="register">${escapeHtml(t.switchToRegister)}</button>
+          </div>
         </form>
 
         <!-- FORM ĐĂNG KÝ TÀI KHOẢN -->
-        <form id="rml-register-form" class="rml-auth-form" ${state.mode !== 'register' ? 'hidden' : ''} novalidate>
+        <form id="rml-register-form" class="rml-auth-form" ${state.mode !== 'register' ? 'hidden style="display:none !important;"' : 'style="display:grid !important;"'} novalidate>
           <!-- BỘ CHỌN VAI TRÒ (GIÁO VIÊN / HỌC SINH) -->
           <div class="rml-role-selector">
             <label class="rml-role-title">${escapeHtml(t.roleSelectTitle)}</label>
@@ -366,8 +458,11 @@
           </div>
 
           ${field('rml-register-username', 'username', t.username, t.usernameHint, 'text', 'username')}
-          ${field('rml-register-password', 'password', t.password, t.passwordHint, 'password', 'new-password')}
-          ${field('rml-register-confirm', 'password_confirm', t.confirm, '', 'password', 'new-password')}
+          
+          <div class="rml-auth-row-2">
+            ${field('rml-register-password', 'password', t.password, '', 'password', 'new-password')}
+            ${field('rml-register-confirm', 'password_confirm', t.confirm, '', 'password', 'new-password')}
+          </div>
 
           <!-- Trường dành riêng cho Học Sinh: Mã lớp -->
           ${field('rml-register-classroom', 'classroom_id', t.classroomId, t.classroomIdHint, 'text', 'off', state.selectedRole === 'teacher' ? 'rml-student-only-field hidden' : 'rml-student-only-field')}
@@ -384,6 +479,11 @@
 
           <!-- ĐĂNG KÝ GOOGLE -->
           ${socialAuthBlock()}
+
+          <div class="rml-auth-switch-tab">
+            <span>${escapeHtml(t.alreadyHaveAccount)}</span>
+            <button type="button" class="rml-tab-switch-btn" data-switch-to="login">${escapeHtml(t.switchToLogin)}</button>
+          </div>
         </form>
 
         <p class="rml-auth-privacy">${escapeHtml(t.privacy)}</p>
@@ -394,27 +494,56 @@
           <input type="text" id="splash-student-name" value="Bé Yêu Toán" />
         </div>
       </div>
+
+      ${isModal ? '' : `
+      <!-- PHẦN 2: KHỐI BẮT ĐẦU (GUEST MODE) TÁCH BIỆT RÕ RÀNG -->
+      <div class="splash-guest-card" id="splash-guest-card">
+        <button type="button" class="btn-guest-start" id="rml-auth-guest-btn">
+          <span class="guest-btn-icon">🚀</span>
+          <span class="guest-btn-text">${escapeHtml(t.guestBtn)}</span>
+          <span class="guest-btn-arrow">➔</span>
+        </button>
+        <p class="guest-note">${escapeHtml(t.guestNote)}</p>
+      </div>
+      `}
     `;
 
-    // Nút chuyển ngôn ngữ
+    // Nút chuyển ngôn ngữ (chuyển đổi tại chỗ mượt mà, không reload lại trang)
     const languageButton = container.querySelector('#rml-auth-lang');
     if (languageButton) {
       languageButton.addEventListener('click', () => {
-        const next = lang === 'vi' ? 'en' : 'vi';
-        localStorage.setItem(langKey, next);
-        localStorage.setItem(langKeyAlt, next);
-        location.reload();
+        const currentLang = getCurrentLang();
+        const next = currentLang === 'vi' ? 'en' : 'vi';
+        if (window.I18N && typeof window.I18N.setLang === 'function') {
+          window.I18N.setLang(next);
+        } else {
+          try {
+            localStorage.setItem(langKey, next);
+            localStorage.setItem(langKeyAlt, next);
+          } catch (_) {}
+          if (typeof window !== 'undefined' && window.dispatchEvent) {
+            window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: next } }));
+          }
+        }
       });
     }
 
     // Chuyển Tab Đăng nhập / Đăng ký
     container.querySelectorAll('[data-tab]').forEach((button) => {
-      button.addEventListener('click', () => showTab(button.dataset.tab));
+      button.addEventListener('click', () => showTab(button.dataset.tab, container));
+    });
+
+    // Chuyển đổi nhanh giữa Đăng nhập / Đăng ký bằng text link ở footer
+    container.querySelectorAll('[data-switch-to]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        showTab(btn.dataset.switchTo, container);
+      });
     });
 
     // Chuyển đổi vai trò (Student / Teacher) trong form đăng ký
     container.querySelectorAll('.rml-role-btn').forEach((btn) => {
-      btn.addEventListener('click', () => selectRole(btn.dataset.role));
+      btn.addEventListener('click', () => selectRole(btn.dataset.role, container));
     });
 
     const loginForm = container.querySelector('#rml-login-form');
@@ -431,70 +560,125 @@
       btn.addEventListener('click', () => onSocialAuth(btn.dataset.social, btn));
     });
 
-    showTab(state.mode || 'login');
-    selectRole(state.selectedRole || 'student');
+    showTab(state.mode || 'login', container);
+    selectRole(state.selectedRole || 'student', container);
+
+    // Đồng bộ nút Header và Splash Tools khi ở trạng thái Chưa Đăng Nhập
+    const btnHeaderLogout = document.getElementById('btn-header-logout');
+    if (btnHeaderLogout) btnHeaderLogout.style.display = 'none';
+    const btnHeaderLogin = document.getElementById('btn-header-login');
+    if (btnHeaderLogin) btnHeaderLogin.style.display = 'inline-flex';
+    const studentTag = document.getElementById('header-student-tag');
+    if (studentTag) studentTag.style.display = 'none';
+    const btnSplashLogout = document.getElementById('btn-splash-logout');
+    if (btnSplashLogout) btnSplashLogout.style.display = 'none';
+
     if (loginUsername && typeof loginUsername.focus === 'function') loginUsername.focus();
   }
 
-  function selectRole(role) {
+  function selectRole(role, targetContainer = null) {
     state.selectedRole = role === 'teacher' ? 'teacher' : 'student';
-    const container = getMount() || state.overlay;
-    if (!container) return;
+    const containers = targetContainer
+      ? [targetContainer]
+      : Array.from(document.querySelectorAll('#rml-modal-auth-mount, #splash-auth-mount, .rml-auth-card'));
 
-    container.querySelectorAll('.rml-role-btn').forEach((b) => {
-      const isMatch = b.dataset.role === state.selectedRole;
-      b.classList.toggle('active', isMatch);
-      b.setAttribute('aria-checked', String(isMatch));
-    });
-
-    const hiddenRoleInput = container.querySelector('#rml-register-role');
-    if (hiddenRoleInput) hiddenRoleInput.value = state.selectedRole;
-
-    const studentFields = container.querySelectorAll('.rml-student-only-field');
-    const teacherFields = container.querySelectorAll('.rml-teacher-only-field');
-    const nameLabel = container.querySelector('label[for="rml-register-name"]');
-    const nameHint = container.querySelector('#field-wrap-rml-register-name small');
-    const classLabel = container.querySelector('#lbl-register-class');
-    const classInput = container.querySelector('#rml-register-class');
-
-    if (state.selectedRole === 'teacher') {
-      studentFields.forEach(el => el.classList.add('hidden'));
-      teacherFields.forEach(el => el.classList.remove('hidden'));
-      if (nameLabel) nameLabel.textContent = t.displayNameTeacher;
-      if (nameHint) nameHint.textContent = t.displayNameTeacherHint;
-      if (classLabel) classLabel.textContent = t.teacherClass + ' *';
-      if (classInput) classInput.placeholder = t.teacherClassHint;
-    } else {
-      studentFields.forEach(el => el.classList.remove('hidden'));
-      teacherFields.forEach(el => el.classList.add('hidden'));
-      if (nameLabel) nameLabel.textContent = t.displayNameStudent;
-      if (nameHint) nameHint.textContent = t.displayNameStudentHint;
-      if (classLabel) classLabel.textContent = t.studentClass + ' *';
-      if (classInput) classInput.placeholder = t.studentClassHint;
+    if (containers.length === 0 && (getMount() || state.overlay)) {
+      containers.push(getMount() || state.overlay);
     }
+
+    containers.forEach((container) => {
+      if (!container) return;
+      container.querySelectorAll('.rml-role-btn').forEach((b) => {
+        const isMatch = b.dataset.role === state.selectedRole;
+        b.classList.toggle('active', isMatch);
+        b.setAttribute('aria-checked', String(isMatch));
+      });
+
+      const hiddenRoleInput = container.querySelector('#rml-register-role');
+      if (hiddenRoleInput) hiddenRoleInput.value = state.selectedRole;
+
+      const studentFields = container.querySelectorAll('.rml-student-only-field');
+      const teacherFields = container.querySelectorAll('.rml-teacher-only-field');
+      const nameLabel = container.querySelector('label[for="rml-register-name"]');
+      const nameHint = container.querySelector('#field-wrap-rml-register-name small');
+      const classLabel = container.querySelector('#lbl-register-class');
+      const classInput = container.querySelector('#rml-register-class');
+
+      if (state.selectedRole === 'teacher') {
+        studentFields.forEach(el => el.classList.add('hidden'));
+        teacherFields.forEach(el => el.classList.remove('hidden'));
+        if (nameLabel) nameLabel.textContent = t.displayNameTeacher;
+        if (nameHint) nameHint.textContent = t.displayNameTeacherHint;
+        if (classLabel) classLabel.textContent = t.teacherClass + ' *';
+        if (classInput) classInput.placeholder = t.teacherClassHint;
+      } else {
+        studentFields.forEach(el => el.classList.remove('hidden'));
+        teacherFields.forEach(el => el.classList.add('hidden'));
+        if (nameLabel) nameLabel.textContent = t.displayNameStudent;
+        if (nameHint) nameHint.textContent = t.displayNameStudentHint;
+        if (classLabel) classLabel.textContent = t.studentClass + ' *';
+        if (classInput) classInput.placeholder = t.studentClassHint;
+      }
+    });
   }
 
-  function showTab(mode) {
+  function showTab(mode, targetContainer = null) {
     state.mode = mode === 'register' ? 'register' : 'login';
-    const container = getMount() || state.overlay;
-    if (!container) return;
+    const containers = targetContainer
+      ? [targetContainer]
+      : Array.from(document.querySelectorAll('#rml-modal-auth-mount, #splash-auth-mount, .rml-auth-card'));
 
-    container.querySelectorAll('[data-tab]').forEach((button) => {
-      const active = button.dataset.tab === state.mode;
-      button.classList.toggle('active', active);
-      button.setAttribute('aria-selected', String(active));
+    if (containers.length === 0 && (getMount() || state.overlay)) {
+      containers.push(getMount() || state.overlay);
+    }
+
+    containers.forEach((container) => {
+      if (!container) return;
+      container.querySelectorAll('[data-tab]').forEach((button) => {
+        const active = button.dataset.tab === state.mode;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', String(active));
+      });
+
+      const loginForm = container.querySelector('#rml-login-form');
+      const registerForm = container.querySelector('#rml-register-form');
+      if (loginForm) {
+        if (state.mode === 'login') {
+          loginForm.removeAttribute('hidden');
+          loginForm.style.display = 'grid';
+        } else {
+          loginForm.setAttribute('hidden', '');
+          loginForm.style.display = 'none';
+        }
+      }
+      if (registerForm) {
+        if (state.mode === 'register') {
+          registerForm.removeAttribute('hidden');
+          registerForm.style.display = 'grid';
+        } else {
+          registerForm.setAttribute('hidden', '');
+          registerForm.style.display = 'none';
+        }
+      }
+      clearError('login', container);
+      clearError('register', container);
+
+      // Tự động cuộn mượt về đầu form khi đổi tab
+      const card = container.classList?.contains('rml-auth-card') ? container : container.querySelector('.rml-auth-card');
+      if (card && typeof card.scrollTo === 'function') {
+        card.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      if (loginForm && typeof loginForm.scrollTo === 'function') {
+        loginForm.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      if (registerForm && typeof registerForm.scrollTo === 'function') {
+        registerForm.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      const focusId = state.mode === 'login' ? 'rml-login-username' : 'rml-register-name';
+      const focusEl = container.querySelector(`#${focusId}`);
+      if (focusEl && typeof focusEl.focus === 'function') focusEl.focus();
     });
-
-    const loginForm = container.querySelector('#rml-login-form');
-    const registerForm = container.querySelector('#rml-register-form');
-    if (loginForm) loginForm.hidden = state.mode !== 'login';
-    if (registerForm) registerForm.hidden = state.mode !== 'register';
-    clearError('login');
-    clearError('register');
-
-    const focusId = state.mode === 'login' ? 'rml-login-username' : 'rml-register-name';
-    const focusEl = container.querySelector(`#${focusId}`);
-    if (focusEl && typeof focusEl.focus === 'function') focusEl.focus();
   }
 
   function setBusy(form, busy) {
@@ -513,20 +697,54 @@
     }
   }
 
-  function clearError(mode) {
-    const container = getMount() || state.overlay;
-    const el = container?.querySelector(`#rml-${mode}-error`);
-    if (!el) return;
-    el.hidden = true;
-    el.textContent = '';
+  function clearError(mode, targetContainer = null) {
+    if (targetContainer) {
+      const el = targetContainer.querySelector(`#rml-${mode}-error`);
+      if (el) {
+        el.hidden = true;
+        el.textContent = '';
+      }
+      return;
+    }
+    const all = document.querySelectorAll(`#rml-${mode}-error`);
+    if (all.length > 0) {
+      all.forEach((el) => {
+        el.hidden = true;
+        el.textContent = '';
+      });
+    } else {
+      const container = getMount() || state.overlay;
+      const el = container?.querySelector(`#rml-${mode}-error`);
+      if (el) {
+        el.hidden = true;
+        el.textContent = '';
+      }
+    }
   }
 
-  function showError(mode, message) {
-    const container = getMount() || state.overlay;
-    const el = container?.querySelector(`#rml-${mode}-error`);
-    if (!el) return;
-    el.textContent = message;
-    el.hidden = false;
+  function showError(mode, message, targetContainer = null) {
+    if (targetContainer) {
+      const el = targetContainer.querySelector(`#rml-${mode}-error`);
+      if (el) {
+        el.textContent = message;
+        el.hidden = false;
+        return;
+      }
+    }
+    const all = document.querySelectorAll(`#rml-${mode}-error`);
+    if (all.length > 0) {
+      all.forEach((el) => {
+        el.textContent = message;
+        el.hidden = false;
+      });
+    } else {
+      const container = getMount() || state.overlay;
+      const el = container?.querySelector(`#rml-${mode}-error`);
+      if (el) {
+        el.textContent = message;
+        el.hidden = false;
+      }
+    }
   }
 
   // =========================================================================
@@ -536,13 +754,14 @@
   async function onLoginSubmit(event) {
     event.preventDefault();
     const form = event.currentTarget;
-    clearError('login');
+    const formContainer = form.closest('.rml-auth-card, #rml-modal-auth-mount, #splash-auth-mount') || form;
+    clearError('login', formContainer);
     const data = new FormData(form);
     const username = String(data.get('username') || '').trim();
     const password = String(data.get('password') || '');
 
     if (!username || !password) {
-      showError('login', t.required);
+      showError('login', t.required, formContainer);
       return;
     }
 
@@ -555,9 +774,9 @@
           return;
         }
       }
-      showError('login', t.network);
+      showError('login', t.network, formContainer);
     } catch (err) {
-      showError('login', err.message || t.network);
+      showError('login', err.message || t.network, formContainer);
     } finally {
       setBusy(form, false);
     }
@@ -566,7 +785,8 @@
   async function onRegisterSubmit(event) {
     event.preventDefault();
     const form = event.currentTarget;
-    clearError('register');
+    const formContainer = form.closest('.rml-auth-card, #rml-modal-auth-mount, #splash-auth-mount') || form;
+    clearError('register', formContainer);
     const data = new FormData(form);
     const displayName = String(data.get('display_name') || '').trim();
     const schoolName = String(data.get('school_name') || '').trim();
@@ -579,15 +799,15 @@
     const teacherCode = String(data.get('teacher_code') || '').trim();
     const consent = data.get('consent') === 'on';
 
-    if (!displayName) return showError('register', t.displayNameMissing);
-    if (!schoolName) return showError('register', t.schoolNameMissing);
+    if (!displayName) return showError('register', t.displayNameMissing, formContainer);
+    if (!schoolName) return showError('register', t.schoolNameMissing, formContainer);
     if (!className) {
-      return showError('register', role === 'teacher' ? t.teacherClassMissing : t.studentClassMissing);
+      return showError('register', role === 'teacher' ? t.teacherClassMissing : t.studentClassMissing, formContainer);
     }
-    if (!username || username.length < 3) return showError('register', t.usernameInvalid);
-    if (password.length < 6) return showError('register', t.passwordShort);
-    if (password !== confirm) return showError('register', t.passwordMismatch);
-    if (!consent) return showError('register', t.consentMissing);
+    if (!username || username.length < 3) return showError('register', t.usernameInvalid, formContainer);
+    if (password.length < 6) return showError('register', t.passwordShort, formContainer);
+    if (password !== confirm) return showError('register', t.passwordMismatch, formContainer);
+    if (!consent) return showError('register', t.consentMissing, formContainer);
 
     setBusy(form, true);
     try {
@@ -607,38 +827,58 @@
           return;
         }
       }
-      showError('register', t.network);
+      showError('register', t.network, formContainer);
     } catch (err) {
-      showError('register', err.message || t.network);
+      showError('register', err.message || t.network, formContainer);
     } finally {
       setBusy(form, false);
     }
   }
 
   async function onGuestSubmit(event) {
-    event.preventDefault();
-    const button = event.currentTarget;
-    button.disabled = true;
-    button.textContent = '...';
+    if (event && typeof event.preventDefault === 'function') event.preventDefault();
+    const button = event.currentTarget || event.target;
+    const isVi = getCurrentLang() === 'vi';
+
+    const confirmed = await showInAppConfirm({
+      icon: '🚀',
+      title: isVi ? 'Trải nghiệm Chế độ Khách?' : 'Try as Guest?',
+      message: isVi
+        ? 'Chào mừng bạn! Trong chế độ Khách, bạn có thể tự do khám phá tất cả các bài tập. Tiến độ và điểm số sẽ không được lưu hoặc đồng bộ lên máy chủ. Bạn có muốn bắt đầu ngay?'
+        : 'Welcome! In Guest mode, you can freely explore all missions. Your progress and scores will not be saved or synced to the cloud. Start now?',
+      acceptLabel: isVi ? 'Bắt đầu ngay ➔' : 'Start Now ➔',
+      cancelLabel: isVi ? 'Quay lại' : 'Back',
+      danger: false
+    });
+    if (!confirmed) return;
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = '...';
+    }
 
     try {
       if (window.FirebaseService) {
         const account = await window.FirebaseService.loginAsGuest();
         if (account) {
+          showToast(isVi ? 'Đang vào phòng học (Chế độ Khách)...' : 'Entering lab as Guest...', '🚀');
           finish(account);
           return;
         }
       }
     } catch (err) {
       showError('login', err.message || t.network);
-      button.disabled = false;
-      button.textContent = activeText().guestBtn;
+      if (button) {
+        button.disabled = false;
+        button.textContent = activeText().guestBtn;
+      }
     }
   }
 
   async function onSocialAuth(providerName, button) {
     const errorTarget = state.mode;
-    clearError(errorTarget);
+    const formContainer = button ? (button.closest('.rml-auth-card, #rml-modal-auth-mount, #splash-auth-mount') || null) : null;
+    clearError(errorTarget, formContainer);
 
     if (button) {
       button.disabled = true;
@@ -659,9 +899,9 @@
           return;
         }
       }
-      showError(errorTarget, t.network);
+      showError(errorTarget, t.network, formContainer);
     } catch (err) {
-      showError(errorTarget, err.message || t.network);
+      showError(errorTarget, err.message || t.network, formContainer);
     } finally {
       if (button) {
         button.disabled = false;
@@ -681,6 +921,7 @@
       localStorage.setItem('rml_classroom_id', account.classroomId);
     }
 
+    closeLoginOverlay();
     removeOverlay();
 
     if (!state.readyResolved) {
@@ -691,20 +932,107 @@
     installAccountUI();
     renderAuthenticatedStart(account);
 
+    const isVi = getCurrentLang() === 'vi';
+    const isGuest = account.role === 'guest' || account.isAnonymous;
+    if (!isGuest) {
+      showToast(isVi ? `Đăng nhập thành công! Chào mừng ${account.display_name} 🎉` : `Welcome back, ${account.display_name}! 🎉`, '✨');
+    }
+
+    // Cập nhật trạng thái nút đăng nhập / đăng xuất trên header
+    const btnHeaderLogout = document.getElementById('btn-header-logout');
+    if (btnHeaderLogout) btnHeaderLogout.style.display = 'inline-flex';
+    const btnHeaderLogin = document.getElementById('btn-header-login');
+    if (btnHeaderLogin) btnHeaderLogin.style.display = 'none';
+    const studentTag = document.getElementById('header-student-tag');
+    if (studentTag) studentTag.style.display = 'inline-flex';
+    const btnSplashLogout = document.getElementById('btn-splash-logout');
+    if (btnSplashLogout) btnSplashLogout.style.display = 'inline-flex';
+    const btnTeacher = document.getElementById('btn-header-teacher');
+    if (btnTeacher) btnTeacher.style.display = account.role === 'teacher' ? 'inline-flex' : 'none';
+
     if (window.App && typeof window.App.setStudentName === 'function') {
       window.App.setStudentName(account.display_name);
     }
 
-    // Nếu là giáo viên và đang ở trang chính, tự động chuyển vào Teacher Dashboard
-    if (account.role === 'teacher' && window.location && (!window.location.hash || window.location.hash === '#start' || window.location.hash === '#hub')) {
-      window.location.hash = '#teacher';
+    // YÊU CẦU: Nếu có tài khoản rồi vào ngay bên trong và loại bỏ #start
+    if (typeof sessionStorage !== 'undefined' && sessionStorage) {
+      sessionStorage.setItem('rml_started', 'true');
     }
+    const targetHash = account.role === 'teacher' ? '#teacher' : '#hub';
+    const currentHash = (window.location && window.location.hash) || '';
+    if (!currentHash || currentHash === '#start' || currentHash === '#welcome') {
+      if (window.location) {
+        window.location.hash = targetHash;
+      }
+    }
+    if (window.App && typeof window.App.hideSplashScreen === 'function') {
+      window.App.hideSplashScreen();
+      if ((window.location.hash === '#hub' || !window.location.hash) && typeof window.App.renderTaskHub === 'function') {
+        window.App.renderTaskHub();
+      }
+    }
+    if (window.App && typeof window.App.handleRoute === 'function') {
+      window.App.handleRoute();
+    }
+  }
+
+  function openLoginOverlay(initialTab = 'login') {
+    state.mode = initialTab === 'register' ? 'register' : 'login';
+    let modal = document.getElementById('rml-auth-modal-overlay');
+    if (modal) {
+      modal.remove();
+    }
+
+    modal = document.createElement('div');
+    modal.id = 'rml-auth-modal-overlay';
+    modal.className = 'rml-auth-modal-overlay';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    const isVi = getCurrentLang() === 'vi';
+    modal.setAttribute('aria-label', state.mode === 'login' ? (isVi ? 'Đăng nhập' : 'Sign In') : (isVi ? 'Tạo tài khoản' : 'Register'));
+
+    modal.innerHTML = `
+      <div class="rml-auth-modal-card">
+        <button type="button" class="btn-close-auth-modal" id="btn-close-auth-modal" aria-label="Đóng">✕</button>
+        <div id="rml-modal-auth-mount"></div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    const closeBtn = modal.querySelector('#btn-close-auth-modal');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeLoginOverlay);
+    }
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeLoginOverlay();
+    });
+
+    const onKeydown = (e) => {
+      if (e.key === 'Escape') {
+        closeLoginOverlay();
+        document.removeEventListener('keydown', onKeydown);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
+
+    renderGate(modal.querySelector('#rml-modal-auth-mount'), true);
+  }
+
+  function closeLoginOverlay() {
+    const modal = document.getElementById('rml-auth-modal-overlay');
+    if (modal) {
+      modal.remove();
+    }
+    document.body.style.overflow = '';
   }
 
   function renderAuthenticatedStart(account) {
     const mount = getMount();
     if (!mount) return;
 
+    const lang = getCurrentLang();
     const isTeacher = account.role === 'teacher';
     const roleIcon = isTeacher ? '👨‍🏫' : '👧';
     const roleName = isTeacher ? t.roleTeacher : t.roleStudent;
@@ -713,8 +1041,10 @@
     const className = escapeHtml(account.className || account.class_name || (isTeacher ? 'Khối phụ trách' : 'Lớp học'));
     const classroomId = account.classroomId ? escapeHtml(account.classroomId) : '';
     const isOnline = window.FirebaseService?.isOnline;
-    const statusText = isOnline ? t.firebaseConnected : t.firebaseOffline;
-    const statusClass = isOnline ? 'status-online' : 'status-local';
+    // Yêu cầu: Ẩn ⚡ Chế độ Cục bộ (Local Demo)
+    const statusPillHtml = isOnline
+      ? `<span class="splash-pill status-online">${escapeHtml(t.firebaseConnected)}</span>`
+      : '';
 
     mount.innerHTML = `
       <div class="splash-welcome-card" role="region" aria-label="Hồ sơ tài khoản">
@@ -730,7 +1060,7 @@
               <span class="splash-pill pill-school">🏫 ${school}</span>
               <span class="splash-pill pill-class">📚 ${className}</span>
               ${classroomId ? `<span class="splash-pill pill-code">🏷️ ${classroomId}</span>` : ''}
-              <span class="splash-pill ${statusClass}">${escapeHtml(statusText)}</span>
+              ${statusPillHtml}
             </div>
           </div>
         </div>
@@ -863,10 +1193,10 @@
 
     const meta = panel.querySelector('#rml-account-meta');
     if (meta && state.account) {
-      const modeIndicator = window.FirebaseService?.isOnline ? '🔥 Cloud' : '⚡ Local';
+      const modeIndicator = window.FirebaseService?.isOnline ? ' · 🔥 Cloud' : '';
       const roleStr = state.account.role === 'teacher' ? '👨‍🏫 Giáo Viên' : '👧 Học Sinh';
       const classStr = state.account.classroomId ? ` · Lớp: ${state.account.classroomId}` : '';
-      meta.textContent = `${roleStr} · ${state.account.display_name}${classStr} (${modeIndicator})`;
+      meta.textContent = `${roleStr} · ${state.account.display_name}${classStr}${modeIndicator}`;
     }
 
     // Name input synchronization
@@ -880,7 +1210,19 @@
   async function onLogoutClick(event) {
     if (event && typeof event.preventDefault === 'function') event.preventDefault();
     const text = activeText();
-    if (!window.confirm(text.logoutConfirm)) return;
+    const isVi = getCurrentLang() === 'vi';
+
+    const confirmed = await showInAppConfirm({
+      icon: '🚪',
+      title: isVi ? 'Xác nhận Đăng xuất' : 'Sign Out Confirmation',
+      message: isVi
+        ? 'Bạn có chắc chắn muốn đăng xuất? Tiến độ học tập và điểm số của bạn đã được lưu an toàn.'
+        : (text.logoutConfirm || 'Are you sure you want to sign out? Your learning progress and scores have been saved.'),
+      acceptLabel: isVi ? 'Đăng xuất' : (text.logout || 'Sign Out'),
+      cancelLabel: isVi ? 'Ở lại' : 'Stay',
+      danger: true
+    });
+    if (!confirmed) return;
 
     if (window.FirebaseService) {
       await window.FirebaseService.logout();
@@ -888,16 +1230,46 @@
 
     state.account = null;
     state.authenticated = false;
+    state.mode = 'login';
     localStorage.removeItem('rml_student_name');
     localStorage.removeItem('rml_account_id');
     localStorage.removeItem('rml_user_role');
     localStorage.removeItem('rml_classroom_id');
 
+    closeLoginOverlay();
+    showToast(isVi ? 'Đã đăng xuất thành công!' : 'Signed out successfully!', '🚪');
+
+    // Cập nhật tên trên header về mặc định
+    const defaultName = isVi ? 'Bé Yêu Toán' : 'Math Explorer';
+    const badge = document.getElementById('header-student-name');
+    if (badge) badge.innerText = defaultName;
+    if (window.App && typeof window.App.setStudentName === 'function') {
+      window.App.setStudentName(defaultName);
+    }
+
+    // Cập nhật trạng thái nút trên header
+    const btnHeaderLogout = document.getElementById('btn-header-logout');
+    if (btnHeaderLogout) btnHeaderLogout.style.display = 'none';
+    const btnHeaderLogin = document.getElementById('btn-header-login');
+    if (btnHeaderLogin) btnHeaderLogin.style.display = 'inline-flex';
+    const studentTag = document.getElementById('header-student-tag');
+    if (studentTag) studentTag.style.display = 'none';
+    const btnSplashLogout = document.getElementById('btn-splash-logout');
+    if (btnSplashLogout) btnSplashLogout.style.display = 'none';
+    const btnTeacher = document.getElementById('btn-header-teacher');
+    if (btnTeacher) btnTeacher.style.display = 'none';
+
+    // Nếu đang ở màn hình giáo viên, chuyển về #hub
+    if (window.location.hash === '#teacher' || window.location.hash === '#teacher-dashboard') {
+      window.location.hash = '#hub';
+    }
+
     const mount = getMount();
     if (mount) {
-      renderGate();
-    } else {
-      location.reload();
+      renderGate(mount, false);
+    }
+    if (window.App && typeof window.App.handleRoute === 'function') {
+      window.App.handleRoute();
     }
   }
 
@@ -930,6 +1302,10 @@
       renderGate();
     } finally {
       state.booting = false;
+      if (!state.readyResolved) {
+        state.readyResolved = true;
+        resolveReady();
+      }
     }
   }
 
@@ -940,6 +1316,10 @@
     updateDisplayName,
     logout: onLogoutClick,
     refresh: bootstrap,
+    showInAppConfirm,
+    showToast,
+    openLoginOverlay,
+    closeLoginOverlay,
     get firebaseService() { return window.FirebaseService; }
   };
 
@@ -955,8 +1335,15 @@
     if (state.authenticated && state.account) {
       installAccountUI();
       renderAuthenticatedStart(state.account);
-    } else if (getMount()) {
-      renderGate();
+    } else {
+      const splashMount = getMount();
+      if (splashMount) {
+        renderGate(splashMount, false);
+      }
+    }
+    const modalMount = document.getElementById('rml-modal-auth-mount');
+    if (modalMount) {
+      renderGate(modalMount, true);
     }
   });
 

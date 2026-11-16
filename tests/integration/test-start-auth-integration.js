@@ -77,6 +77,7 @@ class MockElement {
       const dataRoleMatch = attrs.match(/data-role=["']([^"']+)["']/i);
 
       const child = new MockElement(tag, idMatch ? idMatch[1] : '');
+      if (child.id) domElements.set(child.id, child);
       if (classMatch) child.className = classMatch[1];
       if (typeMatch) child.attributes.type = typeMatch[1];
       if (nameMatch) child.attributes.name = nameMatch[1];
@@ -85,6 +86,32 @@ class MockElement {
       child.parentElement = this;
       this.children.push(child);
     }
+  }
+
+  appendChild(child) {
+    if (child) {
+      child.parentElement = this;
+      this.children.push(child);
+      if (child.id) domElements.set(child.id, child);
+    }
+    return child;
+  }
+
+  closest(sel) {
+    let curr = this;
+    while (curr) {
+      if (sel.startsWith('.') && curr.classList.contains(sel.slice(1))) return curr;
+      if (sel.startsWith('#') && curr.id === sel.slice(1)) return curr;
+      if (sel.includes(',')) {
+        const parts = sel.split(',').map(s => s.trim());
+        for (const p of parts) {
+          if (p.startsWith('.') && curr.classList.contains(p.slice(1))) return curr;
+          if (p.startsWith('#') && curr.id === p.slice(1)) return curr;
+        }
+      }
+      curr = curr.parentElement;
+    }
+    return null;
   }
 
   setAttribute(name, val) { this.attributes[name] = String(val); }
@@ -118,8 +145,16 @@ class MockElement {
       let isMatch = false;
       if (sel.startsWith('#') && node.id === sel.slice(1)) isMatch = true;
       else if (sel.startsWith('.') && node.classList.contains(sel.slice(1))) isMatch = true;
-      else if (sel.startsWith('[data-tab') && node.dataset?.tab) isMatch = true;
-      else if (sel.startsWith('[data-role') && node.dataset?.role) isMatch = true;
+      else if (sel.startsWith('[data-tab')) {
+        const valMatch = sel.match(/\[data-tab=["']?([^"'\]]+)["']?\]/);
+        if (valMatch) isMatch = node.dataset?.tab === valMatch[1];
+        else isMatch = !!node.dataset?.tab;
+      }
+      else if (sel.startsWith('[data-role')) {
+        const valMatch = sel.match(/\[data-role=["']?([^"'\]]+)["']?\]/);
+        if (valMatch) isMatch = node.dataset?.role === valMatch[1];
+        else isMatch = !!node.dataset?.role;
+      }
       else if (sel.startsWith('[data-social') && node.getAttribute('data-social')) isMatch = true;
       else if (node.tagName === sel.toUpperCase()) isMatch = true;
       if (isMatch) results.push(node);
@@ -130,6 +165,12 @@ class MockElement {
   }
 
   remove() {
+    if (this.id) domElements.delete(this.id);
+    const unregister = (node) => {
+      if (node.id) domElements.delete(node.id);
+      node.children.forEach(unregister);
+    };
+    this.children.forEach(unregister);
     if (this.parentElement) {
       const idx = this.parentElement.children.indexOf(this);
       if (idx !== -1) this.parentElement.children.splice(idx, 1);
@@ -168,12 +209,17 @@ global.window = {
   localStorage: global.localStorage,
   document: global.document,
   location: { hash: '#start', reload: () => {} },
-  I18N: { isVietnamese: () => true, currentLang: 'vi' },
+  I18N: {
+    isVietnamese: () => global.window.I18N.currentLang === 'vi',
+    currentLang: 'vi',
+    setLang: function(l) { this.currentLang = l; }
+  },
   RML_FIREBASE_CONFIG: { apiKey: "TEST", databaseURL: "https://test.firebase.io" },
   RML_FIREBASE_CONFIGURED: false,
   confirm: () => true,
   addEventListener: () => {}
 };
+global.location = global.window.location;
 
 // Load FirebaseService & Auth
 const firebaseServiceCode = fs.readFileSync(path.resolve(__dirname, '../../js/firebase/firebase-service.js'), 'utf8');
@@ -251,6 +297,50 @@ async function testStartScreenAuth() {
   assert.strictEqual(mountEl.innerHTML.includes('rml-social-github'), false, 'GitHub login button should be removed');
   console.log('✓ Verified: Logout smoothly restores Login & Register forms with School & Class fields');
   console.log('✓ Verified: Only Google social login is active (GitHub removed as requested)');
+
+  // Test 6: In-place language switching without page reload
+  let reloadCalled = false;
+  const originalReload = global.location.reload;
+  global.location.reload = () => { reloadCalled = true; };
+
+  const langBtn = mountEl.querySelector('#rml-auth-lang');
+  assert.ok(langBtn, 'Language button #rml-auth-lang should exist');
+  langBtn.click();
+
+  assert.strictEqual(reloadCalled, false, 'Language toggle must NOT trigger location.reload()');
+  assert.strictEqual(global.window.I18N.currentLang, 'en', 'Language should have switched to English in-place');
+  console.log('✓ Verified: Language switches in-place smoothly without page reload');
+
+  // Test 7: Post-logout Login Modal Overlay & Registration flow
+  global.window.RMLAuth.openLoginOverlay('login');
+  const modalOverlay = global.document.getElementById('rml-auth-modal-overlay');
+  assert.ok(modalOverlay, 'Modal overlay #rml-auth-modal-overlay must be created in document body');
+  const modalMount = modalOverlay.querySelector('#rml-modal-auth-mount');
+  assert.ok(modalMount, '#rml-modal-auth-mount must exist inside modal overlay');
+  assert.ok(modalMount.innerHTML.includes('rml-login-form'), 'Modal should contain login form');
+
+  // Switch to register tab inside modal
+  const registerTabBtn = modalMount.querySelector('[data-tab="register"]');
+  assert.ok(registerTabBtn, 'Register tab button should exist inside modal');
+  registerTabBtn.click();
+
+  const modalRegForm = modalMount.querySelector('#rml-register-form');
+  assert.ok(modalRegForm, 'Register form must exist in modal');
+  assert.strictEqual(modalRegForm.style.display, 'grid', 'Register form should be displayed in grid');
+
+  // Switch to teacher role inside modal
+  const teacherRoleBtn = modalMount.querySelector('[data-role="teacher"]');
+  assert.ok(teacherRoleBtn, 'Teacher role button should exist in modal');
+  teacherRoleBtn.click();
+
+  const hiddenRoleInput = modalMount.querySelector('#rml-register-role');
+  assert.strictEqual(hiddenRoleInput.value, 'teacher', 'Hidden role input in modal should be teacher');
+  console.log('✓ Verified: Post-logout Login Modal accurately toggles register tab and teacher role without errors');
+
+  // Close modal
+  global.window.RMLAuth.closeLoginOverlay();
+  assert.strictEqual(global.document.getElementById('rml-auth-modal-overlay'), null, 'Modal overlay should be cleanly removed');
+  console.log('✓ Verified: Login Modal closes cleanly');
 
   console.log('\n🎉 ALL START SCREEN AUTH INTEGRATION TESTS PASSED! 🎉\n');
 }

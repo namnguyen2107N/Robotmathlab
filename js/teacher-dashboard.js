@@ -81,12 +81,13 @@ class TeacherDashboardController {
         <!-- 4-Card Quick Statistics Grid -->
         <div class="teacher-stats-grid" id="teacher-stats-grid">
           
-          <div class="teacher-stat-card stat-card-online">
+          <div class="teacher-stat-card stat-card-score" style="background: linear-gradient(180deg, #fefce8 0%, #ffffff 50%); border-color: #fde047;">
             <div class="stat-header">
-              <span class="stat-label">${isVi ? 'Đang Hoạt Động' : 'Online Students'}</span>
-              <span class="stat-icon">🟢</span>
+              <span class="stat-label" style="color: #854d0e;">${isVi ? 'Thủ Khoa Lớp (Top 1)' : 'Top Student (Rank 1)'}</span>
+              <span class="stat-icon">👑</span>
             </div>
-            <div class="stat-value" id="stat-online-count">0</div>
+            <div class="stat-value" id="stat-top-student" style="font-size: 1.25rem; color: #b45309; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">--</div>
+            <span id="stat-online-count" style="display: none;">0</span>
           </div>
 
           <div class="teacher-stat-card stat-card-total">
@@ -130,8 +131,8 @@ class TeacherDashboardController {
             <table class="teacher-student-table">
               <thead>
                 <tr>
+                  <th style="width: 85px; text-align: center;">${isVi ? 'Hạng' : 'Rank'}</th>
                   <th>${isVi ? 'Học Sinh' : 'Student'}</th>
-                  <th>${isVi ? 'Trạng Thái' : 'Status'}</th>
                   <th>${isVi ? 'Đang Làm' : 'Current Activity'}</th>
                   <th>${isVi ? 'Điểm Tổng' : 'Total Score'}</th>
                   <th>${isVi ? 'Bài Hoàn Thành' : 'Completed'}</th>
@@ -222,6 +223,19 @@ class TeacherDashboardController {
       this.students = [];
     }
 
+    // Sắp xếp học sinh theo tổng điểm giảm dần (Ranking theo điểm số thực tế)
+    this.students.sort((a, b) => {
+      const scoreA = Number(a.totalScore) || 0;
+      const scoreB = Number(b.totalScore) || 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return (Number(b.tasksCompleted) || 0) - (Number(a.tasksCompleted) || 0);
+    });
+
+    // Gán thứ hạng chính xác trong lớp cho từng học sinh
+    this.students.forEach((s, idx) => {
+      s.rank = idx + 1;
+    });
+
     // Cập nhật thống kê nhanh
     const onlineCount = this.students.filter(s => s.online).length;
     const totalCount = this.students.length;
@@ -234,12 +248,23 @@ class TeacherDashboardController {
     });
 
     const avgScore = totalCount > 0 ? Math.round(totalScoreSum / totalCount) : 0;
+    const topStudent = this.students.length > 0 ? this.students[0] : null;
 
+    const elTopStudent = document.getElementById('stat-top-student');
     const elOnline = document.getElementById('stat-online-count');
     const elTotal = document.getElementById('stat-total-count');
     const elAvg = document.getElementById('stat-avg-score');
     const elTasks = document.getElementById('stat-tasks-count');
 
+    if (elTopStudent) {
+      if (topStudent && Number(topStudent.totalScore) > 0) {
+        elTopStudent.innerText = `🥇 ${topStudent.displayName} (${topStudent.totalScore}đ)`;
+      } else if (topStudent) {
+        elTopStudent.innerText = `🥇 ${topStudent.displayName}`;
+      } else {
+        elTopStudent.innerText = isVi ? 'Chưa có' : 'None';
+      }
+    }
     if (elOnline) elOnline.innerText = onlineCount;
     if (elTotal) elTotal.innerText = totalCount;
     if (elAvg) elAvg.innerText = avgScore;
@@ -262,12 +287,23 @@ class TeacherDashboardController {
 
     tbody.innerHTML = this.students.map((student, idx) => {
       const avatar = avatars[idx % avatars.length];
-      const statusPill = student.online
-        ? `<span class="status-pill status-pill-online">🟢 ${isVi ? 'Đang học' : 'Online'}</span>`
-        : `<span class="status-pill status-pill-offline">⚪ ${isVi ? 'Đã rời' : 'Offline'}</span>`;
+      const rank = student.rank || (idx + 1);
+      let rankBadge = '';
+      if (rank === 1) {
+        rankBadge = `<span class="rank-badge rank-1">🥇 #1</span>`;
+      } else if (rank === 2) {
+        rankBadge = `<span class="rank-badge rank-2">🥈 #2</span>`;
+      } else if (rank === 3) {
+        rankBadge = `<span class="rank-badge rank-3">🥉 #3</span>`;
+      } else {
+        rankBadge = `<span class="rank-badge rank-other">#${rank}</span>`;
+      }
 
       return `
         <tr class="teacher-student-row">
+          <td style="text-align: center;">
+            ${rankBadge}
+          </td>
           <td>
             <div class="student-identity">
               <span class="student-avatar-badge">${avatar}</span>
@@ -277,7 +313,6 @@ class TeacherDashboardController {
               </div>
             </div>
           </td>
-          <td>${statusPill}</td>
           <td style="color: #475569; font-weight: 600;">
             ${this.escapeHtml(student.currentTask || (isVi ? 'Nghỉ ngơi' : 'Idle'))}
           </td>
@@ -363,8 +398,8 @@ class TeacherDashboardController {
           <div class="detail-metric-lbl">${isVi ? 'Bài Hoàn Thành' : 'Tasks Solved'}</div>
         </div>
         <div>
-          <div class="detail-metric-val">${student.online ? '🟢 Online' : '⚪ Offline'}</div>
-          <div class="detail-metric-lbl">${isVi ? 'Trạng Thái' : 'Status'}</div>
+          <div class="detail-metric-val" style="color: #4f46e5; font-weight: 800;">#${student.rank || 1}</div>
+          <div class="detail-metric-lbl">${isVi ? 'Xếp Hạng Trong Lớp' : 'Class Rank'}</div>
         </div>
       </div>
 

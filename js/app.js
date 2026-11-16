@@ -37,6 +37,9 @@ class AppController {
     // 4. Initialize Settings Modal
     this.initSettingsModal();
 
+    // 4b. Initialize Header Tools (Sound FX, Language toggles, etc.)
+    this.initHeaderTools();
+
     // 5. Listen to I18N language changes
     window.addEventListener('languageChanged', (e) => {
       this.handleLanguageChanged(e.detail.lang);
@@ -57,18 +60,60 @@ class AppController {
       });
     }
 
+    // 6b. Header Auth Buttons
+    const btnHeaderLogout = document.getElementById('btn-header-logout');
+    if (btnHeaderLogout) {
+      btnHeaderLogout.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (window.RMLAuth && typeof window.RMLAuth.logout === 'function') {
+          window.RMLAuth.logout();
+        }
+      });
+    }
+
+    const btnHeaderLogin = document.getElementById('btn-header-login');
+    if (btnHeaderLogin) {
+      btnHeaderLogin.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (window.RMLAuth && typeof window.RMLAuth.openLoginOverlay === 'function') {
+          window.RMLAuth.openLoginOverlay('login');
+        } else {
+          window.location.hash = '#start';
+          this.showSplashScreen();
+          const loginInput = document.getElementById('rml-login-username');
+          if (loginInput) loginInput.focus();
+        }
+      });
+    }
+
     // 7. Hash-based router
     window.addEventListener('hashchange', () => this.handleRoute());
 
-    // 8. Initial access routing
+    // 8. Initial access routing: Clean Separation & Direct Hub Entry for Authenticated Users
     const currentHash = window.location.hash;
     const isTask = currentHash && currentHash.startsWith('#task/');
-    const isKnownRoute = ['#hub', '#ranking', '#leaderboard', '#teacher', '#teacher-dashboard'].includes(currentHash);
-    if (isTask || isKnownRoute) {
+    const isSpecialRoute = ['#ranking', '#leaderboard', '#teacher', '#teacher-dashboard'].includes(currentHash);
+    const isHub = currentHash === '#hub';
+
+    // Nếu người dùng đã có tài khoản hoặc phiên đã bắt đầu: vào ngay bên trong, loại bỏ #start
+    const hasAccount = !!(window.FirebaseService?.account || window.RMLAuth?.account || localStorage.getItem('rml_account_id'));
+    const isStarted = sessionStorage.getItem('rml_started') === 'true';
+
+    if (hasAccount || isStarted) {
+      this.hideSplashScreen();
+      if (!currentHash || currentHash === '#start' || currentHash === '#welcome') {
+        const userRole = localStorage.getItem('rml_user_role') || window.FirebaseService?.account?.role || window.RMLAuth?.account?.role;
+        window.location.hash = (userRole === 'teacher') ? '#teacher' : '#hub';
+      }
+      this.handleRoute();
+    } else if (isTask || isSpecialRoute) {
+      this.handleRoute();
+    } else if (isHub && isStarted) {
       this.handleRoute();
     } else {
+      // Default to Start Screen cho người dùng chưa đăng nhập và chưa bấm bắt đầu
       window.location.hash = '#start';
-      this.renderStartScreen();
+      this.showSplashScreen();
     }
   }
 
@@ -84,6 +129,7 @@ class AppController {
       this.setStudentName('Math Explorer');
     }
 
+    this.syncHeaderLanguage();
     this.syncSettingsModalContent();
 
     const hash = window.location.hash || '#hub';
@@ -97,6 +143,95 @@ class AppController {
       if (window.RankingController) window.RankingController.render();
     } else {
       this.renderTaskHub();
+    }
+  }
+
+  initHeaderTools() {
+    const soundBtn = document.getElementById('btn-toggle-sound');
+    if (soundBtn) {
+      soundBtn.onclick = () => {
+        if (window.SoundFX) {
+          const isMuted = window.SoundFX.toggleMute();
+          this.syncSoundUI(isMuted);
+        }
+      };
+    }
+
+    window.addEventListener('soundMuteChanged', (e) => {
+      const isMuted = e.detail?.isMuted ?? (window.SoundFX ? window.SoundFX.isMuted : false);
+      this.syncSoundUI(isMuted);
+    });
+
+    const btnLangEn = document.getElementById('btn-lang-en');
+    const btnLangVi = document.getElementById('btn-lang-vi');
+    if (btnLangEn && btnLangVi) {
+      btnLangEn.onclick = () => window.I18N && window.I18N.setLang('en');
+      btnLangVi.onclick = () => window.I18N && window.I18N.setLang('vi');
+    }
+
+    this.syncHeaderLanguage();
+  }
+
+  syncSoundUI(isMuted) {
+    const isVi = window.I18N ? window.I18N.isVietnamese() : false;
+
+    // 1. Header sound button
+    const soundBtn = document.getElementById('btn-toggle-sound');
+    if (soundBtn) {
+      const icon = soundBtn.querySelector('#sound-icon') || soundBtn;
+      if (icon) icon.innerText = isMuted ? '🔇' : '🔊';
+      soundBtn.title = isMuted
+        ? (isVi ? 'Đang tắt âm thanh (Bấm để bật)' : 'Sound Muted (Click to unmute)')
+        : (isVi ? 'Đang bật âm thanh (Bấm để tắt)' : 'Sound On (Click to mute)');
+      soundBtn.setAttribute('aria-label', soundBtn.title);
+      soundBtn.classList.toggle('is-muted', isMuted);
+    }
+
+    // 2. Splash arcade sound button
+    const splashSoundBtn = document.getElementById('btn-splash-sound');
+    if (splashSoundBtn) {
+      const splashIcon = document.getElementById('splash-sound-icon') || splashSoundBtn;
+      if (splashIcon) splashIcon.innerText = isMuted ? '🔇' : '🔊';
+      splashSoundBtn.title = isMuted
+        ? (isVi ? 'Đang tắt âm thanh (Bấm để bật)' : 'Sound Muted (Click to unmute)')
+        : (isVi ? 'Đang bật âm thanh (Bấm để tắt)' : 'Sound On (Click to mute)');
+      splashSoundBtn.classList.toggle('is-muted', isMuted);
+    }
+
+    // 3. Settings modal sound toggle
+    const settingsIcon = document.getElementById('settings-sound-status-icon');
+    if (settingsIcon) settingsIcon.innerText = isMuted ? '🔇' : '🔊';
+    const settingsText = document.getElementById('settings-sound-status-text');
+    if (settingsText) {
+      settingsText.innerText = isMuted
+        ? (isVi ? 'Đang tắt tiếng' : 'Muted')
+        : (isVi ? 'Đang bật' : 'Sound On');
+    }
+  }
+
+  syncHeaderLanguage() {
+    if (!window.I18N) return;
+    const isVi = window.I18N.isVietnamese();
+    document.documentElement.lang = isVi ? 'vi' : 'en';
+
+    const btnLangEn = document.getElementById('btn-lang-en');
+    const btnLangVi = document.getElementById('btn-lang-vi');
+    if (btnLangEn) btnLangEn.classList.toggle('active', !isVi);
+    if (btnLangVi) btnLangVi.classList.toggle('active', isVi);
+
+    const brandSub = document.querySelector('.brand-sub');
+    if (brandSub) brandSub.innerText = window.I18N.t('brand_sub');
+
+    const isMuted = window.SoundFX ? window.SoundFX.isMuted : false;
+    this.syncSoundUI(isMuted);
+
+    const settingsBtn = document.getElementById('btn-toggle-settings');
+    if (settingsBtn) settingsBtn.title = isVi ? 'Cài đặt & Thông tin học sinh' : 'Settings & Student Profile';
+    const studentTag = document.getElementById('header-student-tag');
+    if (studentTag) studentTag.title = isVi ? 'Hồ sơ học sinh & Cài đặt' : 'Student Profile & Settings';
+
+    if (typeof this.syncSettingsModalContent === 'function') {
+      this.syncSettingsModalContent();
     }
   }
 
@@ -117,9 +252,11 @@ class AppController {
     document.body.style.overflow = '';
 
     // 3. Cuộn lên đầu trang
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (typeof window.scrollTo === 'function') {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
 
-    // 4. Cập nhật nút Teacher Dashboard và tên trên header
+    // 4. Cập nhật nút Teacher Dashboard, đăng nhập/đăng xuất và tên trên header
     const account = window.FirebaseService?.account || window.RMLAuth?.account;
     const btnTeacher = document.getElementById('btn-header-teacher');
     if (btnTeacher) {
@@ -129,11 +266,43 @@ class AppController {
     if (badge && account?.display_name) {
       badge.innerText = account.display_name;
     }
+    const studentTag = document.getElementById('header-student-tag');
+    if (studentTag) {
+      studentTag.style.display = account ? 'inline-flex' : 'none';
+    }
+    const btnHeaderLogout = document.getElementById('btn-header-logout');
+    if (btnHeaderLogout) {
+      btnHeaderLogout.style.display = account ? 'inline-flex' : 'none';
+    }
+    const btnHeaderLogin = document.getElementById('btn-header-login');
+    if (btnHeaderLogin) {
+      btnHeaderLogin.style.display = account ? 'none' : 'inline-flex';
+    }
+    const btnSplashLogout = document.getElementById('btn-splash-logout');
+    if (btnSplashLogout) {
+      btnSplashLogout.style.display = account ? 'inline-flex' : 'none';
+    }
 
-    // 5. Điều hướng theo hash
+    // 5. Điều hướng theo hash - TÁCH BIỆT HOÀN TOÀN START SCREEN VÀ GAME SCREEN
     if (hash === '#start' || hash === '#welcome') {
+      // Yêu cầu: Nếu có tài khoản rồi vào ngay bên trong và loại bỏ #start
+      const hasAccount = !!(account || localStorage.getItem('rml_account_id'));
+      if (hasAccount) {
+        this.hideSplashScreen();
+        const userRole = account?.role || localStorage.getItem('rml_user_role');
+        const targetHash = (userRole === 'teacher') ? '#teacher' : '#hub';
+        if (window.location.hash !== targetHash) {
+          window.location.hash = targetHash;
+        }
+        this.handleRoute();
+        return;
+      }
       this.activeTaskId = null;
-      this.renderStartScreen();
+      this.showSplashScreen();
+    } else if (hash === '#hub') {
+      this.activeTaskId = null;
+      this.hideSplashScreen();
+      this.renderTaskHub();
     } else if (hash === '#teacher' || hash === '#teacher-dashboard') {
       this.hideSplashScreen();
       this.activeTaskId = null;
@@ -151,9 +320,9 @@ class AppController {
       const taskId = hash.replace('#task/', '');
       this.launchTask(taskId);
     } else {
-      this.hideSplashScreen();
       this.activeTaskId = null;
-      this.renderTaskHub();
+      window.location.hash = '#start';
+      this.showSplashScreen();
     }
   }
 
@@ -291,17 +460,6 @@ class AppController {
         setTimeout(() => this.syncSettingsModalContent(), 120);
       });
     }
-
-    // Mở màn hình Arcade Splash từ Settings Modal
-    const modalArcadeBtn = document.getElementById('btn-settings-open-arcade');
-    if (modalArcadeBtn) {
-      modalArcadeBtn.addEventListener('click', () => {
-        if (window.SoundFX) window.SoundFX.playPop();
-        this.closeSettingsModal();
-        window.location.hash = '#start';
-      });
-    }
-
 
     // Escape key listener to close modal
     document.addEventListener('keydown', (e) => {
@@ -531,8 +689,7 @@ class AppController {
       splashSoundBtn.addEventListener('click', () => {
         if (window.SoundFX) {
           const isMuted = window.SoundFX.toggleMute();
-          const icon = document.getElementById('splash-sound-icon');
-          if (icon) icon.innerText = isMuted ? '🔇' : '🔊';
+          this.syncSoundUI(isMuted);
         }
       });
     }
@@ -685,6 +842,12 @@ class AppController {
         soundIcon.innerText = window.SoundFX.isMuted ? '🔇' : '🔊';
       }
     }
+    // Hide #main-view so splash is the only thing visible - NO GAME UNDERNEATH
+    const mainView = document.getElementById('main-view');
+    if (mainView) {
+      mainView.style.display = 'none';
+      mainView.innerHTML = '';
+    }
   }
 
   hideSplashScreen() {
@@ -692,9 +855,14 @@ class AppController {
     if (this.splashScreen) {
       this.splashScreen.classList.add('hidden');
     }
+    const mainView = document.getElementById('main-view');
+    if (mainView) {
+      mainView.style.display = 'block';
+    }
   }
 
   renderStartScreen() {
+    window.location.hash = '#start';
     this.showSplashScreen();
   }
 
@@ -717,39 +885,61 @@ class AppController {
     const robotEl = document.getElementById('splash-robot');
     if (robotEl) {
       robotEl.classList.add('sparky-jump');
+      setTimeout(() => robotEl.classList.remove('sparky-jump'), 700);
     }
 
-    if (this.splashScreen) {
-      this.splashScreen.classList.add('splash-exit');
+    const account = window.FirebaseService?.account || window.RMLAuth?.account;
+    if (account?.role === 'teacher') {
+      window.location.hash = '#teacher';
+      return;
     }
 
-    setTimeout(() => {
-      this.hideSplashScreen();
-      const account = window.FirebaseService?.account || window.RMLAuth?.account;
-      if (account?.role === 'teacher') {
-        window.location.hash = '#teacher';
-      } else {
-        this.renderTaskSelection();
-      }
-    }, 450);
+    // Tách biệt hoàn toàn: ẩn Start Screen, chuyển sang Game Screen (#hub)
+    window.location.hash = '#hub';
+    this.hideSplashScreen();
+    this.renderTaskHub();
   }
 
   renderTaskSelection() {
     window.location.hash = '#hub';
+    this.hideSplashScreen();
     this.renderTaskHub();
   }
 
-  // =========================================================================
-  // SCREEN 2: MAIN MISSION HUB (CHOOSE TASK 1, 2, OR 3)
-  // =========================================================================
+  renderUnifiedHub(goToTasks = false) {
+    if (goToTasks) {
+      this.renderTaskHub();
+    } else {
+      this.showSplashScreen();
+    }
+  }
+
   renderTaskHub() {
     this.hideSplashScreen();
-    document.body.classList.remove('view-start-screen');
     document.querySelectorAll('.modal-backdrop').forEach(m => {
       m.classList.remove('active');
       m.style.display = 'none';
     });
     document.body.style.overflow = '';
+
+    this.renderTaskHubContent();
+
+    const account = window.FirebaseService?.account || window.RMLAuth?.account;
+    const studentTag = document.getElementById('header-student-tag');
+    if (studentTag) studentTag.style.display = account ? 'inline-flex' : 'none';
+    const btnHeaderLogout = document.getElementById('btn-header-logout');
+    if (btnHeaderLogout) btnHeaderLogout.style.display = account ? 'inline-flex' : 'none';
+    const btnHeaderLogin = document.getElementById('btn-header-login');
+    if (btnHeaderLogin) btnHeaderLogin.style.display = account ? 'none' : 'inline-flex';
+    const btnSplashLogout = document.getElementById('btn-splash-logout');
+    if (btnSplashLogout) btnSplashLogout.style.display = account ? 'inline-flex' : 'none';
+
+    if (typeof window.scrollTo === 'function') {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }
+
+  renderTaskHubContent() {
     const main = document.getElementById('main-view');
     if (!main) return;
 
@@ -766,8 +956,13 @@ class AppController {
 
     const renderScoreBadge = (sc) => {
       if (!sc) return '';
-      return `<span class="task-card-badge" style="background: #fef08a; color: #854d0e; border-color: #facc15; margin-left: auto; font-size: 1rem; padding: 0.35rem 0.9rem;">⭐ ${sc} pts</span>`;
+      return `<span class="task-card-badge" style="background: #fef08a; color: #854d0e; border-color: #facc15; margin-left: auto; font-size: 1rem; padding: 0.35rem 0.9rem;">⭐ ${sc} ${isVi ? 'điểm' : 'pts'}</span>`;
     };
+
+    // Tự động đồng bộ điểm số từ đám mây nếu có
+    if (window.FirebaseService && typeof window.FirebaseService.loadUserScores === 'function') {
+      window.FirebaseService.loadUserScores().catch(() => {});
+    }
 
     main.innerHTML = `
       <div class="hub-container animate-fade-in">
@@ -787,7 +982,7 @@ class AppController {
               <span class="badge-avatar">${isTeacher ? '👨‍🏫' : '🧑‍🎓'}</span>
               <div>
                 <div class="badge-role">${isTeacher ? (isVi ? 'Thầy Cô Giáo' : 'Teacher') : t('student_tag_title')}</div>
-                <div class="badge-name">${this.escapeHtml(this.currentStudent)} ✏️</div>
+                <div class="badge-name">${this.escapeHtml(account?.display_name || this.currentStudent)} ✏️</div>
               </div>
             </div>
             
@@ -797,7 +992,7 @@ class AppController {
               </a>
 
               ${isTeacher ? `
-                <a href="#teacher" class="journal-hub-button" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; background: #3730a3; border-color: #312e81;">
+                <a href="#teacher" class="journal-hub-button" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; background: #3730a3; color: #ffffff; border-color: #312e81;">
                   👨‍🏫 ${isVi ? 'Dashboard Giáo Viên' : 'Teacher Dashboard'}
                 </a>
               ` : ''}
@@ -934,8 +1129,13 @@ class AppController {
 // student has just logged in) before initializing the app. Unit tests that
 // load this file without auth.js still boot normally.
 document.addEventListener('DOMContentLoaded', () => {
+  let started = false;
   const start = () => {
-    window.App = new AppController();
+    if (started) return;
+    started = true;
+    if (!window.App) {
+      window.App = new AppController();
+    }
   };
 
   if (window.RML_AUTH_REQUIRED && !window.RMLAuth) {
@@ -948,4 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     start();
   }
+
+  // Safety fallback: ensure app tools and router are live even if auth takes a moment
+  setTimeout(start, 400);
 });

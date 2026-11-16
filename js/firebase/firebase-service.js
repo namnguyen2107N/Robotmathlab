@@ -980,19 +980,27 @@ class FirebaseService {
             const sessionsObj = sessSnap.val() || {};
             const sessions = Object.values(sessionsObj).sort((a, b) => new Date(b.startedAt || 0) - new Date(a.startedAt || 0));
 
-            // Tính tổng điểm
+            // Tính tổng điểm chính xác từ dữ liệu thật
             let totalScore = 0;
             let tasksCompleted = 0;
-            Object.values(scores).forEach(s => {
-              if (s && s.bestScore) {
-                totalScore += Number(s.bestScore);
-                tasksCompleted++;
-              }
-            });
+            if (scores && typeof scores === 'object') {
+              Object.values(scores).forEach(s => {
+                if (s) {
+                  const pts = Number(s.bestScore || s.score || 0);
+                  if (pts > 0) {
+                    totalScore += pts;
+                    tasksCompleted++;
+                  }
+                }
+              });
+            }
+            if (prof.totalScore && totalScore === 0) {
+              totalScore = Number(prof.totalScore);
+            }
 
             students.push({
               uid,
-              displayName: prof.displayName || 'Học sinh',
+              displayName: prof.displayName || prof.display_name || 'Học sinh',
               username: prof.username || '',
               online: presence.online === true,
               lastSeen: presence.lastSeen || prof.lastLoginAt,
@@ -1007,11 +1015,47 @@ class FirebaseService {
           }
         }
 
-        if (students.length > 0) return students;
+        // Với Firebase thật: trả về danh sách học sinh thật (ngay cả khi chưa có em nào)
+        return students;
       } catch (err) {
         console.warn('[FirebaseService] getStudentsInClassroom error:', err);
       }
     }
+
+    // Chế độ Offline Demo: Tìm học sinh đã đăng ký trong localStorage cho lớp này trước
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const localUsers = JSON.parse(localStorage.getItem(this.STORAGE_USERS_KEY) || '{}');
+        const matched = Object.values(localUsers).filter(u => u.role === 'student' && u.classroomId === classroomId);
+        if (matched.length > 0) {
+          const localScores = this.getLocalScores();
+          let localTotal = 0;
+          let localCompleted = 0;
+          Object.values(localScores).forEach(s => {
+            if (s) {
+              const pts = Number(s.bestScore || s.score || 0);
+              if (pts > 0) {
+                localTotal += pts;
+                localCompleted++;
+              }
+            }
+          });
+
+          return matched.map(u => ({
+            uid: u.uid || u.id,
+            displayName: u.display_name || u.displayName || 'Học sinh',
+            username: u.username || '',
+            online: true,
+            lastSeen: new Date().toISOString(),
+            currentTask: 'Task 1: Hành trình đến đích',
+            totalScore: localTotal || 2850,
+            tasksCompleted: localCompleted || 3,
+            scores: localScores,
+            recentSessions: this.getLocalSessions()
+          }));
+        }
+      }
+    } catch (_) {}
 
     // Mock students cho offline/demo
     return [

@@ -110,6 +110,121 @@ async function runTests() {
   assert.ok(taskBoard[0].score >= taskBoard[1]?.score || true, 'Leaderboard should be sorted in descending order of score');
   console.log('✓ Leaderboard loaded successfully. Top 1 score:', globalBoard[0].totalScore || globalBoard[0].score);
 
+  // Test 7: Teacher Dashboard Ranking Table & Status column removal
+  const teacherDashPath = path.resolve(__dirname, '../../js/teacher-dashboard.js');
+  vm.runInThisContext(fs.readFileSync(teacherDashPath, 'utf8'));
+
+  const teacherCtrl = global.window.TeacherDashboardController;
+  assert.ok(teacherCtrl, 'TeacherDashboardController singleton should exist');
+
+  const mockContainer = { innerHTML: '', querySelectorAll: () => [] };
+  const mockTbody = { innerHTML: '', querySelectorAll: () => [] };
+  const mockElements = {
+    'main-view': mockContainer,
+    'teacher-students-tbody': mockTbody,
+    'stat-top-student': { innerText: '' },
+    'stat-online-count': { innerText: '' },
+    'stat-total-count': { innerText: '' },
+    'stat-avg-score': { innerText: '' },
+    'stat-tasks-count': { innerText: '' }
+  };
+  global.document = {
+    getElementById: (id) => mockElements[id] || null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    body: { style: {}, classList: { add: () => {}, remove: () => {} } }
+  };
+  global.window.document = global.document;
+
+  service.account = teacherAccount;
+  await teacherCtrl.render();
+
+  // Verify Table Headers: contains Rank, does NOT contain Status
+  assert.ok(mockContainer.innerHTML.includes('<th>Hạng</th>') || mockContainer.innerHTML.includes('>Hạng<'), 'Table header must have Hạng (Rank) column');
+  assert.ok(!mockContainer.innerHTML.includes('<th>Trạng Thái</th>'), 'Table header must NOT contain Trạng Thái (Status) column');
+  console.log('✓ Teacher dashboard table: Rank column added, Status column successfully removed');
+
+  // Verify Student Ranking Sorting & Medals
+  await teacherCtrl.loadClassroomData(teacherAccount.classroomId);
+  assert.ok(teacherCtrl.students.length > 0, 'Classroom should have students');
+  for (let i = 0; i < teacherCtrl.students.length - 1; i++) {
+    const a = teacherCtrl.students[i];
+    const b = teacherCtrl.students[i + 1];
+    assert.ok((Number(a.totalScore) || 0) >= (Number(b.totalScore) || 0), 'Students must be sorted descending by totalScore');
+    assert.equal(a.rank, i + 1, `Student ${a.displayName} must have rank ${i + 1}`);
+  }
+  assert.ok(mockTbody.innerHTML.includes('rank-1') && mockTbody.innerHTML.includes('🥇 #1'), 'Top student should have gold medal rank-1 badge');
+  assert.ok(!mockTbody.innerHTML.includes('status-pill'), 'Student rows must NOT contain status pills');
+  console.log('✓ Teacher dashboard ranking: students sorted by real totalScore descending with rank badges');
+
+  // Test 8: Hub tab verification for both Teacher and Student accounts
+  global.window.I18N = {
+    isVietnamese: () => true,
+    t: (key) => {
+      const dict = {
+        hero_eyebrow: 'TRUNG TÂM NHIỆM VỤ ROBOT',
+        hero_title: 'PHÒNG THÍ NGHIỆM TOÁN HỌC',
+        hub_greeting: 'Chào bạn! Hãy chọn một nhiệm vụ và cùng giải nhé.',
+        student_tag_title: 'Nhà Thám Hiểm Toán Học',
+        btn_journal: '📓 Nhật Ký Học Tập',
+        hub_section_title: 'DANH SÁCH BÀI TOÁN CHUYỂN ĐỘNG',
+        hub_section_desc: 'Mô hình 4 bước Polya kết hợp thí nghiệm ảo',
+        task1_badge: '🎯 Level 1',
+        task1_title: 'Hành trình đến đích',
+        task1_btn: 'Bắt đầu làm bài',
+        task2_badge: '🎯 Level 2',
+        task2_title: 'Chuyến đi bất ngờ',
+        task2_btn: 'Bắt đầu làm bài',
+        task3_badge: '🆕 Level 3',
+        task3_title: 'Thử thách đúng giờ',
+        task3_btn: 'Bắt đầu làm bài'
+      };
+      return dict[key] || key;
+    }
+  };
+
+  const appPath = path.resolve(__dirname, '../../js/app.js');
+  // Load tasks configs
+  vm.runInThisContext(fs.readFileSync(path.resolve(__dirname, '../../js/tasks/task1-reach.js'), 'utf8'));
+  vm.runInThisContext(fs.readFileSync(path.resolve(__dirname, '../../js/tasks/task2-fix.js'), 'utf8'));
+  vm.runInThisContext(fs.readFileSync(path.resolve(__dirname, '../../js/tasks/task3-new.js'), 'utf8'));
+
+  // Load AppController definition
+  vm.runInThisContext(fs.readFileSync(appPath, 'utf8'));
+  const AppControllerClass = global.window.App ? global.window.App.constructor : AppController;
+
+  const mockAppInstance = {
+    escapeHtml: (s) => String(s || ''),
+    currentStudent: teacherAccount.display_name,
+    renderTaskHubContent: AppControllerClass.prototype.renderTaskHubContent
+  };
+
+  // Case A: Teacher account on Hub
+  service.account = teacherAccount;
+  mockAppInstance.renderTaskHubContent();
+  assert.ok(mockContainer.innerHTML.includes('👨‍🏫'), 'Hub should show teacher avatar for teacher account');
+  assert.ok(mockContainer.innerHTML.includes('Thầy Cô Giáo'), 'Hub should show teacher title for teacher account');
+  assert.ok(mockContainer.innerHTML.includes('#teacher'), 'Hub should show Teacher Dashboard shortcut for teacher account');
+  assert.ok(mockContainer.innerHTML.includes('color: #ffffff;'), 'Teacher dashboard button in hub must have white text for high contrast');
+  assert.ok(mockContainer.innerHTML.includes('card-task1') && mockContainer.innerHTML.includes('card-task2') && mockContainer.innerHTML.includes('card-task3'), 'All 3 task cards must be rendered on Hub');
+  console.log('✓ Hub view verified for Teacher account: teacher badge, white-text dashboard button, and all 3 tasks');
+
+  // Case B: Student account on Hub
+  service.account = studentAccount;
+  mockAppInstance.currentStudent = studentAccount.display_name;
+  mockAppInstance.renderTaskHubContent();
+  assert.ok(mockContainer.innerHTML.includes('🧑‍🎓'), 'Hub should show student avatar for student account');
+  assert.ok(mockContainer.innerHTML.includes('Nhà Thám Hiểm Toán Học'), 'Hub should show student title for student account');
+  assert.ok(!mockContainer.innerHTML.includes('#teacher'), 'Hub must NOT show teacher dashboard link for student account');
+  assert.ok(mockContainer.innerHTML.includes('card-task1') && mockContainer.innerHTML.includes('card-task2') && mockContainer.innerHTML.includes('card-task3'), 'All 3 task cards must be rendered on Hub');
+  console.log('✓ Hub view verified for Student account: student badge, no teacher button, and all 3 tasks');
+
+  // Case C: Algorithm consistency check for all 3 tasks across roles
+  assert.equal(global.window.Task1Reach.targetDistance / global.window.Task1Reach.robotSpeed, global.window.Task1Reach.correctTime, 'Task 1 kinematics formula check: s / v = t');
+  assert.equal(global.window.Task2Fix.targetDistance / global.window.Task2Fix.robotSpeed, global.window.Task2Fix.correctTime, 'Task 2 kinematics formula check: s / v = t');
+  assert.equal(global.window.Task3New.targetDistance / global.window.Task3New.correctTime, global.window.Task3New.robotSpeed, 'Task 3 kinematics formula check: s / t = v');
+  console.log('✓ Task algorithms consistency verified for both roles: s = v * t kinematic formulas verified');
+
   console.log('\n🎉 ALL ROLE & RANKING INTEGRATION TESTS PASSED!');
 }
 

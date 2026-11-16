@@ -38,11 +38,80 @@
 
 <body class="kid-theme">
 
+  <!-- Cute Expansive Header -->
+  <header class="app-header" id="app-header">
+    <div class="header-container">
+      <!-- Brand Logo -->
+      <a href="#hub" class="brand-link" id="brand-home-link" title="Missions Hub / Trang chủ chọn bài">
+        <div class="brand-icon-cute animate-bounce-gentle">🤖</div>
+        <div>
+          <div class="brand-name">Robot Math Lab ✨</div>
+          <div class="brand-sub">KIDS FUN MATH & ROBOTICS LAB</div>
+        </div>
+      </a>
+
+      <!-- Header Tools: Language Switcher, Student Tag, Sound, Settings -->
+      <div class="header-tools header-tools--compact" role="toolbar" aria-label="Quick tools">
+        <!-- Language Switcher Pill -->
+        <div class="header-lang-pill" id="header-lang-pill" title="Language / Ngôn ngữ ">
+          <button type="button" class="btn-lang-tab active" id="btn-lang-en" title="English"
+            aria-label="Switch to English">EN</button>
+          <button type="button" class="btn-lang-tab" id="btn-lang-vi" title=" Tiếng Việt"
+            aria-label="Chuyển sang Tiếng Việt">VIE</button>
+        </div>
+
+        <!-- Compact Student Badge (Clickable to open profile/settings - shown when logged in) -->
+        <button type="button" class="header-student-tag header-student-tag--compact" id="header-student-tag"
+          title="Học sinh / Student Profile & Settings" aria-label="Student Profile & Settings" aria-haspopup="dialog" style="display: none;">
+          <span class="student-avatar-icon">🧑‍🎓</span>
+          <span id="header-student-name">Math Explorer</span>
+        </button>
+
+        <!-- In-Header Logout (shown when logged in) -->
+        <button type="button" class="btn-header-auth btn-header-logout" id="btn-header-logout" title="Đăng xuất / Sign Out" style="display: none;">
+          <span>🚪</span> <span class="auth-btn-text">Đăng xuất</span>
+        </button>
+        <!-- In-Header Login (shown when unauthenticated) -->
+        <button type="button" class="btn-header-auth btn-header-login" id="btn-header-login" title="Đăng nhập / Sign In" style="display: inline-flex;">
+          <span>🔑</span> <span class="auth-btn-text">Đăng nhập</span>
+        </button>
+
+        <!-- Divider -->
+        <span class="header-tools-divider" aria-hidden="true"></span>
+
+        <!-- Leaderboard Shortcut -->
+        <a href="#ranking" class="btn-header-icon" id="btn-header-ranking" title="Bảng xếp hạng / Leaderboard"
+          aria-label="Leaderboard">
+          <span>🏆</span>
+        </a>
+
+        <!-- Teacher Dashboard Shortcut (Visible for teachers) -->
+        <a href="#teacher" class="btn-header-icon" id="btn-header-teacher" title="Bảng điều khiển Giáo viên / Teacher Dashboard"
+          aria-label="Teacher Dashboard" style="display: none;">
+          <span>👨‍🏫</span>
+        </a>
+
+        <!-- Sound Toggle (Icon-only) -->
+        <button type="button" class="btn-header-icon" id="btn-toggle-sound" title="Sound / Âm thanh"
+          aria-label="Toggle Sound">
+          <span id="sound-icon">🔊</span>
+        </button>
+
+        <!-- Settings Icon Button (Thu gọn "Màn hình & Cài đặt" lên đầu trang) -->
+        <button type="button" class="btn-header-icon btn-icon-settings" id="btn-toggle-settings"
+          title="Cài đặt & Thông tin / Settings" aria-label="Cài đặt & Thông tin" aria-haspopup="dialog"
+          aria-expanded="false">
+          <span id="settings-icon">⚙️</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
   <!-- =========================================================================
-       RETRO PIXEL ART SPLASH SCREEN (8-BIT ARCADE CONSOLE)
+       RETRO PIXEL ART HERO ARCADE STAGE (MERGED UNIFIED START & HUB)
        ========================================================================= -->
-  <div id="splash-screen" class="splash-screen" role="dialog" aria-modal="true"
-    aria-label="Màn hình khởi động Robot Math Lab">
+  <div id="splash-screen" class="splash-screen" role="region"
+    aria-label="Màn hình khởi động và trung tâm học tập Robot Math Lab">
     <div class="splash-content">
 
       <!-- Background Scene Layers: Cheerful Sky, Golden Sun, Clouds, Flying Rocket, Math Bubbles & Floating Symbols -->
@@ -105,7 +174,7 @@
         <div class="pixel-grass-edge"></div>
       </div>
 
-      <!-- Main Arcade Center Stage (Grand 2X Scaled Size) -->
+      <!-- Main Arcade Center Stage -->
       <div class="splash-center-stage grand-stage">
 
         <!-- Top Status Bar: Free Play message & Sound Tool -->
@@ -117,13 +186,13 @@
             <button type="button" class="btn-splash-tool" id="btn-splash-sound" title="Âm thanh / Sound">
               <span id="splash-sound-icon">🔊</span>
             </button>
-            <button type="button" class="btn-splash-tool btn-splash-logout" id="btn-splash-logout" title="Đăng xuất / Sign Out">
+            <button type="button" class="btn-splash-tool btn-splash-logout" id="btn-splash-logout" title="Đăng xuất / Sign Out" style="display: none;">
               <span id="splash-logout-icon">🚪</span>
             </button>
           </div>
         </div>
 
-        <!-- Robot Mascot Sparky Peaking Behind the Signboard (Enlarged with Waving Hand & Battery Meter) -->
+        <!-- Robot Mascot Sparky Peaking Behind the Signboard -->
         <div class="splash-robot-wrapper">
           <div class="splash-robot grand-robot" id="splash-robot"
             title="Robot Sparky! Bấm để xem vũ điệu chiến thắng 🚀">
@@ -160,9 +229,32 @@
               </div>
             </div>
           </div>
+
+          <!-- Welcome Dialogue Board (Opens when Sparky mascot is clicked) -->
+          <div class="splash-welcome-board hidden" id="splash-welcome-board" role="dialog" aria-modal="false" aria-labelledby="welcome-board-title">
+            <div class="welcome-board-header">
+              <span class="welcome-badge" id="welcome-badge-text">LỜI CHÀO TỪ SPARKY</span>
+              <button type="button" class="btn-close-welcome" id="btn-close-splash-welcome" aria-label="Đóng lời chào">✕</button>
+            </div>
+            <h2 class="welcome-title" id="welcome-board-title">CHÀO MỪNG BẠN ĐẾN VỚI ROBOT MATH LAB! 🚀✨</h2>
+            <p class="welcome-desc" id="welcome-board-desc">
+              Xin chào nhà thám hiểm nhí! Hãy cùng <strong>Sparky</strong> khám phá thế giới Toán học và Lập trình chuyển động rô-bốt đầy kỳ thú. Hãy chọn ngôn ngữ, nhập tên và sẵn sàng chinh phục các nhiệm vụ nhé!
+            </p>
+            <div class="welcome-chips">
+              <span class="welcome-chip" id="chip-math-text">📐 Toán chuyển động</span>
+              <span class="welcome-chip" id="chip-sim-text">🤖 Đường chạy thực tế</span>
+              <span class="welcome-chip" id="chip-stem-text">🏆 Chiến binh STEM</span>
+            </div>
+            <div class="welcome-footer">
+              <span class="welcome-tip" id="welcome-tip-text">💡 Nhấn <strong>START</strong> để bắt đầu ngay!</span>
+              <button type="button" class="btn-welcome-explore" id="btn-welcome-explore">
+                <span id="welcome-action-text">Khám phá ngay</span> ➔
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Grand Signboard / Console Card (Doubled Size & Prominence) -->
+        <!-- Grand Signboard / Console Card -->
         <div class="splash-signboard grand-signboard" id="splash-signboard">
           <!-- 4 Corner Tech Screws / Rivets -->
           <div class="signboard-rivet rivet-tl" aria-hidden="true"></div>
@@ -191,7 +283,7 @@
 
             <!-- Integrated Start Screen Auth & Mission Launcher Mount -->
             <div id="splash-auth-mount" class="splash-auth-mount">
-              <!-- Big Tactile 3D START Action Button (Extra Grand Size) -->
+              <!-- Big Tactile 3D START Action Button -->
               <div class="signboard-btn-wrap">
                 <button id="btn-splash-start" class="btn-start grand-start-btn animate-arcade-pulse" type="button"
                   aria-label="Bắt đầu học tập — START">
@@ -201,7 +293,7 @@
                 </button>
               </div>
 
-              <!-- Language Selection Menu: Clean Vietnamese & English Options (Doubled Touch Target) -->
+              <!-- Language Selection Menu -->
               <div class="splash-lang-select grand-lang-select" role="radiogroup" aria-label="Chọn ngôn ngữ giao diện">
                 <div class="lang-option active" data-lang="vi" role="radio" aria-checked="true" tabindex="0">
                   <span class="lang-arrow">▶</span>
@@ -215,7 +307,7 @@
                 </div>
               </div>
 
-              <!-- Player / Student Name Input (Grand Size) -->
+              <!-- Player / Student Name Input -->
               <div class="splash-player-name-wrap grand-name-wrap">
                 <label for="splash-student-name" class="name-label" id="splash-name-label">🧑‍🎓 TÊN Bé</label>
                 <input type="text" id="splash-student-name" class="pixel-name-input grand-name-input" maxlength="20"
@@ -229,7 +321,7 @@
               <span class="sep">•</span>
               <span class="key-hint">BẮT ĐẦU</span>
               <span class="sep">•</span>
-              <span class="key-hint"> 2026 TRƯỜNG ĐH SƯ PHẠM HÀ NỘI</span>
+              <span class="key-hint">© 2026 TRƯỜNG ĐH SƯ PHẠM HÀ NỘI</span>
             </div>
 
           </div>
@@ -238,66 +330,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Cute Expansive Header -->
-  <header class="app-header" id="app-header">
-    <div class="header-container">
-      <!-- Brand Logo -->
-      <a href="#hub" class="brand-link" id="brand-home-link" title="Missions Hub / Trang chủ chọn bài">
-        <div class="brand-icon-cute animate-bounce-gentle">🤖</div>
-        <div>
-          <div class="brand-name">Robot Math Lab ✨</div>
-          <div class="brand-sub">KIDS FUN MATH & ROBOTICS LAB</div>
-        </div>
-      </a>
-
-      <!-- Header Tools: Language Switcher, Student Tag, Sound, Settings -->
-      <div class="header-tools header-tools--compact" role="toolbar" aria-label="Quick tools">
-        <!-- Language Switcher Pill -->
-        <div class="header-lang-pill" id="header-lang-pill" title="Language / Ngôn ngữ ">
-          <button type="button" class="btn-lang-tab active" id="btn-lang-en" title="English"
-            aria-label="Switch to English">EN</button>
-          <button type="button" class="btn-lang-tab" id="btn-lang-vi" title=" Tiếng Việt"
-            aria-label="Chuyển sang Tiếng Việt">VIE</button>
-        </div>
-
-        <!-- Compact Student Badge (Clickable to open profile/settings) -->
-        <button type="button" class="header-student-tag header-student-tag--compact" id="header-student-tag"
-          title="Học sinh / Student Profile & Settings" aria-label="Student Profile & Settings" aria-haspopup="dialog">
-          <span class="student-avatar-icon">🧑‍🎓</span>
-          <span id="header-student-name">Math Explorer</span>
-        </button>
-
-        <!-- Divider -->
-        <span class="header-tools-divider" aria-hidden="true"></span>
-
-        <!-- Leaderboard Shortcut -->
-        <a href="#ranking" class="btn-header-icon" id="btn-header-ranking" title="Bảng xếp hạng / Leaderboard"
-          aria-label="Leaderboard">
-          <span>🏆</span>
-        </a>
-
-        <!-- Teacher Dashboard Shortcut (Visible for teachers) -->
-        <a href="#teacher" class="btn-header-icon" id="btn-header-teacher" title="Bảng điều khiển Giáo viên / Teacher Dashboard"
-          aria-label="Teacher Dashboard" style="display: none;">
-          <span>👨‍🏫</span>
-        </a>
-
-        <!-- Sound Toggle (Icon-only) -->
-        <button type="button" class="btn-header-icon" id="btn-toggle-sound" title="Sound / Âm thanh"
-          aria-label="Toggle Sound">
-          <span id="sound-icon">🔊</span>
-        </button>
-
-        <!-- Settings Icon Button (Thu gọn "Màn hình & Cài đặt" lên đầu trang) -->
-        <button type="button" class="btn-header-icon btn-icon-settings" id="btn-toggle-settings"
-          title="Cài đặt & Thông tin / Settings" aria-label="Cài đặt & Thông tin" aria-haspopup="dialog"
-          aria-expanded="false">
-          <span id="settings-icon">⚙️</span>
-        </button>
-      </div>
-    </div>
-  </header>
 
   <!-- Main Dynamic Fullscreen Application Container -->
   <main id="main-view">
@@ -396,20 +428,6 @@
             <span id="settings-fs-status-text">Toàn màn hình</span>
           </button>
         </div>
-
-        <!-- Retro Arcade Screen Option -->
-        <div class="settings-row settings-row-arcade">
-          <div class="settings-label-wrap">
-            <span class="settings-icon-bubble">🎮</span>
-            <div>
-              <span class="settings-label" id="lbl-settings-arcade">Màn hình </span>
-              <div class="settings-hint" id="hint-settings-arcade">Xem</div>
-            </div>
-          </div>
-          <button type="button" class="btn-arcade-jump" id="btn-settings-open-arcade">
-            Mở ▶
-          </button>
-        </div>
       </div>
 
       <div class="modal-footer settings-modal-footer">
@@ -458,324 +476,33 @@
   <script src="js/task-engine.js"></script>
   <script src="js/ranking.js"></script>
   <script src="js/teacher-dashboard.js"></script>
+  <script src="js/sparky-mascot.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
 
-  <script>
-    // Sound toggle logic
-    const soundBtn = document.getElementById('btn-toggle-sound');
+  <!-- =========================================================================
+       IN-WEBSITE CONFIRMATION MODAL (NO NATIVE BROWSER POPUPS)
+       ========================================================================= -->
+  <div id="rml-confirm-modal" class="modal-backdrop rml-confirm-backdrop" role="dialog" aria-modal="true"
+    aria-labelledby="rml-confirm-title" style="display: none;">
+    <div class="modal-card rml-confirm-card">
+      <div class="rml-confirm-icon-wrap" id="rml-confirm-icon-wrap">
+        <span class="rml-confirm-icon" id="rml-confirm-icon">🚪</span>
+      </div>
+      <h3 class="rml-confirm-title" id="rml-confirm-title">Xác nhận</h3>
+      <p class="rml-confirm-message" id="rml-confirm-message">Bạn có chắc chắn muốn thực hiện thao tác này?</p>
+      <div class="rml-confirm-actions" id="rml-confirm-actions">
+        <button type="button" class="rml-confirm-btn rml-confirm-btn-cancel" id="btn-rml-confirm-cancel">✕ Hủy</button>
+        <button type="button" class="rml-confirm-btn rml-confirm-btn-accept" id="btn-rml-confirm-accept">Xác nhận</button>
+      </div>
+    </div>
+  </div>
 
-    function syncSoundUI(isMuted) {
-      if (soundBtn) {
-        const icon = soundBtn.querySelector('#sound-icon');
-        if (icon) icon.innerText = isMuted ? '🔇' : '🔊';
-        // Icon-only mode: update tooltip
-        const isVi = window.I18N ? window.I18N.isVietnamese() : false;
-        soundBtn.title = isMuted
-          ? (isVi ? 'Đang tắt âm thanh' : 'Sound Muted')
-          : (isVi ? 'Bật âm thanh' : 'Sound On');
-      }
-    }
-
-    if (soundBtn) {
-      soundBtn.onclick = function () {
-        if (window.SoundFX) {
-          const isMuted = window.SoundFX.toggleMute();
-          syncSoundUI(isMuted);
-        }
-      };
-    }
-    window.addEventListener('soundMuteChanged', (e) => {
-      const isMuted = e.detail?.isMuted ?? (window.SoundFX ? window.SoundFX.isMuted : false);
-      syncSoundUI(isMuted);
-    });
-
-    // Header Language Toggle Buttons
-    const btnLangEn = document.getElementById('btn-lang-en');
-    const btnLangVi = document.getElementById('btn-lang-vi');
-    if (btnLangEn && btnLangVi) {
-      btnLangEn.onclick = () => window.I18N && window.I18N.setLang('en');
-      btnLangVi.onclick = () => window.I18N && window.I18N.setLang('vi');
-    }
-
-    function syncHeaderLanguage() {
-      if (!window.I18N) return;
-      const isVi = window.I18N.isVietnamese();
-      document.documentElement.lang = isVi ? 'vi' : 'en';
-
-      if (btnLangEn) btnLangEn.classList.toggle('active', !isVi);
-      if (btnLangVi) btnLangVi.classList.toggle('active', isVi);
-
-      const brandSub = document.querySelector('.brand-sub');
-      if (brandSub) brandSub.innerText = window.I18N.t('brand_sub');
-
-      const isMuted = window.SoundFX ? window.SoundFX.isMuted : false;
-      syncSoundUI(isMuted);
-
-      // Update titles
-      if (soundBtn) soundBtn.title = isVi ? 'Bật/Tắt âm thanh' : 'Toggle Sound FX';
-      const settingsBtn = document.getElementById('btn-toggle-settings');
-      if (settingsBtn) settingsBtn.title = isVi ? 'Cài đặt & Thông tin học sinh' : 'Settings & Student Profile';
-      const studentTag = document.getElementById('header-student-tag');
-      if (studentTag) studentTag.title = isVi ? 'Hồ sơ học sinh & Cài đặt' : 'Student Profile & Settings';
-
-      if (window.App && typeof window.App.syncSettingsModalContent === 'function') {
-        window.App.syncSettingsModalContent();
-      }
-    }
-
-    window.addEventListener('languageChanged', syncHeaderLanguage);
-    document.addEventListener('DOMContentLoaded', syncHeaderLanguage);
-    syncHeaderLanguage(); // Call immediately in case DOM is already parsed
-
-    // Sparky mascot companion: freely draggable across the page & click-to-cheer
-    const sparkyContainer = document.getElementById('sparky-container');
-    const sparkyAvatar = document.getElementById('sparky-avatar');
-    const sparkyBubble = document.getElementById('sparky-bubble');
-
-    function getSparkyCheerMessages() {
-      if (window.I18N && window.I18N.isVietnamese()) {
-        return [
-          "Bạn học giỏi lắm, cố gắng lên nào! ⭐",
-          "Hãy nhớ đọc kỹ đề bài trước khi tính nhé! 📖",
-          "Toán học thật thú vị đúng không nào? 🚀",
-          "Mình luôn ở đây để đồng hành cùng bạn! 🤖✨",
-          "Nếu gặp khó khăn, hãy bấm nút 'Gợi ý' nhé! 💡",
-          "Mỗi lần thử sai là một lần chúng mình học thêm điều mới! 🌱"
-        ];
-      }
-      return [
-        "You're doing great! Keep it up! ⭐",
-        "Always read the problem carefully before calculating! 📖",
-        "Math and robots are so fun together! 🚀",
-        "I'm always right here with you! 🤖✨",
-        "Need help? Click the 'Hint' button anytime! 💡",
-        "Every mistake is a step toward learning something new! 🌱"
-      ];
-    }
-
-    function triggerSparkyCheer() {
-      if (window.SoundFX) window.SoundFX.playTing();
-      sparkyAvatar.classList.add('sparky-jump');
-      setTimeout(() => sparkyAvatar.classList.remove('sparky-jump'), 600);
-      const msgs = getSparkyCheerMessages();
-      const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
-      if (sparkyBubble) sparkyBubble.innerText = randomMsg;
-    }
-
-    let isDragging = false;
-    let hasMoved = false;
-    let startPointerX = 0;
-    let startPointerY = 0;
-    let grabOffsetX = 0;
-    let grabOffsetY = 0;
-    let currentSide = 'bubble-on-left';
-    let activePointerTarget = null;
-    let activePointerId = null;
-
-    // Restore saved position from localStorage if available
-    try {
-      const savedPos = localStorage.getItem('sparky_pos');
-      if (savedPos) {
-        const parsed = JSON.parse(savedPos);
-        if (parsed) {
-          if (parsed.side) {
-            currentSide = parsed.side;
-            sparkyContainer.classList.remove('bubble-on-left', 'bubble-on-right');
-            sparkyContainer.classList.add(currentSide);
-          }
-          if (parsed.right !== undefined) sparkyContainer.style.right = parsed.right;
-          if (parsed.left !== undefined) sparkyContainer.style.left = parsed.left;
-          if (parsed.bottom !== undefined) sparkyContainer.style.bottom = parsed.bottom;
-          if (parsed.top !== undefined) sparkyContainer.style.top = parsed.top;
-        }
-      }
-    } catch (_) { }
-
-    function updateSparkyPosition(clientX, clientY) {
-      const avatarRect = sparkyAvatar.getBoundingClientRect();
-      const winW = window.innerWidth;
-      const winH = window.innerHeight;
-
-      const avatarW = avatarRect.width || 88;
-      const avatarH = avatarRect.height || 88;
-
-      const minAvatarX = 12;
-      const maxAvatarX = Math.max(12, winW - avatarW - 12);
-      const desiredAvatarX = Math.max(minAvatarX, Math.min(clientX - grabOffsetX, maxAvatarX));
-
-      const minAvatarY = 12;
-      const maxAvatarY = Math.max(12, winH - avatarH - 12);
-      const desiredAvatarY = Math.max(minAvatarY, Math.min(clientY - grabOffsetY, maxAvatarY));
-
-      const side = desiredAvatarX < (winW / 2) ? 'bubble-on-right' : 'bubble-on-left';
-      if (side !== currentSide) {
-        currentSide = side;
-        sparkyContainer.classList.remove('bubble-on-left', 'bubble-on-right');
-        sparkyContainer.classList.add(currentSide);
-      }
-
-      let containerX;
-      const gap = 16;
-      const bubbleW = (sparkyBubble && sparkyBubble.offsetWidth) ? sparkyBubble.offsetWidth : 260;
-
-      if (currentSide === 'bubble-on-left') {
-        containerX = desiredAvatarX - bubbleW - gap;
-        if (containerX < 12) containerX = 12;
-      } else {
-        containerX = desiredAvatarX;
-        const totalW = sparkyContainer.offsetWidth;
-        if (containerX + totalW > winW - 12) {
-          containerX = Math.max(12, winW - totalW - 12);
-        }
-      }
-
-      const containerH = sparkyContainer.offsetHeight;
-      let containerY = (desiredAvatarY + avatarH) - containerH;
-      if (containerY < 12) containerY = 12;
-      if (containerY + containerH > winH - 12) {
-        containerY = Math.max(12, winH - containerH - 12);
-      }
-
-      sparkyContainer.style.left = `${Math.round(containerX)}px`;
-      sparkyContainer.style.top = `${Math.round(containerY)}px`;
-      sparkyContainer.style.right = 'auto';
-      sparkyContainer.style.bottom = 'auto';
-    }
-
-    function onPointerStart(e) {
-      if (e.button !== 0 && e.pointerType === 'mouse') return;
-
-      isDragging = true;
-      hasMoved = false;
-      startPointerX = e.clientX;
-      startPointerY = e.clientY;
-      activePointerTarget = e.currentTarget;
-      activePointerId = e.pointerId;
-
-      const avatarRect = sparkyAvatar.getBoundingClientRect();
-      grabOffsetX = e.clientX - avatarRect.left;
-      grabOffsetY = e.clientY - avatarRect.top;
-
-      try {
-        activePointerTarget.setPointerCapture(activePointerId);
-      } catch (_) { }
-    }
-
-    function onPointerMove(e) {
-      if (!isDragging) return;
-      const dx = e.clientX - startPointerX;
-      const dy = e.clientY - startPointerY;
-
-      if (!hasMoved && Math.hypot(dx, dy) > 5) {
-        hasMoved = true;
-        sparkyContainer.classList.add('is-dragging');
-        sparkyAvatar.classList.add('is-dragging');
-        if (sparkyBubble) sparkyBubble.classList.add('is-dragging');
-      }
-
-      if (hasMoved) {
-        updateSparkyPosition(e.clientX, e.clientY);
-      }
-    }
-
-    function onPointerEnd(e) {
-      if (!isDragging) return;
-      isDragging = false;
-      sparkyContainer.classList.remove('is-dragging');
-      sparkyAvatar.classList.remove('is-dragging');
-      if (sparkyBubble) sparkyBubble.classList.remove('is-dragging');
-
-      if (activePointerTarget && activePointerId !== null) {
-        try {
-          activePointerTarget.releasePointerCapture(activePointerId);
-        } catch (_) { }
-      }
-      activePointerTarget = null;
-      activePointerId = null;
-
-      if (!hasMoved) {
-        triggerSparkyCheer();
-      } else {
-        const avatarRect = sparkyAvatar.getBoundingClientRect();
-        const winW = window.innerWidth;
-        const winH = window.innerHeight;
-        const avatarW = avatarRect.width || 88;
-        const avatarH = avatarRect.height || 88;
-
-        let rightVal = 'auto';
-        let leftVal = 'auto';
-        let bottomVal = 'auto';
-        let topVal = 'auto';
-
-        if (avatarRect.left >= winW / 2) {
-          const distRight = Math.max(12, winW - (avatarRect.left + avatarW));
-          rightVal = `${Math.round(distRight)}px`;
-        } else {
-          leftVal = `${Math.max(12, Math.round(avatarRect.left))}px`;
-        }
-
-        if (avatarRect.top >= winH / 2) {
-          const distBottom = Math.max(12, winH - (avatarRect.top + avatarH));
-          bottomVal = `${Math.round(distBottom)}px`;
-        } else {
-          const containerRect = sparkyContainer.getBoundingClientRect();
-          topVal = `${Math.max(12, Math.round(containerRect.top))}px`;
-        }
-
-        sparkyContainer.style.right = rightVal;
-        sparkyContainer.style.left = leftVal;
-        sparkyContainer.style.bottom = bottomVal;
-        sparkyContainer.style.top = topVal;
-
-        try {
-          localStorage.setItem('sparky_pos', JSON.stringify({
-            side: currentSide,
-            right: rightVal,
-            left: leftVal,
-            bottom: bottomVal,
-            top: topVal
-          }));
-        } catch (_) { }
-      }
-    }
-
-    if (sparkyAvatar) {
-      sparkyAvatar.addEventListener('pointerdown', onPointerStart);
-      sparkyAvatar.addEventListener('pointermove', onPointerMove);
-      sparkyAvatar.addEventListener('pointerup', onPointerEnd);
-      sparkyAvatar.addEventListener('pointercancel', onPointerEnd);
-
-      sparkyAvatar.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          triggerSparkyCheer();
-        }
-      });
-    }
-
-    if (sparkyBubble) {
-      sparkyBubble.addEventListener('pointerdown', onPointerStart);
-      sparkyBubble.addEventListener('pointermove', onPointerMove);
-      sparkyBubble.addEventListener('pointerup', onPointerEnd);
-      sparkyBubble.addEventListener('pointercancel', onPointerEnd);
-    }
-
-    window.addEventListener('resize', () => {
-      if (!sparkyContainer) return;
-      const containerRect = sparkyContainer.getBoundingClientRect();
-      const maxW = Math.max(12, window.innerWidth - containerRect.width - 12);
-      const maxH = Math.max(12, window.innerHeight - containerRect.height - 12);
-      if (sparkyContainer.style.left && sparkyContainer.style.left !== 'auto') {
-        const currL = parseFloat(sparkyContainer.style.left) || containerRect.left;
-        sparkyContainer.style.left = `${Math.max(12, Math.min(currL, maxW))}px`;
-      }
-      if (sparkyContainer.style.top && sparkyContainer.style.top !== 'auto') {
-        const currT = parseFloat(sparkyContainer.style.top) || containerRect.top;
-        sparkyContainer.style.top = `${Math.max(12, Math.min(currT, maxH))}px`;
-      }
-    });
-  </script>
+  <!-- In-Website Floating Toast Notification -->
+  <div id="rml-toast" class="rml-toast" role="status" aria-live="polite" style="display: none;">
+    <span class="rml-toast-icon" id="rml-toast-icon">✨</span>
+    <span class="rml-toast-text" id="rml-toast-text">Thông báo</span>
+  </div>
 </body>
 
 </html>

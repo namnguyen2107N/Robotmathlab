@@ -29,8 +29,22 @@ body.rml-auth-locked {
   box-sizing: border-box;
 }
 
-.rml-auth-overlay [hidden] {
+/* Tách biệt 100% 2 tabs Đăng nhập và Đăng ký: Form ẩn có display: none hoàn toàn, không thể cuộn thấy */
+[hidden],
+.rml-auth-overlay [hidden],
+.splash-auth-mount [hidden],
+.rml-auth-card [hidden],
+.rml-auth-form[hidden],
+form.rml-auth-form[hidden],
+.splash-auth-mount .rml-auth-form[hidden] {
   display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .rml-auth-card {
@@ -49,8 +63,15 @@ body.rml-auth-locked {
 }
 
 @keyframes rml-auth-in {
-  from { opacity: 0; transform: translateY(12px) scale(0.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .rml-auth-loading,
@@ -81,7 +102,9 @@ body.rml-auth-locked {
 }
 
 @keyframes rml-auth-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .rml-auth-top {
@@ -344,9 +367,15 @@ body.rml-auth-locked {
 }
 
 .rml-db-badge.status-local {
-  background: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  display: none !important;
+}
+
+/* User requested: Hide Local Demo Mode badge everywhere */
+.status-local,
+.rml-db-badge.status-local,
+.splash-pill.status-local,
+[data-status="local"] {
+  display: none !important;
 }
 
 /* Divider & Guest Mode Button */
@@ -595,65 +624,551 @@ body.rml-auth-locked {
   flex-shrink: 0;
 }
 
+/* Accessibility screen-reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* ==========================================================================
-   START SCREEN INTEGRATED AUTH & PROFILE MOUNT
+   START SCREEN INTEGRATED AUTH & PROFILE MOUNT (HARMONIOUS CONSOLE "1 Ô")
    ========================================================================== */
 .splash-auth-mount {
   width: 100%;
-  max-width: 640px;
+  max-width: 440px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   z-index: 15;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
+/* YÊU CẦU: Bảng đăng nhập có kích thước cố định, form đăng ký có tính năng kéo lướt (scroll), không kéo dài thẻ */
 .splash-auth-mount .rml-auth-card {
+  width: 100% !important;
+  max-width: 440px !important;
+  height: 420px !important;
+  max-height: 420px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 16px 20px 14px !important;
+  margin: 0 auto !important;
+  border-radius: 20px !important;
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.08), inset 0 2px 0 #ffffff !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  animation: none !important;
+}
+
+.splash-auth-mount .rml-auth-card::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.splash-auth-mount .rml-auth-top.rml-compact-top {
+  flex-shrink: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
   width: 100%;
-  max-width: 600px;
-  padding: 24px 28px;
-  border-radius: 24px;
-  background: #ffffff;
-  border: 2.5px solid #c7d2fe;
-  box-shadow: 0 12px 36px rgba(79, 70, 229, 0.12), inset 0 2px 0 #ffffff;
-  box-sizing: border-box;
 }
 
-.rml-auth-title {
-  margin: 0 0 6px;
-  font-family: 'Baloo 2', 'Be Vietnam Pro', sans-serif;
-  font-size: clamp(1.3rem, 3.5vw, 1.65rem);
-  line-height: 1.25;
-  color: #0f172a;
+.splash-auth-mount .rml-auth-tabs {
+  flex-shrink: 0 !important;
+  margin-bottom: 10px !important;
 }
 
-.rml-auth-row-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+.splash-auth-mount .rml-auth-form {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  padding-right: 6px !important;
+  margin-right: -4px !important;
+  gap: 9px !important;
 }
 
-@media (max-width: 640px) {
-  .rml-auth-row-2 {
-    grid-template-columns: 1fr;
-    gap: 10px;
+/* Thanh cuộn kéo lướt mượt mà, bo tròn đẹp mắt khi form có nhiều nội dung */
+.splash-auth-mount .rml-auth-form::-webkit-scrollbar {
+  width: 5px !important;
+  display: block !important;
+}
+
+.splash-auth-mount .rml-auth-form::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-radius: 9999px !important;
+}
+
+.splash-auth-mount .rml-auth-form::-webkit-scrollbar-thumb {
+  background: #94a3b8 !important;
+  border-radius: 9999px !important;
+}
+
+.splash-auth-mount .rml-auth-form::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}
+
+.splash-auth-mount .rml-auth-form {
+  scrollbar-width: thin !important;
+  scrollbar-color: #94a3b8 #f1f5f9 !important;
+}
+
+.splash-auth-mount .rml-auth-privacy {
+  flex-shrink: 0 !important;
+  margin-top: 6px !important;
+  margin-bottom: 0 !important;
+  font-size: 0.72rem !important;
+  color: #94a3b8 !important;
+  text-align: center !important;
+}
+
+@media (max-height: 720px) {
+  .splash-auth-mount .rml-auth-card {
+    height: min(390px, 58vh) !important;
+    max-height: min(390px, 58vh) !important;
+    padding: 12px 16px 12px !important;
   }
 }
 
-/* AUTHENTICATED WELCOME PROFILE CARD */
+@media (max-height: 600px) {
+  .splash-auth-mount .rml-auth-card {
+    height: min(350px, 54vh) !important;
+    max-height: min(350px, 54vh) !important;
+    padding: 10px 14px 10px !important;
+  }
+}
+
+/* Switch tab button in form footer */
+.rml-auth-switch-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 10px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.rml-tab-switch-btn {
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: color 0.15s ease;
+}
+
+.rml-tab-switch-btn:hover {
+  color: #3730a3;
+}
+
+/* Standalone Auth Modal Overlay inside Game / Hub */
+.rml-auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  animation: rml-modal-fade-in 0.2s ease-out;
+}
+
+@keyframes rml-modal-fade-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.rml-auth-modal-card {
+  position: relative;
+  width: min(100%, 460px);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px 24px 28px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  border: 1px solid #e2e8f0;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.btn-close-auth-modal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 10;
+}
+
+.btn-close-auth-modal:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: scale(1.08);
+}
+
+/* Modal embedded Auth Card & Form */
+#rml-modal-auth-mount .rml-auth-card {
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  height: 430px !important;
+  max-height: 430px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+#rml-modal-auth-mount .rml-auth-card::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+#rml-modal-auth-mount .rml-auth-form {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  padding-right: 6px !important;
+  margin-right: -4px !important;
+  gap: 10px !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #94a3b8 #f1f5f9 !important;
+}
+
+#rml-modal-auth-mount .rml-auth-form::-webkit-scrollbar {
+  width: 5px !important;
+  display: block !important;
+}
+
+#rml-modal-auth-mount .rml-auth-form::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-radius: 9999px !important;
+}
+
+#rml-modal-auth-mount .rml-auth-form::-webkit-scrollbar-thumb {
+  background: #94a3b8 !important;
+  border-radius: 9999px !important;
+}
+
+#rml-modal-auth-mount .rml-auth-form::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}
+
+/* Compact status top row */
+.splash-auth-mount .rml-auth-top.rml-compact-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.splash-auth-mount .rml-auth-brand,
+.splash-auth-mount .rml-auth-title:not(.sr-only),
+.splash-auth-mount .rml-auth-subtitle {
+  display: none !important;
+}
+
+.splash-auth-mount .rml-db-badge-wrap {
+  margin-bottom: 0;
+}
+
+.splash-auth-mount .rml-db-badge {
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
+.splash-auth-mount .rml-auth-lang {
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  border-radius: 9999px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 2px 0 #cbd5e1;
+  transition: all 0.15s ease;
+}
+
+.splash-auth-mount .rml-auth-lang:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 #93c5fd;
+}
+
+/* Tabs: Smooth pill selector */
+.splash-auth-mount .rml-auth-tabs {
+  background: #eef2ff;
+  border-radius: 14px;
+  padding: 4px;
+  margin-bottom: 12px;
+  gap: 6px;
+  border: 1.5px solid #c7d2fe;
+}
+
+.splash-auth-mount .rml-auth-tab {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.splash-auth-mount .rml-auth-tab.active {
+  background: #ffffff;
+  color: #4338ca;
+  box-shadow: 0 2px 6px rgba(67, 56, 202, 0.16);
+  transform: translateY(-1px);
+}
+
+/* Form transition */
+.splash-auth-mount .rml-auth-form {
+  gap: 9px;
+  animation: authFormFadeIn 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes authFormFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.splash-auth-mount .rml-auth-field {
+  gap: 3px;
+}
+
+.splash-auth-mount .rml-auth-field label {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.splash-auth-mount .rml-auth-field small {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.splash-auth-mount .rml-auth-field input {
+  padding: 8px 12px;
+  border-radius: 11px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 0.92rem;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+
+.splash-auth-mount .rml-auth-field input:focus {
+  border-color: #4f46e5;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+  transform: translateY(-1px);
+}
+
+/* Role Selector */
+.splash-auth-mount .rml-role-selector {
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+}
+
+.splash-auth-mount .rml-role-title {
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.splash-auth-mount .rml-role-buttons {
+  gap: 6px;
+}
+
+.splash-auth-mount .rml-role-btn {
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+/* 2-Column Row for School/Class & Password */
+.rml-auth-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .rml-auth-row-2 {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* 3D Tactile Buttons */
+.splash-auth-mount .rml-auth-submit {
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 0.94rem;
+  font-weight: 800;
+  background: #2563eb;
+  box-shadow: 0 4px 0 #1d4ed8;
+  letter-spacing: 0.02em;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.splash-auth-mount .rml-auth-submit:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #1e3a8a;
+}
+
+.splash-auth-mount .rml-auth-submit:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1e3a8a;
+}
+
+.splash-auth-mount .rml-social-grid {
+  margin: 3px 0;
+}
+
+.splash-auth-mount .rml-social-btn {
+  padding: 9px 14px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  box-shadow: 0 3px 0 #cbd5e1;
+  transition: all 0.15s ease;
+}
+
+.splash-auth-mount .rml-social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #bfdbfe;
+  border-color: #4285f4;
+  color: #1d4ed8;
+}
+
+.splash-auth-mount .rml-social-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #bfdbfe;
+}
+
+.splash-auth-mount .rml-auth-guest-btn {
+  padding: 9px 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  margin-top: 4px;
+  box-shadow: 0 3px 0 #bfdbfe;
+  transition: all 0.15s ease;
+}
+
+.splash-auth-mount .rml-auth-guest-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #93c5fd;
+  background: #dbeafe;
+}
+
+.splash-auth-mount .rml-auth-guest-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #93c5fd;
+}
+
+.splash-auth-mount .rml-auth-divider {
+  margin: 6px 0 2px;
+  font-size: 0.72rem;
+}
+
+.splash-auth-mount .rml-auth-consent {
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+}
+
+.splash-auth-mount .rml-auth-note {
+  margin-top: 2px;
+  font-size: 0.7rem;
+}
+
+.splash-auth-mount .rml-auth-privacy {
+  margin-top: 6px;
+  font-size: 0.68rem;
+  padding-top: 0;
+}
+
+/* ==========================================================================
+   AUTHENTICATED WELCOME PROFILE CARD (HARMONIOUS CONSOLE EMBED)
+   ========================================================================== */
 .splash-welcome-card {
   width: 100%;
-  max-width: 620px;
+  max-width: 440px;
   background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
   border: 3px solid #818cf8;
-  border-radius: 26px;
-  padding: 22px 26px;
-  box-shadow: 0 16px 36px rgba(99, 102, 241, 0.14), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 16px 20px 14px;
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.12), inset 0 2px 0 rgba(255, 255, 255, 0.9);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   box-sizing: border-box;
   animation: rml-auth-in 250ms ease-out both;
 }
@@ -661,22 +1176,22 @@ body.rml-auth-locked {
 .splash-welcome-header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   border-bottom: none;
-  padding-bottom: 6px;
+  padding-bottom: 2px;
 }
 
 .splash-welcome-avatar {
-  width: 58px;
-  height: 58px;
-  border-radius: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
   background: #eef2ff;
   border: 2px solid #c7d2fe;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.2rem;
+  font-size: 1.9rem;
   flex-shrink: 0;
   box-shadow: inset 0 -3px 0 rgba(99, 102, 241, 0.15);
 }
@@ -686,7 +1201,7 @@ body.rml-auth-locked {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .splash-welcome-greeting {
@@ -695,7 +1210,7 @@ body.rml-auth-locked {
 }
 
 .splash-greeting-sub {
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   font-weight: 800;
   color: #6366f1;
   text-transform: uppercase;
@@ -704,7 +1219,7 @@ body.rml-auth-locked {
 
 .splash-greeting-name {
   font-family: 'Baloo 2', 'Be Vietnam Pro', sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   line-height: 1.2;
   color: #0f172a;
   white-space: nowrap;
@@ -715,17 +1230,17 @@ body.rml-auth-locked {
 .splash-profile-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 4px;
+  gap: 5px;
+  margin-top: 3px;
 }
 
 .splash-pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 2px 8px;
   border-radius: 9999px;
   border: 1px solid transparent;
 }
@@ -777,17 +1292,17 @@ body.rml-auth-locked {
   background: #f8fafc;
   color: #475569;
   border: 1.5px solid #cbd5e1;
-  border-radius: 14px;
-  padding: 8px 20px;
+  border-radius: 12px;
+  padding: 7px 18px;
   font-family: inherit;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
   box-shadow: 0 3px 0 #cbd5e1;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .btn-splash-switch-account:hover {
@@ -801,4 +1316,279 @@ body.rml-auth-locked {
 .btn-splash-switch-account:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 #94a3b8;
+}
+
+/* ==========================================================================
+   IN-WEBSITE CONFIRMATION MODAL & TOAST NOTIFICATION
+   ========================================================================== */
+.rml-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 2147483600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+
+.rml-confirm-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rml-confirm-card {
+  width: min(100%, 420px);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px 22px 20px;
+  border: 3.5px solid #818cf8;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.35);
+  text-align: center;
+  transform: scale(0.92);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.rml-confirm-backdrop.active .rml-confirm-card {
+  transform: scale(1);
+}
+
+.rml-confirm-icon-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #eef2ff;
+  border: 2px solid #c7d2fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 2px;
+  box-shadow: inset 0 -3px 0 rgba(99, 102, 241, 0.15);
+}
+
+.rml-confirm-title {
+  margin: 0;
+  font-family: 'Baloo 2', 'Be Vietnam Pro', sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.rml-confirm-message {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.rml-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.rml-confirm-btn {
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rml-confirm-btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1.5px solid #cbd5e1;
+  box-shadow: 0 3px 0 #cbd5e1;
+}
+
+.rml-confirm-btn-cancel:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.rml-confirm-btn-accept {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 0 #1d4ed8;
+}
+
+.rml-confirm-btn-accept:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #1e3a8a;
+}
+
+.rml-confirm-btn-danger {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 4px 0 #b91c1c;
+}
+
+.rml-confirm-btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #991b1b;
+}
+
+.rml-confirm-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* In-Website Toast Notification */
+.rml-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  font-family: 'Baloo 2', 'Be Vietnam Pro', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  border: 1.5px solid #334155;
+  z-index: 2147483640;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.rml-toast.active {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.rml-toast-icon {
+  font-size: 1.25rem;
+}
+
+/* Header Quick Auth Buttons (Tách riêng biệt theo trạng thái) */
+.btn-header-auth {
+  border-radius: 12px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-header-login {
+  background: linear-gradient(180deg, #4f46e5 0%, #4338ca 100%);
+  color: #ffffff;
+  border: 1.5px solid #3730a3;
+  box-shadow: 0 2.5px 0 #312e81;
+}
+
+.btn-header-login:hover {
+  background: #3730a3;
+  transform: translateY(-1px);
+  box-shadow: 0 3.5px 0 #1e1b4b;
+}
+
+.btn-header-logout {
+  color: #b91c1c;
+  border: 1.5px solid #fecaca;
+  background: #fef2f2;
+  box-shadow: 0 2.5px 0 #fca5a5;
+}
+
+.btn-header-logout:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   PHẦN 2 RIÊNG BIỆT: BẮT ĐẦU (GUEST MODE) - TÁCH KHỐI ĐỘC LẬP
+   ========================================================================== */
+.splash-guest-card {
+  width: 100%;
+  max-width: 440px;
+  margin: 10px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-guest-start {
+  width: 100%;
+  padding: 11px 18px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+  color: #15803d;
+  border: 2px solid #86efac;
+  box-shadow: 0 4px 0 #4ade80, 0 6px 16px rgba(34, 197, 94, 0.15);
+  font-family: 'Baloo 2', 'Quicksand', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-guest-start:hover {
+  background: linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #22c55e, 0 8px 20px rgba(34, 197, 94, 0.22);
+}
+
+.btn-guest-start:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #22c55e;
+}
+
+.btn-guest-start .guest-btn-icon {
+  font-size: 1.25rem;
+}
+
+.btn-guest-start .guest-btn-arrow {
+  font-size: 1.1rem;
+  transition: transform 0.15s ease;
+}
+
+.btn-guest-start:hover .guest-btn-arrow {
+  transform: translateX(4px);
+}
+
+.guest-note {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin: 0;
+  text-align: center;
 }

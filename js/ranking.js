@@ -49,7 +49,7 @@ class RankingController {
               ${isVi ? '🏠 Về Trang Chủ Học Sinh' : '🏠 Student Hub'}
             </a>
             ${isTeacher ? `
-              <a href="#teacher" class="btn-return-start" id="btn-ranking-back-teacher" style="background: #3730a3; border-color: #312e81;">
+              <a href="#teacher" class="btn-return-start" id="btn-ranking-back-teacher" style="background: #3730a3; color: #ffffff; border-color: #312e81;">
                 👨‍🏫 ${isVi ? 'Dashboard Giáo Viên' : 'Teacher Dashboard'}
               </a>
             ` : ''}

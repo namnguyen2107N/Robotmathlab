@@ -20,9 +20,23 @@ const SoundFX = {
   },
 
   toggleMute() {
+    this.ensureContext();
     this.isMuted = !this.isMuted;
-    localStorage.setItem('rml_sound_muted', this.isMuted);
-    window.dispatchEvent(new CustomEvent('soundMuteChanged', { detail: { isMuted: this.isMuted } }));
+    try {
+      localStorage.setItem('rml_sound_muted', String(this.isMuted));
+    } catch (_) {}
+
+    if (!this.isMuted) {
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().then(() => this.playPop()).catch(() => {});
+      } else {
+        this.playPop();
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('soundMuteChanged', { detail: { isMuted: this.isMuted } }));
+    }
     return this.isMuted;
   },
 
