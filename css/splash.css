@@ -810,7 +810,8 @@
 .signboard-inner.grand-inner {
   position: relative;
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  border: 3px dashed #c7d2fe;
+  border: none;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.8);
   border-radius: 30px;
   padding: 2.6rem 3.5rem 2rem;
   display: flex;
@@ -1383,7 +1384,7 @@
   align-items: center;
   gap: 12px;
   padding-top: 0.7rem;
-  border-top: 2px dashed #e2e8f0;
+  border-top: none;
 }
 
 .welcome-tip-text {

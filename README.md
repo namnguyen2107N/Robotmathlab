@@ -144,8 +144,9 @@ Robotmathlab/
   - Cung cấp nút bấm tiện lợi **"🚀 Trải nghiệm ngay (Chế độ Khách)"**.
   - Cho phép học sinh, giáo viên thử nghiệm ngay lập tức các bài học với 1 cú click mà không bắt buộc tạo tài khoản.
   - **Chính sách dữ liệu khách:** Hệ thống **hoàn toàn không lưu dữ liệu** của phiên khách lên Cloud hay Bảng xếp hạng để tránh rác dữ liệu.
-- **Đăng nhập một chạm qua Google & GitHub (OAuth Social Sign-In):**
-  - Hỗ trợ đăng nhập / tạo tài khoản nhanh qua Google và GitHub trên cả form Đăng nhập và Đăng ký.
+- **Đăng nhập một chạm qua Google (OAuth Social Sign-In):**
+  - Hỗ trợ đăng nhập / tạo tài khoản nhanh qua tài khoản Google một cách an toàn và thuận tiện.
+  - Giao diện được tối ưu hóa: ẩn hoàn toàn các đường line/divider phân tách thô cứng, viền nét đứt được loại bỏ để mang lại bố cục tối giản, liền mạch, hiện đại và sáng sủa nhất cho học sinh và giáo viên.
   - Tự động đồng bộ thông tin hồ sơ và tạo mã lớp học cho giáo viên khi đăng nhập lần đầu.
 - **Nút Đăng xuất ở màn hình Start:**
   - Bổ sung nút **🚪 Đăng xuất** trực tiếp trên thanh công cụ của màn hình Arcade Start Screen để người dùng có thể đổi tài khoản ngay khi vào web.

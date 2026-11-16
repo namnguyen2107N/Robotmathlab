@@ -247,7 +247,10 @@ async function testStartScreenAuth() {
   assert.ok(mountEl.innerHTML.includes('rml-auth-tabs'), 'Mount should now display login and register tabs');
   assert.ok(mountEl.innerHTML.includes('rml-register-school'), 'Registration form must include school input field');
   assert.ok(mountEl.innerHTML.includes('rml-register-class'), 'Registration form must include class input field');
+  assert.ok(mountEl.innerHTML.includes('rml-social-google'), 'Should include Google social login button');
+  assert.strictEqual(mountEl.innerHTML.includes('rml-social-github'), false, 'GitHub login button should be removed');
   console.log('✓ Verified: Logout smoothly restores Login & Register forms with School & Class fields');
+  console.log('✓ Verified: Only Google social login is active (GitHub removed as requested)');
 
   console.log('\n🎉 ALL START SCREEN AUTH INTEGRATION TESTS PASSED! 🎉\n');
 }
